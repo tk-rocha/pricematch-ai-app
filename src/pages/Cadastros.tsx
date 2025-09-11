@@ -81,6 +81,25 @@ const Cadastros = () => {
         <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4">
           {cadastroOptions.map((option, index) => {
             const IconComponent = option.icon;
+            
+            const handleClick = () => {
+              if (!option.active) return;
+              
+              // Check if data exists and redirect accordingly
+              if (option.path === "/cadastro-loja") {
+                const dadosLoja = localStorage.getItem("dadosLoja");
+                navigate(dadosLoja ? "/listagem-lojas" : "/cadastro-loja");
+              } else if (option.path === "/cadastro-plataforma") {
+                const plataformas = JSON.parse(localStorage.getItem("plataformas") || "[]");
+                navigate(plataformas.length > 0 ? "/listagem-plataformas" : "/cadastro-plataforma");
+              } else if (option.path === "/cadastro-unidade") {
+                const unidades = JSON.parse(localStorage.getItem("unidades") || "[]");
+                navigate(unidades.length > 0 ? "/listagem-unidades" : "/cadastro-unidade");
+              } else {
+                navigate(option.path);
+              }
+            };
+            
             return (
               <Card 
                 key={index} 
@@ -89,7 +108,7 @@ const Cadastros = () => {
                     ? 'hover:shadow-md cursor-pointer' 
                     : 'opacity-60 cursor-not-allowed'
                 }`}
-                onClick={() => option.active && navigate(option.path)}
+                onClick={handleClick}
               >
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center gap-4">

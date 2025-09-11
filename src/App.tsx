@@ -9,6 +9,9 @@ import Cadastros from "./pages/Cadastros";
 import CadastroLoja from "./pages/CadastroLoja";
 import CadastroPlataforma from "./pages/CadastroPlataforma";
 import CadastroUnidade from "./pages/CadastroUnidade";
+import ListagemLojas from "./pages/ListagemLojas";
+import ListagemPlataformas from "./pages/ListagemPlataformas";
+import ListagemUnidades from "./pages/ListagemUnidades";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +28,9 @@ const App = () => (
           <Route path="/cadastro-loja" element={<CadastroLoja />} />
           <Route path="/cadastro-plataforma" element={<CadastroPlataforma />} />
           <Route path="/cadastro-unidade" element={<CadastroUnidade />} />
+          <Route path="/listagem-lojas" element={<ListagemLojas />} />
+          <Route path="/listagem-plataformas" element={<ListagemPlataformas />} />
+          <Route path="/listagem-unidades" element={<ListagemUnidades />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
