@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -15,10 +16,21 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("Usuário");
   
   // Get current date
   const currentDate = new Date().toLocaleDateString('pt-BR');
-  const userName = "Usuário"; // This would come from user context/state
+  
+  // Load user data from localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      if (parsedData.nome) {
+        setUserName(parsedData.nome);
+      }
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,7 +53,7 @@ const Dashboard = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => {/* Navigate to Cadastro da Empresa */}}
+            onClick={() => navigate("/company-registration")}
             className="text-primary"
           >
             <User className="h-6 w-6" />
