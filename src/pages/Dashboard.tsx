@@ -23,9 +23,10 @@ const Dashboard = () => {
   const getCounts = () => {
     const plataformas = JSON.parse(localStorage.getItem("plataformas") || "[]");
     const unidades = JSON.parse(localStorage.getItem("unidades") || "[]");
+    const produtos = JSON.parse(localStorage.getItem("produtos") || "[]");
     
     return {
-      produtos: 0, // Not implemented yet
+      produtos: produtos.length,
       insumos: 0, // Not implemented yet
       entradas: 0, // Not implemented yet
       vendas: 0 // Not implemented yet
@@ -38,10 +39,10 @@ const Dashboard = () => {
     {
       title: "Novo Produto",
       icon: Package,
-      path: "#",
+      path: "/cadastro-produto",
       count: counts.produtos,
       label: "Produtos cadastrados",
-      active: false
+      active: true
     },
     {
       title: "Novo Insumo",
