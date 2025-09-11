@@ -33,20 +33,20 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="flex items-center justify-between p-4">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Fixed Header */}
+      <header className="bg-primary text-primary-foreground py-4 px-4 shadow-sm">
+        <div className="flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => {/* Navigate to Cadastros */}}
-            className="text-primary"
+            className="text-primary-foreground hover:bg-primary-foreground/10"
           >
             <Menu className="h-6 w-6" />
           </Button>
           
-          <h1 className="text-lg font-bold text-primary">
+          <h1 className="text-lg font-medium">
             Olá, {userName}
           </h1>
           
@@ -63,14 +63,14 @@ const Dashboard = () => {
                 navigate("/company-registration");
               }
             }}
-            className="text-primary"
+            className="text-primary-foreground hover:bg-primary-foreground/10"
           >
             <User className="h-6 w-6" />
           </Button>
         </div>
       </header>
 
-      <div className="p-4 space-y-6">
+      <div className="flex-1 p-4 overflow-y-auto space-y-6">
         {/* Sales Indicators */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="border-primary shadow-sm">
