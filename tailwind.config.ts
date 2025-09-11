@@ -51,6 +51,7 @@ export default {
         'precifica-blue': 'hsl(var(--precifica-blue))',
         'precifica-white': 'hsl(var(--precifica-white))',
         'precifica-gray': 'hsl(var(--precifica-gray))',
+        'precifica-gray-text': 'hsl(var(--precifica-gray-text))',
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

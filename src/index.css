@@ -45,6 +45,7 @@ All colors MUST be HSL.
     --precifica-blue: 256 52% 16%;
     --precifica-white: 0 0% 100%;
     --precifica-gray: 240 8% 89%;
+    --precifica-gray-text: 0 0% 40%;
     --precifica-blue-translucent: 256 52% 16% / 0.6;
 
     --radius: 0.5rem;
