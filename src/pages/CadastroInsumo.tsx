@@ -1,17 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Package } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Insumo {
   id: string;
   nome: string;
-  descricao: string;
-  preco: string;
+  codigo?: string;
   unidade: string;
-  fornecedor: string;
 }
 
 const CadastroInsumo = () => {
@@ -20,11 +18,11 @@ const CadastroInsumo = () => {
   
   const [formData, setFormData] = useState({
     nome: "",
-    descricao: "",
-    preco: "",
-    unidade: "",
-    fornecedor: ""
+    codigo: "",
+    unidade: ""
   });
+
+  const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -36,25 +34,16 @@ const CadastroInsumo = () => {
     }
   };
 
-  const handlePrecoChange = (value: string) => {
-    // Allow only numbers, decimal point and comma
-    const regex = /^\d*[.,]?\d*$/;
-    if (regex.test(value) || value === "") {
-      // Replace comma with dot for standardization
-      const standardizedValue = value.replace(',', '.');
-      handleInputChange("preco", standardizedValue);
-    }
-  };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!formData.nome.trim()) {
-      newErrors.nome = "Nome do insumo é obrigatório";
+      newErrors.nome = "Nome é obrigatório";
     }
 
-    if (!formData.preco.trim()) {
-      newErrors.preco = "Preço é obrigatório";
+    if (!formData.unidade) {
+      newErrors.unidade = "Unidade de Medida é obrigatória";
     }
 
     setErrors(newErrors);
@@ -65,26 +54,21 @@ const CadastroInsumo = () => {
     if (!validateForm()) {
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha o nome e preço do insumo",
+        description: "Os campos Nome e Unidade de Medida são obrigatórios",
         variant: "destructive"
       });
       return false;
     }
 
-    // Get existing inputs from localStorage
     const existingInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
     
-    // Create new input
     const newInsumo: Insumo = {
       id: Date.now().toString(),
       nome: formData.nome.trim(),
-      descricao: formData.descricao.trim(),
-      preco: formData.preco,
-      unidade: formData.unidade.trim(),
-      fornecedor: formData.fornecedor.trim()
+      codigo: formData.codigo.trim(),
+      unidade: formData.unidade
     };
 
-    // Save to localStorage
     existingInsumos.push(newInsumo);
     localStorage.setItem("insumos", JSON.stringify(existingInsumos));
 
@@ -111,10 +95,8 @@ const CadastroInsumo = () => {
       // Clear form
       setFormData({
         nome: "",
-        descricao: "",
-        preco: "",
-        unidade: "",
-        fornecedor: ""
+        codigo: "",
+        unidade: ""
       });
       setErrors({});
     }
@@ -125,132 +107,91 @@ const CadastroInsumo = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
+      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
         <div className="flex items-center justify-between px-4 py-3 h-14">
           <Button
             variant="ghost"
             size="icon"
             onClick={handleBack}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+            className="hover:bg-gray-100 min-w-[44px] min-h-[44px]"
           >
-            <ArrowLeft className="h-6 w-6 text-foreground" />
+            <ArrowLeft className="h-6 w-6" style={{ color: '#180F33' }} />
           </Button>
           
-          <h1 className="text-base sm:text-lg font-bold text-primary">
-            Cadastro de Insumos
+          <h1 className="text-lg font-bold" style={{ color: '#180F33' }}>
+            CADASTRO INSUMO
           </h1>
           
-          <div className="w-10 sm:w-11"></div>
+          <div className="w-10"></div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 pb-20 safe-area-bottom">
-        <div className="max-w-lg mx-auto p-3 sm:p-4">
+      <main className="pt-16 pb-20">
+        <div className="max-w-lg mx-auto p-4">
           
-          {/* Form Card */}
-          <Card className="shadow-sm">
-            <CardHeader className="p-4 sm:p-6">
-              <CardTitle className="text-base sm:text-lg text-foreground flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                Novo Insumo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6 pt-0 space-y-6">
+          <Card className="shadow-lg border-0" style={{ borderRadius: '3px' }}>
+            <CardContent className="p-6">
               
-              {/* Nome Field */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Nome do Insumo *
-                </label>
-                <input
-                  type="text"
-                  value={formData.nome}
-                  onChange={(e) => handleInputChange("nome", e.target.value)}
-                  placeholder="Ex: Algodão, Couro, Tecido..."
-                  className={`w-full h-12 sm:h-14 px-4 py-3 border rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${
-                    errors.nome ? 'border-red-500' : 'border-input bg-background'
-                  }`}
-                />
-                {errors.nome && (
-                  <p className="text-red-500 text-xs">{errors.nome}</p>
-                )}
-              </div>
-
-              {/* Descrição Field */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Descrição
-                </label>
-                <textarea
-                  value={formData.descricao}
-                  onChange={(e) => handleInputChange("descricao", e.target.value)}
-                  placeholder="Descreva as características do insumo..."
-                  rows={3}
-                  className="w-full px-4 py-3 border border-input bg-background rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
-                />
-              </div>
-
-              {/* Preço Field */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Preço *
-                </label>
-                <div className="relative">
+              <div className="space-y-4">
+                {/* Nome Field */}
+                <div>
                   <input
                     type="text"
-                    value={formData.preco}
-                    onChange={(e) => handlePrecoChange(e.target.value)}
-                    placeholder="0,00"
-                    className={`w-full h-12 sm:h-14 px-4 py-3 pl-12 border rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${
-                      errors.preco ? 'border-red-500' : 'border-input bg-background'
+                    value={formData.nome}
+                    onChange={(e) => handleInputChange("nome", e.target.value)}
+                    placeholder="Nome"
+                    className={`w-full h-12 px-4 border rounded text-sm ${
+                      errors.nome ? 'border-red-500' : 'border-gray-300'
                     }`}
+                    style={{ borderRadius: '3px', color: '#666666' }}
                   />
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground text-sm">
-                    R$
-                  </span>
+                  {errors.nome && (
+                    <p className="text-red-500 text-xs mt-1">{errors.nome}</p>
+                  )}
                 </div>
-                {errors.preco && (
-                  <p className="text-red-500 text-xs">{errors.preco}</p>
-                )}
-              </div>
 
-              {/* Unidade Field */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Unidade de Medida
-                </label>
-                <input
-                  type="text"
-                  value={formData.unidade}
-                  onChange={(e) => handleInputChange("unidade", e.target.value)}
-                  placeholder="Ex: Metro, Kg, Litro..."
-                  className="w-full h-12 sm:h-14 px-4 py-3 border border-input bg-background rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                />
-              </div>
+                {/* Código Field */}
+                <div>
+                  <input
+                    type="text"
+                    value={formData.codigo}
+                    onChange={(e) => handleInputChange("codigo", e.target.value)}
+                    placeholder="Código"
+                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    style={{ borderRadius: '3px', color: '#666666' }}
+                  />
+                </div>
 
-              {/* Fornecedor Field */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Fornecedor
-                </label>
-                <input
-                  type="text"
-                  value={formData.fornecedor}
-                  onChange={(e) => handleInputChange("fornecedor", e.target.value)}
-                  placeholder="Nome do fornecedor..."
-                  className="w-full h-12 sm:h-14 px-4 py-3 border border-input bg-background rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                />
+                {/* Unidade de Medida Field */}
+                <div>
+                  <select
+                    value={formData.unidade}
+                    onChange={(e) => handleInputChange("unidade", e.target.value)}
+                    className={`w-full h-12 px-4 border rounded text-sm ${
+                      errors.unidade ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    style={{ borderRadius: '3px', color: formData.unidade ? '#000' : '#666666' }}
+                  >
+                    <option value="">Unidade Medida</option>
+                    {unidadesMedida.map(unidade => (
+                      <option key={unidade} value={unidade}>{unidade}</option>
+                    ))}
+                  </select>
+                  {errors.unidade && (
+                    <p className="text-red-500 text-xs mt-1">{errors.unidade}</p>
+                  )}
+                </div>
               </div>
 
               {/* Continue Button */}
-              <div className="pt-4">
+              <div className="mt-16">
                 <Button
                   onClick={handleContinuarCadastrando}
-                  className="w-full h-12 sm:h-14 text-sm sm:text-base font-semibold"
-                  size="lg"
+                  className="w-full h-12 font-bold"
+                  style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
                 >
                   Continuar Cadastrando
                 </Button>
@@ -261,18 +202,20 @@ const CadastroInsumo = () => {
       </main>
 
       {/* Footer Buttons */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 sm:p-4 safe-area-bottom">
-        <div className="max-w-lg mx-auto flex gap-3 sm:gap-4">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+        <div className="max-w-lg mx-auto flex gap-4">
           <Button
             variant="outline"
             onClick={handleBack}
-            className="h-11 sm:h-12 text-sm px-6"
+            className="h-12 px-6 border-gray-300"
+            style={{ borderRadius: '3px', color: '#180F33' }}
           >
             Voltar
           </Button>
           <Button
             onClick={handleSave}
-            className="h-11 sm:h-12 text-sm font-semibold px-6"
+            className="h-12 px-6 font-bold flex-1"
+            style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
           >
             Salvar
           </Button>
