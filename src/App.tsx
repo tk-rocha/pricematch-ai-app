@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Cadastros from "./pages/Cadastros";
 import CadastroLoja from "./pages/CadastroLoja";
 import CadastroPlataforma from "./pages/CadastroPlataforma";
+import CadastroUnidade from "./pages/CadastroUnidade";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/cadastros" element={<Cadastros />} />
           <Route path="/cadastro-loja" element={<CadastroLoja />} />
           <Route path="/cadastro-plataforma" element={<CadastroPlataforma />} />
+          <Route path="/cadastro-unidade" element={<CadastroUnidade />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
