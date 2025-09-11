@@ -1,50 +1,71 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Menu, User, ShoppingCart, Package, TrendingUp, DollarSign } from "lucide-react";
+import { User, Plus, Package, ShoppingCart, TrendingUp, TrendingDown } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [nomeEmpresa, setNomeEmpresa] = useState("Usuário");
 
-  // Get user name from localStorage or default
-  const userName = localStorage.getItem("loja_nome") || "Usuário";
+  useEffect(() => {
+    const dadosLoja = localStorage.getItem("dadosLoja");
+    if (dadosLoja) {
+      const loja = JSON.parse(dadosLoja);
+      setNomeEmpresa(loja.nome || "Usuário");
+    }
+  }, []);
 
-  const handleCadastrosClick = () => {
-    navigate("/cadastros");
+  // Get today's date in Brazilian format
+  const today = new Date().toLocaleDateString("pt-BR");
+
+  // Mock data for counts - in real app these would come from localStorage/API
+  const getCounts = () => {
+    const plataformas = JSON.parse(localStorage.getItem("plataformas") || "[]");
+    const unidades = JSON.parse(localStorage.getItem("unidades") || "[]");
+    
+    return {
+      produtos: 0, // Not implemented yet
+      insumos: 0, // Not implemented yet
+      entradas: 0, // Not implemented yet
+      vendas: 0 // Not implemented yet
+    };
   };
 
-  const handleLojaClick = () => {
-    navigate("/cadastro-loja");
-  };
+  const counts = getCounts();
 
-  const dashboardCards = [
+  const actionButtons = [
     {
-      title: "Produtos Cadastrados",
-      value: "124",
+      title: "Novo Produto",
       icon: Package,
-      change: "+12%",
-      changeType: "positive" as const
+      path: "#",
+      count: counts.produtos,
+      label: "Produtos cadastrados",
+      active: false
     },
     {
-      title: "Vendas do Mês",
-      value: "R$ 15.780",
-      icon: DollarSign,
-      change: "+8%",
-      changeType: "positive" as const
+      title: "Novo Insumo",
+      icon: Package,
+      path: "#", 
+      count: counts.insumos,
+      label: "Insumos cadastrados",
+      active: false
     },
     {
-      title: "Pedidos Pendentes",
-      value: "23",
-      icon: ShoppingCart,
-      change: "-5%",
-      changeType: "negative" as const
-    },
-    {
-      title: "Taxa de Conversão",
-      value: "3.2%",
+      title: "Nova Entrada",
       icon: TrendingUp,
-      change: "+0.5%",
-      changeType: "positive" as const
+      path: "#",
+      count: counts.entradas,
+      label: "Entradas cadastradas", 
+      active: false
+    },
+    {
+      title: "Nova Venda",
+      icon: ShoppingCart,
+      path: "#",
+      count: counts.vendas,
+      label: "Vendas hoje",
+      active: false
     }
   ];
 
@@ -53,26 +74,15 @@ const Dashboard = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
         <div className="flex items-center justify-between px-4 py-3 h-14">
-          {/* Menu Hambúrguer */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleCadastrosClick}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
-          >
-            <Menu className="h-6 w-6 text-foreground" />
-          </Button>
-
-          {/* Saudação Central */}
-          <h1 className="text-base sm:text-lg font-bold text-foreground truncate mx-2">
-            Olá, {userName}
+          <div className="w-10"></div>
+          
+          <h1 className="text-base sm:text-lg font-bold text-foreground">
+            Olá, {nomeEmpresa}
           </h1>
-
-          {/* Ícone de Usuário */}
+          
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleLojaClick}
             className="hover:bg-muted min-w-[44px] min-h-[44px]"
           >
             <User className="h-6 w-6 text-foreground" />
@@ -82,110 +92,120 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
-        <div className="max-w-7xl mx-auto">`
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-            {dashboardCards.map((card, index) => {
-              const IconComponent = card.icon;
+        <div className="max-w-2xl mx-auto space-y-4">
+          
+          {/* Sales Cards Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            {/* Today's Sales */}
+            <Card className="shadow-sm">
+              <CardContent className="p-4 sm:p-6">
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm text-foreground">Vendas Hoje</h3>
+                  <p className="text-xs text-muted-foreground">{today}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">R$ 0,00</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Orders Count */}
+            <Card className="shadow-sm">
+              <CardContent className="p-4 sm:p-6">
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm text-foreground">Quantidade</h3>
+                  <p className="text-xs text-muted-foreground">de Pedidos</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">0</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Profitability Section */}
+          <Card className="shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Higher Profitability */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm text-foreground">Maior Rentabilidade</h4>
+                  <div className="space-y-2">
+                    <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 1</div>
+                    <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 2</div>
+                    <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 3</div>
+                  </div>
+                </div>
+
+                {/* Lower Profitability */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm text-foreground">Menor Rentabilidade</h4>
+                  <div className="space-y-2">
+                    <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 1</div>
+                    <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 2</div>
+                    <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 3</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            {actionButtons.map((button, index) => {
+              const IconComponent = button.icon;
               return (
-                <Card key={index} className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
-                    <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                      {card.title}
-                    </CardTitle>
-                    <IconComponent className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  </CardHeader>
-                  <CardContent className="p-4 sm:p-6 pt-0">`
-                    <div className="text-xl sm:text-2xl font-bold text-foreground mb-1">
-                      {card.value}
+                <Card 
+                  key={index} 
+                  className={`shadow-sm transition-all duration-200 ${
+                    button.active 
+                      ? 'hover:shadow-md cursor-pointer' 
+                      : 'opacity-60 cursor-not-allowed'
+                  }`}
+                  onClick={() => button.active && navigate(button.path)}
+                >
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        {/* Icon with Plus */}
+                        <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center ${
+                          button.active ? 'bg-primary' : 'bg-muted'
+                        }`}>
+                          <IconComponent className={`h-6 w-6 sm:h-7 sm:w-7 ${
+                            button.active ? 'text-primary-foreground' : 'text-muted-foreground'
+                          }`} />
+                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-background">
+                            <Plus className="h-3 w-3 text-primary-foreground" />
+                          </div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`font-semibold text-sm sm:text-base ${
+                            button.active ? 'text-foreground' : 'text-muted-foreground'
+                          }`}>
+                            {button.title}
+                          </h3>
+                        </div>
+                      </div>
+                      
+                      {/* Count */}
+                      <div className="text-right">
+                        <p className="text-lg sm:text-xl font-bold text-foreground">{button.count.toString().padStart(4, '0')}</p>
+                        <p className="text-xs text-muted-foreground">{button.label}</p>
+                      </div>
                     </div>
-                    <p className={`text-xs ${
-                      card.changeType === 'positive' 
-                        ? 'text-green-600' 
-                        : 'text-red-600'
-                    }`}>
-                      {card.change} em relação ao mês anterior
-                    </p>
                   </CardContent>
                 </Card>
               );
             })}
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-            <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">`
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-base sm:text-lg text-foreground">Ações Rápidas</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
-                <Button 
-                  onClick={() => navigate("/cadastro-produto")} 
-                  className="w-full justify-start h-12 text-sm"
-                  variant="outline"
-                >
-                  <Package className="mr-2 h-4 w-4" />
-                  Cadastrar Produto
-                </Button>
-                <Button 
-                  onClick={() => navigate("/cadastro-plataforma")} 
-                  className="w-full justify-start h-12 text-sm"
-                  variant="outline"
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Cadastrar Plataforma
-                </Button>
-                <Button 
-                  onClick={() => navigate("/relatorios")} 
-                  className="w-full justify-start h-12 text-sm"
-                  variant="outline"
-                >
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  Ver Relatórios
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-base sm:text-lg text-foreground">Resumo Recente</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-0">`
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Último produto:</span>
-                    <span className="text-sm font-medium text-foreground">Smartphone XY</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Última venda:</span>
-                    <span className="text-sm font-medium text-foreground">Hoje, 14:30</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Status:</span>
-                    <span className="text-sm font-medium text-green-600">Ativo</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-base sm:text-lg text-foreground">Notificações</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-0">`
-                <div className="space-y-3">
-                  <div className="p-3 bg-muted rounded-md">
-                    <p className="text-sm text-foreground">3 produtos com estoque baixo</p>
-                    <p className="text-xs text-muted-foreground">Há 2 horas</p>
-                  </div>
-                  <div className="p-3 bg-muted rounded-md">
-                    <p className="text-sm text-foreground">Nova venda registrada</p>
-                    <p className="text-xs text-muted-foreground">Há 1 hora</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Cadastros Button */}
+          <Card className="shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer" onClick={() => navigate("/cadastros")}>
+            <CardContent className="p-4 sm:p-6">
+              <div className="text-center">
+                <h3 className="font-semibold text-base text-primary">Acessar Cadastros</h3>
+                <p className="text-sm text-muted-foreground mt-1">Configure sua loja e produtos</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
