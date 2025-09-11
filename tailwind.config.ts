@@ -47,6 +47,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // PRECIFICA custom colors
+        'precifica-blue': 'hsl(var(--precifica-blue))',
+        'precifica-white': 'hsl(var(--precifica-white))',
+        'precifica-gray': 'hsl(var(--precifica-gray))',
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
