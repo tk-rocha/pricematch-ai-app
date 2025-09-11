@@ -6,7 +6,8 @@ const Index = () => {
   const navigate = useNavigate();
 
   const handleAccess = () => {
-    navigate("/dashboard");
+    // Navigate to dashboard or show success message
+    console.log("Acesso realizado com sucesso!");
   };
 
   return (
