@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Store, Package, Ruler } from "lucide-react";
+import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart } from "lucide-react";
 
 const Cadastros = () => {
   const navigate = useNavigate();
@@ -11,19 +11,43 @@ const Cadastros = () => {
       title: "Cadastro da Loja",
       description: "Configure os dados da sua loja",
       icon: Store,
-      path: "/cadastro-loja"
+      path: "/cadastro-loja",
+      active: true
     },
     {
-      title: "Cadastro de Plataforma",
+      title: "Plataformas",
       description: "Adicione plataformas de venda",
       icon: Package,
-      path: "/cadastro-plataforma"
+      path: "/cadastro-plataforma",
+      active: true
     },
     {
       title: "Cadastro de Unidade",
       description: "Defina unidades de medida",
       icon: Ruler,
-      path: "/cadastro-unidade"
+      path: "/cadastro-unidade",
+      active: true
+    },
+    {
+      title: "Produtos",
+      description: "Gerencie seus produtos",
+      icon: ShoppingCart,
+      path: "#",
+      active: false
+    },
+    {
+      title: "Clientes",
+      description: "Cadastre seus clientes",
+      icon: Users,
+      path: "#",
+      active: false
+    },
+    {
+      title: "Relatórios",
+      description: "Visualize relatórios",
+      icon: BarChart,
+      path: "#",
+      active: false
     }
   ];
 
@@ -54,40 +78,51 @@ const Cadastros = () => {
 
       {/* Main Content */}
       <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {cadastroOptions.map((option, index) => {
-              const IconComponent = option.icon;
-              return (
-                <Card 
-                  key={index} 
-                  className="shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
-                  onClick={() => navigate(option.path)}
-                >
-                  <CardHeader className="text-center p-4 sm:p-6">
-                    <div className="mx-auto w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
-                      <IconComponent className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />`
+        <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4">
+          {cadastroOptions.map((option, index) => {
+            const IconComponent = option.icon;
+            return (
+              <Card 
+                key={index} 
+                className={`shadow-sm transition-all duration-200 ${
+                  option.active 
+                    ? 'hover:shadow-md cursor-pointer' 
+                    : 'opacity-60 cursor-not-allowed'
+                }`}
+                onClick={() => option.active && navigate(option.path)}
+              >
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-4">
+                    {/* Ícone com "+" */}
+                    <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center ${
+                      option.active ? 'bg-primary' : 'bg-muted'
+                    }`}>
+                      <IconComponent className={`h-6 w-6 sm:h-7 sm:w-7 ${
+                        option.active ? 'text-primary-foreground' : 'text-muted-foreground'
+                      }`} />
+                      {option.active && (
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-background">
+                          <Plus className="h-3 w-3 text-primary-foreground" />
+                        </div>
+                      )}
                     </div>
-                    <CardTitle className="text-sm sm:text-base text-foreground">{option.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center p-4 sm:p-6 pt-0">
-                    <p className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4">
-                      {option.description}
-                    </p>
-                    <Button 
-                      className="w-full h-10 sm:h-11 text-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(option.path);
-                      }}
-                    >
-                      Acessar
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                    
+                    {/* Conteúdo */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`font-semibold text-sm sm:text-base ${
+                        option.active ? 'text-foreground' : 'text-muted-foreground'
+                      }`}>
+                        {option.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                        {option.description}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </main>
     </div>
