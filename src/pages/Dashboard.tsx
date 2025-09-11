@@ -12,7 +12,9 @@ const Dashboard = () => {
     const dadosLoja = localStorage.getItem("dadosLoja");
     if (dadosLoja) {
       const loja = JSON.parse(dadosLoja);
-      setNomeEmpresa(loja.nomeContato || loja.nome || "Usuário");
+      const nomeCompleto = loja.nomeContato || loja.nome || "Usuário";
+      const primeiroNome = nomeCompleto.split(' ')[0];
+      setNomeEmpresa(primeiroNome);
     }
   }, []);
 
