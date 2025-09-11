@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Plus, Package, ShoppingCart, TrendingUp, TrendingDown } from "lucide-react";
+import { User, Plus, Package, ShoppingCart, TrendingUp, TrendingDown, Menu } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -74,7 +74,14 @@ const Dashboard = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
         <div className="flex items-center justify-between px-4 py-3 h-14">
-          <div className="w-10"></div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/cadastros")}
+            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+          >
+            <Menu className="h-6 w-6 text-foreground" />
+          </Button>
           
           <h1 className="text-base sm:text-lg font-bold text-foreground">
             Olá, {nomeEmpresa}
