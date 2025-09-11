@@ -57,10 +57,10 @@ const Dashboard = () => {
               const userData = localStorage.getItem("userData");
               if (userData) {
                 // If user data exists, go to view screen
-                navigate("/company-view");
+                navigate("/visualizar-loja");
               } else {
                 // If no data exists, go to registration screen
-                navigate("/company-registration");
+                navigate("/cadastro-loja");
               }
             }}
             className="text-primary-foreground hover:bg-primary-foreground/10"

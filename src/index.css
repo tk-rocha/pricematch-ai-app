@@ -30,8 +30,8 @@ All colors MUST be HSL.
     --muted: 240 8% 89%;
     --muted-foreground: 256 52% 16%;
     
-    /* Accent - Yellow #FFC72C */
-    --accent: 47 100% 58%;
+    /* Accent - Muted Gray */
+    --accent: 240 8% 89%;
     --accent-foreground: 256 52% 16%;
     
     --destructive: 0 84.2% 60.2%;
@@ -45,7 +45,6 @@ All colors MUST be HSL.
     --precifica-blue: 256 52% 16%;
     --precifica-white: 0 0% 100%;
     --precifica-gray: 240 8% 89%;
-    --precifica-yellow: 47 100% 58%;
     --precifica-blue-translucent: 256 52% 16% / 0.6;
 
     --radius: 0.5rem;

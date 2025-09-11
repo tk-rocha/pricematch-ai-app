@@ -24,10 +24,10 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/cadastros" element={<Cadastros />} />
-          <Route path="/platform-registration" element={<PlatformRegistration />} />
-          <Route path="/unit-registration" element={<UnitRegistration />} />
-          <Route path="/company-registration" element={<CompanyRegistration />} />
-          <Route path="/company-view" element={<CompanyView />} />
+          <Route path="/cadastro-plataforma" element={<PlatformRegistration />} />
+          <Route path="/cadastro-unidade" element={<UnitRegistration />} />
+          <Route path="/cadastro-loja" element={<CompanyRegistration />} />
+          <Route path="/visualizar-loja" element={<CompanyView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

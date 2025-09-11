@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { CommonHeader } from "@/components/CommonHeader";
 
 const CompanyRegistration = () => {
   const navigate = useNavigate();
@@ -113,12 +114,10 @@ const CompanyRegistration = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Fixed Header */}
-      <header className="bg-primary text-primary-foreground py-4 px-4 shadow-sm">
-        <h1 className="text-lg font-medium text-center">
-          Cadastro da Loja
-        </h1>
-      </header>
+      <CommonHeader 
+        title="Cadastro da Loja" 
+        showMenuButton={true}
+      />
 
       {/* Form Content */}
       <div className="flex-1 p-4 overflow-y-auto">

@@ -14,7 +14,7 @@ const CompanyView = () => {
       setUserData(JSON.parse(storedData));
     } else {
       // If no data exists, redirect to registration
-      navigate("/company-registration");
+      navigate("/cadastro-loja");
     }
   }, [navigate]);
 
@@ -23,7 +23,7 @@ const CompanyView = () => {
   };
 
   const handleEdit = () => {
-    navigate("/company-registration");
+    navigate("/cadastro-loja");
   };
 
   if (!userData) {

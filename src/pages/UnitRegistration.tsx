@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CommonHeader } from "@/components/CommonHeader";
 
 const UnitRegistration = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const UnitRegistration = () => {
   };
 
   const saveUnit = () => {
-    if (!validateForm()) return;
+    if (!validateForm()) return false;
 
     // Save to localStorage (simulating database)
     const units = JSON.parse(localStorage.getItem("units") || "[]");
@@ -51,42 +51,33 @@ const UnitRegistration = () => {
       title: "Sucesso",
       description: "Unidade de medida salva com sucesso!",
     });
+
+    return true;
   };
 
   const handleSave = () => {
-    saveUnit();
-    navigate("/cadastros");
+    if (saveUnit()) {
+      navigate("/cadastros");
+    }
   };
 
   const handleContinueRegistering = () => {
-    saveUnit();
-    setFormData({ nome: "", sigla: "" });
+    if (saveUnit()) {
+      setFormData({ nome: "", sigla: "" });
+    }
   };
 
   return (
-    <div className="min-h-screen bg-accent flex flex-col">
-      {/* Header */}
-      <header className="bg-primary text-primary-foreground py-4 px-4 shadow-sm">
-        <div className="flex items-center justify-center relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/cadastros")}
-            className="absolute left-0 text-primary-foreground hover:bg-primary-foreground/10"
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </Button>
-          
-          <h1 className="text-lg font-medium text-[#0C1646]">
-            UNIDADE DE MEDIDA
-          </h1>
-        </div>
-      </header>
+    <div className="min-h-screen bg-muted flex flex-col">
+      <CommonHeader 
+        title="Cadastro de Unidade" 
+        backTo="/cadastros" 
+      />
 
       <div className="flex-1 p-4 overflow-y-auto">
         <div className="max-w-md mx-auto space-y-6">
           {/* Form Fields */}
-          <div className="bg-card p-6 rounded-lg shadow-[0_2px_8px_rgba(12,22,70,0.1)] space-y-4">
+          <div className="bg-card p-6 rounded-lg shadow-sm space-y-4">
             <div className="space-y-2">
               <Label htmlFor="nome" className="text-sm font-medium text-foreground">
                 Nome da Unidade *
@@ -121,7 +112,7 @@ const UnitRegistration = () => {
             {/* Continue Registering Button */}
             <Button
               onClick={handleContinueRegistering}
-              className="w-full bg-[#0C1646] hover:bg-[#0C1646]/90 text-white py-3 rounded-lg text-base font-medium"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-lg text-base font-medium"
             >
               Continuar Cadastrando
             </Button>
@@ -131,13 +122,13 @@ const UnitRegistration = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate("/cadastros")}
-                className="flex-1 border-[#0C1646] text-[#0C1646] hover:bg-[#0C1646]/10"
+                className="flex-1 border-primary text-primary hover:bg-primary/10"
               >
                 Voltar
               </Button>
               <Button
                 onClick={handleSave}
-                className="flex-1 bg-[#0C1646] hover:bg-[#0C1646]/90 text-white"
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 Salvar
               </Button>

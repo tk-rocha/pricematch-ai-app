@@ -18,10 +18,10 @@ const Cadastros = () => {
   const handleOptionClick = (optionId: string) => {
     switch (optionId) {
       case "plataforma":
-        navigate("/platform-registration");
+        navigate("/cadastro-plataforma");
         break;
       case "unidade":
-        navigate("/unit-registration");
+        navigate("/cadastro-unidade");
         break;
       default:
         console.log(`Navigate to ${optionId} registration`);
@@ -29,7 +29,7 @@ const Cadastros = () => {
   };
 
   return (
-    <div className="min-h-screen bg-accent flex flex-col">
+    <div className="min-h-screen bg-muted flex flex-col">
       {/* Fixed Header */}
       <header className="bg-primary text-primary-foreground py-4 px-4 shadow-sm">
         <div className="flex items-center justify-between">
