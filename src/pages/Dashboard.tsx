@@ -6,8 +6,8 @@ import { Menu, User, ShoppingCart, Package, TrendingUp, DollarSign } from "lucid
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  // Simulated user name - in a real app, this would come from auth context
-  const userName = "Usuário";
+  // Get user name from localStorage or default
+  const userName = localStorage.getItem("loja_nome") || "Usuário";
 
   const handleCadastrosClick = () => {
     navigate("/cadastros");
