@@ -51,20 +51,20 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
-        <div className="flex items-center justify-between px-4 py-3">
+      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
+        <div className="flex items-center justify-between px-4 py-3 h-14">
           {/* Menu Hambúrguer */}
           <Button
             variant="ghost"
             size="icon"
             onClick={handleCadastrosClick}
-            className="hover:bg-muted"
+            className="hover:bg-muted min-w-[44px] min-h-[44px]"
           >
             <Menu className="h-6 w-6 text-foreground" />
           </Button>
 
           {/* Saudação Central */}
-          <h1 className="text-lg font-bold text-foreground">
+          <h1 className="text-base sm:text-lg font-bold text-foreground truncate mx-2">
             Olá, {userName}
           </h1>
 
@@ -73,7 +73,7 @@ const Dashboard = () => {
             variant="ghost"
             size="icon"
             onClick={handleLojaClick}
-            className="hover:bg-muted"
+            className="hover:bg-muted min-w-[44px] min-h-[44px]"
           >
             <User className="h-6 w-6 text-foreground" />
           </Button>
@@ -81,22 +81,22 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 p-4">
-        <div className="max-w-7xl mx-auto">
+      <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
+        <div className="max-w-7xl mx-auto">`
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
             {dashboardCards.map((card, index) => {
               const IconComponent = card.icon;
               return (
                 <Card key={index} className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                       {card.title}
                     </CardTitle>
-                    <IconComponent className="h-4 w-4 text-muted-foreground" />
+                    <IconComponent className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-foreground mb-1">
+                  <CardContent className="p-4 sm:p-6 pt-0">`
+                    <div className="text-xl sm:text-2xl font-bold text-foreground mb-1">
                       {card.value}
                     </div>
                     <p className={`text-xs ${
@@ -113,15 +113,15 @@ const Dashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-              <CardHeader>
-                <CardTitle className="text-foreground">Ações Rápidas</CardTitle>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+            <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">`
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg text-foreground">Ações Rápidas</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
                 <Button 
                   onClick={() => navigate("/cadastro-produto")} 
-                  className="w-full justify-start"
+                  className="w-full justify-start h-12 text-sm"
                   variant="outline"
                 >
                   <Package className="mr-2 h-4 w-4" />
@@ -129,7 +129,7 @@ const Dashboard = () => {
                 </Button>
                 <Button 
                   onClick={() => navigate("/cadastro-plataforma")} 
-                  className="w-full justify-start"
+                  className="w-full justify-start h-12 text-sm"
                   variant="outline"
                 >
                   <ShoppingCart className="mr-2 h-4 w-4" />
@@ -137,7 +137,7 @@ const Dashboard = () => {
                 </Button>
                 <Button 
                   onClick={() => navigate("/relatorios")} 
-                  className="w-full justify-start"
+                  className="w-full justify-start h-12 text-sm"
                   variant="outline"
                 >
                   <TrendingUp className="mr-2 h-4 w-4" />
@@ -147,10 +147,10 @@ const Dashboard = () => {
             </Card>
 
             <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-              <CardHeader>
-                <CardTitle className="text-foreground">Resumo Recente</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg text-foreground">Resumo Recente</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">`
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Último produto:</span>
@@ -169,10 +169,10 @@ const Dashboard = () => {
             </Card>
 
             <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-              <CardHeader>
-                <CardTitle className="text-foreground">Notificações</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg text-foreground">Notificações</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">`
                 <div className="space-y-3">
                   <div className="p-3 bg-muted rounded-md">
                     <p className="text-sm text-foreground">3 produtos com estoque baixo</p>

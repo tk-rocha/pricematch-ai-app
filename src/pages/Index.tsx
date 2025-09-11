@@ -11,7 +11,7 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen relative flex flex-col justify-between items-center px-6 py-8"
+      className="min-h-screen relative flex flex-col justify-between items-center px-4 sm:px-6 py-6 sm:py-8 safe-area"
       style={{
         backgroundImage: `url('/lovable-uploads/f0be0c35-df3f-4cb3-9249-e88a181af9a4.png')`,
         backgroundSize: 'cover',
@@ -23,23 +23,23 @@ const Index = () => {
       <div className="absolute inset-0 bg-black/20"></div>
       
       {/* Logo Section */}
-      <div className="relative z-10 pt-16">
+      <div className="relative z-10 pt-8 sm:pt-16">
         <PrecificaLogo />
       </div>
       
       {/* Access Button and Footer */}
-      <div className="relative z-10 w-full max-w-sm space-y-6">
+      <div className="relative z-10 w-full max-w-sm space-y-4 sm:space-y-6">
         <Button 
           variant="access" 
           size="lg"
           onClick={handleAccess}
-          className="w-full text-lg py-4"
+          className="w-full text-base sm:text-lg py-3 sm:py-4 h-12 sm:h-14 font-semibold"
         >
           ACESSAR
         </Button>
         
         <footer className="text-center">
-          <p className="text-precifica-gray text-sm">
+          <p className="text-precifica-gray text-xs sm:text-sm">
             © 2025 Precific.aí
           </p>
         </footer>

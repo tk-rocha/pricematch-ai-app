@@ -30,32 +30,32 @@ const Cadastros = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
-        <div className="flex items-center justify-between px-4 py-3">
+      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
+        <div className="flex items-center justify-between px-4 py-3 h-14">
           {/* Botão Voltar */}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate("/dashboard")}
-            className="hover:bg-muted"
+            className="hover:bg-muted min-w-[44px] min-h-[44px]"
           >
             <ArrowLeft className="h-6 w-6 text-foreground" />
           </Button>
 
           {/* Título Central */}
-          <h1 className="text-lg font-bold text-foreground">
+          <h1 className="text-base sm:text-lg font-bold text-foreground">
             Cadastros
           </h1>
 
           {/* Espaço para manter centralização */}
-          <div className="w-10"></div>
+          <div className="w-10 sm:w-11"></div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 p-4">
+      <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {cadastroOptions.map((option, index) => {
               const IconComponent = option.icon;
               return (
@@ -64,18 +64,18 @@ const Cadastros = () => {
                   className="shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
                   onClick={() => navigate(option.path)}
                 >
-                  <CardHeader className="text-center">
-                    <div className="mx-auto w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                      <IconComponent className="h-6 w-6 text-primary" />
+                  <CardHeader className="text-center p-4 sm:p-6">
+                    <div className="mx-auto w-12 h-12 sm:w-14 sm:h-14 bg-primary/10 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
+                      <IconComponent className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />`
                     </div>
-                    <CardTitle className="text-foreground">{option.title}</CardTitle>
+                    <CardTitle className="text-sm sm:text-base text-foreground">{option.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-muted-foreground text-sm mb-4">
+                  <CardContent className="text-center p-4 sm:p-6 pt-0">
+                    <p className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4">
                       {option.description}
                     </p>
                     <Button 
-                      className="w-full"
+                      className="w-full h-10 sm:h-11 text-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(option.path);
