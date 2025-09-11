@@ -16,6 +16,17 @@ const Dashboard = () => {
     }
   }, []);
 
+  const handleUserClick = () => {
+    const dadosLoja = localStorage.getItem("dadosLoja");
+    if (dadosLoja) {
+      // Se já tem loja cadastrada, vai para listagem
+      navigate("/listagem-lojas");
+    } else {
+      // Se não tem loja, vai para cadastro
+      navigate("/cadastro-loja");
+    }
+  };
+
   // Get today's date in Brazilian format
   const today = new Date().toLocaleDateString("pt-BR");
 
@@ -92,6 +103,7 @@ const Dashboard = () => {
           <Button
             variant="ghost"
             size="icon"
+            onClick={handleUserClick}
             className="hover:bg-muted min-w-[44px] min-h-[44px]"
           >
             <User className="h-6 w-6 text-foreground" />

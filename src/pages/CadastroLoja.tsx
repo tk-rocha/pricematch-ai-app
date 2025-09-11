@@ -124,8 +124,7 @@ const CadastroLoja = () => {
     }
 
     // Simulate saving to storage/API
-    localStorage.setItem("loja_nome", formData.nome);
-    localStorage.setItem("loja_dados", JSON.stringify(formData));
+    localStorage.setItem("dadosLoja", JSON.stringify(formData));
     
     toast({
       title: "Loja cadastrada!",
