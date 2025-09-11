@@ -193,7 +193,7 @@ const CadastroInsumo = () => {
                   className="w-full h-12 font-bold"
                   style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
                 >
-                  Continuar Cadastrando
+                  Salvar e Continuar Cadastrando
                 </Button>
               </div>
             </CardContent>

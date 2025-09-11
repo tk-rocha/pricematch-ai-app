@@ -40,6 +40,7 @@ const CadastroProduto = () => {
     nome: "",
     codigo: "",
     unidadeMedida: "",
+    quantoRende: "",
     custoProducao: 0,
     precoVenda: ""
   });
@@ -176,6 +177,7 @@ const CadastroProduto = () => {
         nome: "",
         codigo: "",
         unidadeMedida: "",
+        quantoRende: "",
         custoProducao: 0,
         precoVenda: ""
       });
@@ -203,7 +205,7 @@ const CadastroProduto = () => {
             <ArrowLeft className="h-6 w-6" style={{ color: '#180F33' }} />
           </Button>
           
-          <h1 className="text-lg font-bold" style={{ color: '#180F33' }}>
+          <h1 className="text-lg font-bold" style={{ color: '#180F33', fontFamily: 'sans-serif' }}>
             CADASTRO PRODUTO
           </h1>
           
@@ -343,6 +345,26 @@ const CadastroProduto = () => {
                     </Button>
                   </div>
 
+                  {/* Quanto Rende Field */}
+                  <div>
+                    <input
+                      type="text"
+                      value={formData.quantoRende}
+                      onChange={(e) => handleInputChange("quantoRende", e.target.value)}
+                      placeholder="Quanto Rende"
+                      className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                      style={{ borderRadius: '3px', color: '#666666' }}
+                    />
+                  </div>
+
+                  {/* Confirm Button */}
+                  <Button
+                    className="w-full h-12 font-bold"
+                    style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
+                  >
+                    Confirmar Ficha
+                  </Button>
+
                   {/* Search Results */}
                   {searchTerm && (
                     <div className="max-h-32 overflow-y-auto border border-gray-300" style={{ borderRadius: '3px' }}>
@@ -403,13 +425,6 @@ const CadastroProduto = () => {
                     </div>
                   </div>
 
-                  {/* Confirm Button */}
-                  <Button
-                    className="w-full h-12 font-bold"
-                    style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
-                  >
-                    Confirmar Ficha
-                  </Button>
                 </TabsContent>
               </Tabs>
 
@@ -420,7 +435,7 @@ const CadastroProduto = () => {
                   className="w-full h-12 font-bold"
                   style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
                 >
-                  Continuar Cadastrando
+                  Salvar e Continuar Cadastrando
                 </Button>
               </div>
             </CardContent>
