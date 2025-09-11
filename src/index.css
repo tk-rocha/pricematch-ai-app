@@ -8,43 +8,45 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* PRECIFICA App Colors */
+    /* PRECIFICA App Colors - New Identity */
     --background: 0 0% 100%;
-    --foreground: 220 100% 13%;
+    --foreground: 256 52% 16%;
     
     --card: 0 0% 100%;
-    --card-foreground: 220 100% 13%;
+    --card-foreground: 256 52% 16%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 220 100% 13%;
+    --popover-foreground: 256 52% 16%;
     
-    /* Primary - Azul #0C1646 */
-    --primary: 220 100% 13%;
+    /* Primary - New Blue #180F33 */
+    --primary: 256 52% 16%;
     --primary-foreground: 0 0% 100%;
     
     /* Secondary - Branco #FFFFFF */
     --secondary: 0 0% 100%;
-    --secondary-foreground: 220 100% 13%;
+    --secondary-foreground: 256 52% 16%;
     
-    /* Muted - Cinza #666666 */
-    --muted: 0 0% 40%;
-    --muted-foreground: 0 0% 40%;
+    /* Muted - Bluish Gray #E1E1E5 */
+    --muted: 240 8% 89%;
+    --muted-foreground: 256 52% 16%;
     
-    --accent: 0 0% 100%;
-    --accent-foreground: 220 100% 13%;
+    /* Accent - Yellow #FFC72C */
+    --accent: 47 100% 58%;
+    --accent-foreground: 256 52% 16%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 220 100% 13%;
+    --border: 240 8% 89%;
+    --input: 240 8% 89%;
+    --ring: 256 52% 16%;
     
     /* Custom PRECIFICA tokens */
-    --precifica-blue: 220 100% 13%;
+    --precifica-blue: 256 52% 16%;
     --precifica-white: 0 0% 100%;
-    --precifica-gray: 0 0% 40%;
-    --precifica-blue-translucent: 220 100% 13% / 0.6;
+    --precifica-gray: 240 8% 89%;
+    --precifica-yellow: 47 100% 58%;
+    --precifica-blue-translucent: 256 52% 16% / 0.6;
 
     --radius: 0.5rem;
 

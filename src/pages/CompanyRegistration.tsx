@@ -104,36 +104,38 @@ const CompanyRegistration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-md mx-auto space-y-6">
-        {/* Title */}
-        <h1 className="text-xl font-bold text-primary text-center">
-          CADASTRO LOJA
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Fixed Header */}
+      <header className="bg-primary text-primary-foreground py-4 px-4 shadow-sm">
+        <h1 className="text-lg font-medium text-center">
+          Cadastro da Loja
         </h1>
+      </header>
 
-        {/* Form */}
-        <div className="space-y-4">
+      {/* Form Content */}
+      <div className="flex-1 p-4 overflow-y-auto">
+        <div className="max-w-md mx-auto space-y-4">
           {/* Empresa */}
-          <Card className="border-border shadow-sm">
+          <Card className="shadow-sm border-muted">
             <CardContent className="p-4">
-              <Label htmlFor="empresa" className="text-sm text-muted-foreground">
-                Empresa (opcional)
+              <Label htmlFor="empresa" className="text-sm font-medium text-muted-foreground">
+                Empresa
               </Label>
               <Input
                 id="empresa"
                 value={formData.empresa}
                 onChange={(e) => handleInputChange("empresa", e.target.value)}
                 placeholder="Nome da empresa"
-                className="mt-1"
+                className="mt-2 focus:ring-accent focus:border-accent"
               />
             </CardContent>
           </Card>
 
           {/* E-mail */}
-          <Card className="border-border shadow-sm">
+          <Card className="shadow-sm border-muted">
             <CardContent className="p-4">
-              <Label htmlFor="email" className="text-sm text-muted-foreground">
-                E-mail (opcional)
+              <Label htmlFor="email" className="text-sm font-medium text-muted-foreground">
+                E-mail
               </Label>
               <Input
                 id="email"
@@ -141,46 +143,46 @@ const CompanyRegistration = () => {
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="seu@email.com"
-                className="mt-1"
+                className="mt-2 focus:ring-accent focus:border-accent"
               />
             </CardContent>
           </Card>
 
           {/* Nome */}
-          <Card className="border-border shadow-sm">
+          <Card className="shadow-sm border-muted">
             <CardContent className="p-4">
-              <Label htmlFor="nome" className="text-sm text-muted-foreground">
-                Nome (obrigatório)
+              <Label htmlFor="nome" className="text-sm font-medium text-muted-foreground">
+                Nome
               </Label>
               <Input
                 id="nome"
                 value={formData.nome}
                 onChange={(e) => handleInputChange("nome", e.target.value)}
                 placeholder="Seu nome"
-                className="mt-1"
+                className="mt-2 focus:ring-accent focus:border-accent"
                 required
               />
             </CardContent>
           </Card>
 
           {/* CEP */}
-          <Card className="border-border shadow-sm">
+          <Card className="shadow-sm border-muted">
             <CardContent className="p-4">
-              <Label htmlFor="cep" className="text-sm text-muted-foreground">
-                CEP (opcional)
+              <Label htmlFor="cep" className="text-sm font-medium text-muted-foreground">
+                CEP
               </Label>
-              <div className="flex gap-2 mt-1">
+              <div className="flex gap-2 mt-2">
                 <Input
                   id="cep"
                   value={formData.cep}
                   onChange={(e) => handleInputChange("cep", e.target.value)}
                   placeholder="00000-000"
-                  className="flex-1"
+                  className="flex-1 focus:ring-accent focus:border-accent"
                 />
                 <Button 
                   variant="outline" 
                   onClick={handleCepSearch}
-                  className="px-4"
+                  className="px-4 text-primary border-primary hover:bg-primary/5"
                 >
                   OK
                 </Button>
@@ -189,49 +191,49 @@ const CompanyRegistration = () => {
           </Card>
 
           {/* Rua */}
-          <Card className="border-border shadow-sm">
+          <Card className="shadow-sm border-muted">
             <CardContent className="p-4">
-              <Label htmlFor="rua" className="text-sm text-muted-foreground">
-                Rua (opcional)
+              <Label htmlFor="rua" className="text-sm font-medium text-muted-foreground">
+                Rua
               </Label>
               <Input
                 id="rua"
                 value={formData.rua}
                 onChange={(e) => handleInputChange("rua", e.target.value)}
                 placeholder="Nome da rua"
-                className="mt-1"
+                className="mt-2 focus:ring-accent focus:border-accent"
               />
             </CardContent>
           </Card>
 
           {/* Número e Complemento */}
           <div className="grid grid-cols-2 gap-2">
-            <Card className="border-border shadow-sm">
+            <Card className="shadow-sm border-muted">
               <CardContent className="p-4">
-                <Label htmlFor="numero" className="text-sm text-muted-foreground">
-                  Número (opcional)
+                <Label htmlFor="numero" className="text-sm font-medium text-muted-foreground">
+                  Número
                 </Label>
                 <Input
                   id="numero"
                   value={formData.numero}
                   onChange={(e) => handleInputChange("numero", e.target.value)}
                   placeholder="123"
-                  className="mt-1"
+                  className="mt-2 focus:ring-accent focus:border-accent"
                 />
               </CardContent>
             </Card>
 
-            <Card className="border-border shadow-sm">
+            <Card className="shadow-sm border-muted">
               <CardContent className="p-4">
-                <Label htmlFor="complemento" className="text-sm text-muted-foreground">
-                  Complemento (opcional)
+                <Label htmlFor="complemento" className="text-sm font-medium text-muted-foreground">
+                  Complemento
                 </Label>
                 <Input
                   id="complemento"
                   value={formData.complemento}
                   onChange={(e) => handleInputChange("complemento", e.target.value)}
                   placeholder="Apto 101"
-                  className="mt-1"
+                  className="mt-2 focus:ring-accent focus:border-accent"
                 />
               </CardContent>
             </Card>
@@ -239,56 +241,57 @@ const CompanyRegistration = () => {
 
           {/* Bairro e Município/UF */}
           <div className="grid grid-cols-2 gap-2">
-            <Card className="border-border shadow-sm">
+            <Card className="shadow-sm border-muted">
               <CardContent className="p-4">
-                <Label htmlFor="bairro" className="text-sm text-muted-foreground">
-                  Bairro (opcional)
+                <Label htmlFor="bairro" className="text-sm font-medium text-muted-foreground">
+                  Bairro
                 </Label>
                 <Input
                   id="bairro"
                   value={formData.bairro}
                   onChange={(e) => handleInputChange("bairro", e.target.value)}
                   placeholder="Centro"
-                  className="mt-1"
+                  className="mt-2 focus:ring-accent focus:border-accent"
                 />
               </CardContent>
             </Card>
 
-            <Card className="border-border shadow-sm">
+            <Card className="shadow-sm border-muted">
               <CardContent className="p-4">
-                <Label htmlFor="municipioUf" className="text-sm text-muted-foreground">
-                  Município/UF (opcional)
+                <Label htmlFor="municipioUf" className="text-sm font-medium text-muted-foreground">
+                  Município / UF
                 </Label>
                 <Input
                   id="municipioUf"
                   value={formData.municipioUf}
                   onChange={(e) => handleInputChange("municipioUf", e.target.value)}
                   placeholder="São Paulo/SP"
-                  className="mt-1"
+                  className="mt-2 focus:ring-accent focus:border-accent"
                 />
               </CardContent>
             </Card>
           </div>
         </div>
+      </div>
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-4 pt-4">
+      {/* Fixed Footer Buttons */}
+      <footer className="p-4 bg-background border-t border-muted">
+        <div className="max-w-md mx-auto grid grid-cols-2 gap-4">
           <Button
             variant="outline"
             onClick={handleBack}
-            className="w-full text-primary border-primary hover:bg-primary/5"
+            className="w-full text-primary border-primary hover:bg-primary/5 shadow-sm"
           >
             Voltar
           </Button>
           <Button
-            variant="outline"
             onClick={handleSave}
-            className="w-full text-primary border-primary hover:bg-primary/5"
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
           >
             Salvar
           </Button>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
