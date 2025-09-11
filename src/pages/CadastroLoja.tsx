@@ -136,11 +136,11 @@ const CadastroLoja = () => {
       description: "Os dados da loja foram salvos com sucesso"
     });
 
-    navigate("/dashboard");
+    navigate("/listagem-lojas");
   };
 
   const handleBack = () => {
-    navigate(-1);
+    navigate("/listagem-lojas");
   };
 
   return (
@@ -158,7 +158,7 @@ const CadastroLoja = () => {
           </Button>
           
           <h1 className="text-base sm:text-lg font-bold text-primary">
-            Cadastro da Loja
+            Lojas
           </h1>
           
           <div className="w-10 sm:w-11"></div>

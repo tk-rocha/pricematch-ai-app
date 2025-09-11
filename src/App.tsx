@@ -14,6 +14,8 @@ import CadastroInsumo from "./pages/CadastroInsumo";
 import ListagemLojas from "./pages/ListagemLojas";
 import ListagemPlataformas from "./pages/ListagemPlataformas";
 import ListagemUnidades from "./pages/ListagemUnidades";
+import ListagemProdutos from "./pages/ListagemProdutos";
+import ListagemInsumos from "./pages/ListagemInsumos";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,8 @@ const App = () => (
           <Route path="/listagem-lojas" element={<ListagemLojas />} />
           <Route path="/listagem-plataformas" element={<ListagemPlataformas />} />
           <Route path="/listagem-unidades" element={<ListagemUnidades />} />
+          <Route path="/listagem-produtos" element={<ListagemProdutos />} />
+          <Route path="/listagem-insumos" element={<ListagemInsumos />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

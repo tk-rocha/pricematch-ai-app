@@ -78,7 +78,7 @@ const CadastroUnidade = () => {
         title: "Unidade salva!",
         description: "A unidade de medida foi cadastrada com sucesso"
       });
-      navigate("/cadastros");
+      navigate("/listagem-unidades");
     }
   };
 
@@ -99,7 +99,7 @@ const CadastroUnidade = () => {
   };
 
   const handleBack = () => {
-    navigate("/cadastros");
+    navigate("/listagem-unidades");
   };
 
   return (
@@ -196,17 +196,17 @@ const CadastroUnidade = () => {
 
       {/* Footer Buttons */}
       <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 sm:p-4 safe-area-bottom">
-        <div className="max-w-lg mx-auto flex gap-3 sm:gap-4">
+        <div className="max-w-2xl mx-auto flex gap-3 sm:gap-4">
           <Button
             variant="outline"
             onClick={handleBack}
-            className="h-11 sm:h-12 text-sm px-6"
+            className="flex-1 h-11 sm:h-12 text-sm"
           >
             Voltar
           </Button>
           <Button
             onClick={handleSave}
-            className="h-11 sm:h-12 text-sm font-semibold px-6"
+            className="flex-1 h-11 sm:h-12 text-sm font-semibold"
           >
             Salvar
           </Button>
