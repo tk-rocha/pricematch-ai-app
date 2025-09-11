@@ -40,7 +40,7 @@ const Dashboard = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => {/* Navigate to Cadastros */}}
+            onClick={() => navigate("/cadastros")}
             className="text-primary-foreground hover:bg-primary-foreground/10"
           >
             <Menu className="h-6 w-6" />
