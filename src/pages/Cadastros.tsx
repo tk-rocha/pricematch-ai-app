@@ -16,8 +16,16 @@ const Cadastros = () => {
   ];
 
   const handleOptionClick = (optionId: string) => {
-    // Navigate to specific registration screens when implemented
-    console.log(`Navigate to ${optionId} registration`);
+    switch (optionId) {
+      case "plataforma":
+        navigate("/platform-registration");
+        break;
+      case "unidade":
+        navigate("/unit-registration");
+        break;
+      default:
+        console.log(`Navigate to ${optionId} registration`);
+    }
   };
 
   return (
