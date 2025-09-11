@@ -148,7 +148,10 @@ const Dashboard = () => {
               <div className="grid grid-cols-2 gap-4">
                 {/* Higher Profitability */}
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-sm text-foreground">Maior Rentabilidade</h4>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-green-600" />
+                    <h4 className="font-semibold text-sm text-foreground">Maior Rentabilidade</h4>
+                  </div>
                   <div className="space-y-2">
                     <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 1</div>
                     <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 2</div>
@@ -158,7 +161,10 @@ const Dashboard = () => {
 
                 {/* Lower Profitability */}
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-sm text-foreground">Menor Rentabilidade</h4>
+                  <div className="flex items-center gap-2">
+                    <TrendingDown className="w-4 h-4 text-red-600" />
+                    <h4 className="font-semibold text-sm text-foreground">Menor Rentabilidade</h4>
+                  </div>
                   <div className="space-y-2">
                     <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 1</div>
                     <div className="text-xs text-muted-foreground p-2 bg-muted rounded">Produto 2</div>
