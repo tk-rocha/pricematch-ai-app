@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart } from "lucide-react";
+import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart, Beaker } from "lucide-react";
 
 const Cadastros = () => {
   const navigate = useNavigate();
@@ -32,8 +32,15 @@ const Cadastros = () => {
       title: "Produtos",
       description: "Gerencie seus produtos",
       icon: ShoppingCart,
-      path: "#",
-      active: false
+      path: "/cadastro-produto",
+      active: true
+    },
+    {
+      title: "Insumos",
+      description: "Cadastre seus insumos",
+      icon: Beaker,
+      path: "/cadastro-insumo",
+      active: true
     },
     {
       title: "Clientes",
