@@ -1,40 +1,161 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Menu, 
+  User, 
+  Plus, 
+  TrendingUp, 
+  TrendingDown,
+  ShoppingCart,
+  Package,
+  Truck,
+  Receipt
+} from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  
+  // Get current date
+  const currentDate = new Date().toLocaleDateString('pt-BR');
+  const userName = "Usuário"; // This would come from user context/state
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Bem-vindo ao Precific.aí</p>
-        </div>
-        
-        <div className="space-y-4">
-          <div className="bg-card p-6 rounded-lg border">
-            <h2 className="text-xl font-semibold text-card-foreground mb-4">Funcionalidades</h2>
-            <div className="grid gap-3">
-              <div className="p-3 bg-accent rounded">
-                <p className="font-medium text-accent-foreground">Comparar Preços</p>
-              </div>
-              <div className="p-3 bg-accent rounded">
-                <p className="font-medium text-accent-foreground">Histórico de Preços</p>
-              </div>
-              <div className="p-3 bg-accent rounded">
-                <p className="font-medium text-accent-foreground">Lista de Compras</p>
-              </div>
-            </div>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => navigate("/")}
-            className="w-full"
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="flex items-center justify-between p-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {/* Navigate to Cadastros */}}
+            className="text-primary"
           >
-            Voltar ao Login
+            <Menu className="h-6 w-6" />
           </Button>
+          
+          <h1 className="text-lg font-bold text-primary">
+            Olá, {userName}
+          </h1>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {/* Navigate to Cadastro da Empresa */}}
+            className="text-primary"
+          >
+            <User className="h-6 w-6" />
+          </Button>
+        </div>
+      </header>
+
+      <div className="p-4 space-y-6">
+        {/* Sales Indicators */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-primary shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Vendas Hoje</CardTitle>
+              <p className="text-xs text-muted-foreground">{currentDate}</p>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-muted-foreground">R$ 0,00</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">Quantidade de Pedidos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-center text-muted-foreground">0</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Profitability Reports */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card className="border-primary shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-primary flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Maior Rentabilidade
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">1. Produto A</p>
+                <p className="text-sm text-muted-foreground">2. Produto B</p>
+                <p className="text-sm text-muted-foreground">3. Produto C</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-primary flex items-center gap-2">
+                <TrendingDown className="h-4 w-4" />
+                Menor Rentabilidade
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">1. Produto X</p>
+                <p className="text-sm text-muted-foreground">2. Produto Y</p>
+                <p className="text-sm text-muted-foreground">3. Produto Z</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="border-primary shadow-sm cursor-pointer hover:bg-accent/50 transition-colors">
+            <CardContent className="p-4 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <Plus className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-primary">Novo Produto</p>
+                <p className="text-xs text-muted-foreground">0 cadastrados</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary shadow-sm cursor-pointer hover:bg-accent/50 transition-colors">
+            <CardContent className="p-4 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <Package className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-primary">Novo Insumo</p>
+                <p className="text-xs text-muted-foreground">0 cadastrados</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary shadow-sm cursor-pointer hover:bg-accent/50 transition-colors">
+            <CardContent className="p-4 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <Truck className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-primary">Nova Entrada</p>
+                <p className="text-xs text-muted-foreground">Registrar entrada</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary shadow-sm cursor-pointer hover:bg-accent/50 transition-colors">
+            <CardContent className="p-4 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <Receipt className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium text-primary">Nova Venda</p>
+                <p className="text-xs text-muted-foreground">0 vendas hoje</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
