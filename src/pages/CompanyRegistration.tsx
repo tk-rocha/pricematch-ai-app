@@ -29,12 +29,51 @@ const CompanyRegistration = () => {
     }));
   };
 
-  const handleCepSearch = () => {
-    if (formData.cep) {
-      // Here you would implement CEP API search
+  const handleCepSearch = async () => {
+    if (!formData.cep) return;
+    
+    const cepNumbers = formData.cep.replace(/\D/g, '');
+    
+    if (cepNumbers.length !== 8) {
       toast({
-        title: "CEP",
-        description: "Funcionalidade de busca por CEP será implementada",
+        title: "CEP inválido",
+        description: "O CEP deve conter 8 dígitos",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cepNumbers}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        toast({
+          title: "CEP não encontrado!",
+          description: "Verifique o CEP informado",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Auto-fill address fields
+      setFormData(prev => ({
+        ...prev,
+        rua: data.logradouro || "",
+        bairro: data.bairro || "",
+        municipioUf: `${data.localidade}/${data.uf}` || ""
+      }));
+
+      toast({
+        title: "CEP encontrado",
+        description: "Endereço preenchido automaticamente",
+      });
+
+    } catch (error) {
+      toast({
+        title: "Erro na busca",
+        description: "Não foi possível buscar o CEP",
+        variant: "destructive",
       });
     }
   };
