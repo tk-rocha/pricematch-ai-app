@@ -28,7 +28,8 @@ const CadastroLoja = () => {
     estado: "",
     telefone: "",
     email: "",
-    cnpj: ""
+    cnpj: "",
+    nomeContato: ""
   });
 
   const [isLoadingCep, setIsLoadingCep] = useState(false);
@@ -107,6 +108,10 @@ const CadastroLoja = () => {
 
     if (!formData.nome.trim()) {
       newErrors.nome = "Nome da loja é obrigatório";
+    }
+
+    if (!formData.nomeContato.trim()) {
+      newErrors.nomeContato = "Nome do contato é obrigatório";
     }
 
     setErrors(newErrors);
@@ -328,6 +333,24 @@ const CadastroLoja = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 pt-0 space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Nome *
+                </label>
+                <input
+                  type="text"
+                  value={formData.nomeContato}
+                  onChange={(e) => handleInputChange("nomeContato", e.target.value)}
+                  placeholder="Nome do responsável"
+                  className={`w-full h-11 sm:h-12 px-3 py-2 border rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${
+                    errors.nomeContato ? 'border-red-500' : 'border-input bg-background'
+                  }`}
+                />
+                {errors.nomeContato && (
+                  <p className="text-red-500 text-xs">{errors.nomeContato}</p>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
                   Telefone
