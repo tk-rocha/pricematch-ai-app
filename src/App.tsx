@@ -10,6 +10,7 @@ import CadastroLoja from "./pages/CadastroLoja";
 import CadastroPlataforma from "./pages/CadastroPlataforma";
 import CadastroUnidade from "./pages/CadastroUnidade";
 import CadastroProduto from "./pages/CadastroProduto";
+import CadastroInsumo from "./pages/CadastroInsumo";
 import ListagemLojas from "./pages/ListagemLojas";
 import ListagemPlataformas from "./pages/ListagemPlataformas";
 import ListagemUnidades from "./pages/ListagemUnidades";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/cadastro-plataforma" element={<CadastroPlataforma />} />
           <Route path="/cadastro-unidade" element={<CadastroUnidade />} />
           <Route path="/cadastro-produto" element={<CadastroProduto />} />
+          <Route path="/cadastro-insumo" element={<CadastroInsumo />} />
           <Route path="/listagem-lojas" element={<ListagemLojas />} />
           <Route path="/listagem-plataformas" element={<ListagemPlataformas />} />
           <Route path="/listagem-unidades" element={<ListagemUnidades />} />
