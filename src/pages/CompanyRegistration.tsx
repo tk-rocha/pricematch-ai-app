@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,14 @@ const CompanyRegistration = () => {
     bairro: "",
     municipioUf: ""
   });
+
+  // Load existing data if editing
+  useEffect(() => {
+    const storedData = localStorage.getItem("userData");
+    if (storedData) {
+      setFormData(JSON.parse(storedData));
+    }
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({

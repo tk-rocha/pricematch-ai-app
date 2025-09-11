@@ -53,7 +53,16 @@ const Dashboard = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/company-registration")}
+            onClick={() => {
+              const userData = localStorage.getItem("userData");
+              if (userData) {
+                // If user data exists, go to view screen
+                navigate("/company-view");
+              } else {
+                // If no data exists, go to registration screen
+                navigate("/company-registration");
+              }
+            }}
             className="text-primary"
           >
             <User className="h-6 w-6" />
