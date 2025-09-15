@@ -102,6 +102,12 @@ const Cadastros = () => {
               } else if (option.path === "/cadastro-unidade") {
                 const unidades = JSON.parse(localStorage.getItem("unidades") || "[]");
                 navigate(unidades.length > 0 ? "/listagem-unidades" : "/cadastro-unidade");
+              } else if (option.path === "/cadastro-produto") {
+                const produtos = JSON.parse(localStorage.getItem("produtos") || "[]");
+                navigate(produtos.length > 0 ? "/listagem-produtos" : "/cadastro-produto");
+              } else if (option.path === "/cadastro-insumo") {
+                const insumos = JSON.parse(localStorage.getItem("insumos") || "[]");
+                navigate(insumos.length > 0 ? "/listagem-insumos" : "/cadastro-insumo");
               } else {
                 navigate(option.path);
               }

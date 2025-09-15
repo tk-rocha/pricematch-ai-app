@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { handleCurrencyInput, parseCurrencyToDecimal } from "@/lib/utils";
+import { handleCurrencyInput, parseCurrencyToDecimal, formatCurrencyInput } from "@/lib/utils";
 
 interface Insumo {
   id: string;
@@ -16,6 +16,8 @@ interface Insumo {
 
 const CadastroInsumo = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -25,9 +27,38 @@ const CadastroInsumo = () => {
     preco: ""
   });
 
-  const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
+  const [unidadesMedida, setUnidadesMedida] = useState<string[]>([]);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Load unidades from localStorage
+  useEffect(() => {
+    const storedUnidades = JSON.parse(localStorage.getItem("unidades") || "[]");
+    const unidadeOptions = storedUnidades.map((unidade: any) => unidade.sigla);
+    
+    // Add default options if no stored units
+    const defaultUnidades = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
+    const allUnidades = [...new Set([...unidadeOptions, ...defaultUnidades])];
+    
+    setUnidadesMedida(allUnidades);
+  }, []);
+
+  // Load existing data for editing
+  useEffect(() => {
+    if (editId) {
+      const existingInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
+      const insumoToEdit = existingInsumos.find((insumo: Insumo) => insumo.id === editId);
+      
+      if (insumoToEdit) {
+        setFormData({
+          nome: insumoToEdit.nome,
+          codigo: insumoToEdit.codigo || "",
+          unidade: insumoToEdit.unidade,
+          preco: formatCurrencyInput(insumoToEdit.preco || "0")
+        });
+      }
+    }
+  }, [editId]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -75,16 +106,32 @@ const CadastroInsumo = () => {
 
     const existingInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
     
-    const newInsumo: Insumo = {
-      id: Date.now().toString(),
-      nome: formData.nome.trim(),
-      codigo: formData.codigo.trim(),
-      unidade: formData.unidade,
-      preco: parseCurrencyToDecimal(formData.preco).toString()
-    };
-
-    existingInsumos.push(newInsumo);
-    localStorage.setItem("insumos", JSON.stringify(existingInsumos));
+    if (editId) {
+      // Update existing insumo
+      const updatedInsumos = existingInsumos.map((insumo: Insumo) => 
+        insumo.id === editId 
+          ? {
+              ...insumo,
+              nome: formData.nome.trim(),
+              codigo: formData.codigo.trim(),
+              unidade: formData.unidade,
+              preco: parseCurrencyToDecimal(formData.preco).toString()
+            }
+          : insumo
+      );
+      localStorage.setItem("insumos", JSON.stringify(updatedInsumos));
+    } else {
+      // Create new insumo
+      const newInsumo: Insumo = {
+        id: Date.now().toString(),
+        nome: formData.nome.trim(),
+        codigo: formData.codigo.trim(),
+        unidade: formData.unidade,
+        preco: parseCurrencyToDecimal(formData.preco).toString()
+      };
+      existingInsumos.push(newInsumo);
+      localStorage.setItem("insumos", JSON.stringify(existingInsumos));
+    }
 
     return true;
   };
@@ -92,14 +139,20 @@ const CadastroInsumo = () => {
   const handleSave = () => {
     if (saveInsumo()) {
       toast({
-        title: "Insumo salvo!",
-        description: "O insumo foi cadastrado com sucesso"
+        title: editId ? "Insumo atualizado!" : "Insumo salvo!",
+        description: editId ? "O insumo foi atualizado com sucesso" : "O insumo foi cadastrado com sucesso"
       });
       navigate("/listagem-insumos");
     }
   };
 
   const handleContinuarCadastrando = () => {
+    if (editId) {
+      // If editing, just save and go back to list
+      handleSave();
+      return;
+    }
+    
     if (saveInsumo()) {
       toast({
         title: "Insumo salvo!",
@@ -136,7 +189,7 @@ const CadastroInsumo = () => {
           </Button>
           
           <h1 className="text-base sm:text-lg font-bold text-primary">
-            Insumos
+            {editId ? "Editar Insumo" : "Insumos"}
           </h1>
           
           <div className="w-10 sm:w-11"></div>
@@ -225,7 +278,7 @@ const CadastroInsumo = () => {
                   className="w-full h-12 font-bold"
                   style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
                 >
-                  Salvar e Continuar Cadastrando
+                  {editId ? "Salvar Alterações" : "Salvar e Continuar Cadastrando"}
                 </Button>
               </div>
             </CardContent>
@@ -247,7 +300,7 @@ const CadastroInsumo = () => {
             onClick={handleSave}
             className="flex-1 h-11 sm:h-12 text-sm font-semibold"
           >
-            Salvar
+            {editId ? "Atualizar" : "Salvar"}
           </Button>
         </div>
       </footer>
