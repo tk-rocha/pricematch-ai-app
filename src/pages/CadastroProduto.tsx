@@ -332,11 +332,10 @@ const CadastroProduto = () => {
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Pesquisar"
-                        className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
-                        style={{ borderRadius: '3px', color: '#666666' }}
+                        placeholder="Pesquisar insumos"
+                        className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
                       />
-                      <Search className="absolute right-3 top-3 h-6 w-6" style={{ color: '#666666' }} />
+                      <Search className="absolute right-3 top-3 h-6 w-6 text-muted-foreground" />
                     </div>
                     <input
                       type="number"
@@ -344,16 +343,8 @@ const CadastroProduto = () => {
                       value={quantidadeTemp}
                       onChange={(e) => setQuantidadeTemp(e.target.value)}
                       placeholder="Quantidade"
-                      className="w-24 h-12 px-2 border border-gray-300 rounded text-sm"
-                      style={{ borderRadius: '3px', color: '#666666' }}
+                      className="w-24 h-12 px-2 border border-border rounded-sm text-sm text-foreground"
                     />
-                    <Button
-                      size="sm"
-                      className="h-12 px-3"
-                      style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
-                    >
-                      Ok
-                    </Button>
                   </div>
 
                   {/* Quanto Rende Field */}
@@ -363,46 +354,60 @@ const CadastroProduto = () => {
                       value={formData.quantoRende}
                       onChange={(e) => handleInputChange("quantoRende", e.target.value)}
                       placeholder="Quanto Rende"
-                      className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
-                      style={{ borderRadius: '3px', color: '#666666' }}
+                      className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
                     />
                   </div>
 
                   {/* Confirm Button */}
                   <Button
-                    className="w-full h-12 font-bold"
-                    style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
+                    className="w-full h-12 font-bold bg-primary text-primary-foreground rounded-sm"
                   >
                     Confirmar Ficha
                   </Button>
 
                   {/* Search Results */}
-                  {searchTerm && (
-                    <div className="max-h-32 overflow-y-auto border border-gray-300" style={{ borderRadius: '3px' }}>
+                  {searchTerm && filteredInsumos.length > 0 && (
+                    <div className="max-h-40 overflow-y-auto border border-border rounded-sm">
                       {filteredInsumos.map(insumo => (
                         <div
                           key={insumo.id}
                           onClick={() => addInsumo(insumo)}
-                          className="p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
+                          className="p-3 hover:bg-muted cursor-pointer border-b border-border last:border-b-0 flex items-center justify-between"
                         >
-                          <div className="font-medium">{insumo.nome}</div>
-                          <div className="text-sm" style={{ color: '#666666' }}>
-                            R$ {parseFloat(insumo.preco).toFixed(2)} / {insumo.unidade}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Insumo
+                              </span>
+                              <span className="font-medium">{insumo.nome}</span>
+                            </div>
+                            <div className="text-sm text-muted-foreground mt-1">
+                              R$ {parseFloat(insumo.preco).toFixed(2)} / {insumo.unidade}
+                            </div>
                           </div>
+                          <Plus className="h-4 w-4 text-muted-foreground" />
                         </div>
                       ))}
+                    </div>
+                  )}
+
+                  {/* No results message */}
+                  {searchTerm && filteredInsumos.length === 0 && (
+                    <div className="text-center p-4 text-muted-foreground">
+                      <p>Nenhum insumo encontrado</p>
+                      <p className="text-xs mt-1">Cadastre insumos primeiro em "Cadastros → Insumos"</p>
                     </div>
                   )}
 
                   {/* Linked Insumos */}
                   {insumosVinculados.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-medium">Insumos Vinculados:</h4>
+                      <h4 className="font-medium text-foreground">Insumos Vinculados:</h4>
                       {insumosVinculados.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                        <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-sm">
                           <div>
-                            <div className="font-medium">{item.nome}</div>
-                            <div className="text-sm" style={{ color: '#666666' }}>
+                            <div className="font-medium text-foreground">{item.nome}</div>
+                            <div className="text-sm text-muted-foreground">
                               {item.quantidade} {item.unidade} - R$ {(item.quantidade * item.preco).toFixed(2)}
                             </div>
                           </div>
@@ -410,11 +415,17 @@ const CadastroProduto = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeInsumo(index)}
+                            className="hover:bg-destructive/10 hover:text-destructive"
                           >
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
                       ))}
+                      <div className="mt-3 p-3 bg-primary/5 rounded-sm border-l-4 border-primary">
+                        <div className="text-sm font-medium text-primary">
+                          Total do Custo de Produção: R$ {formData.custoProducao.toFixed(2)}
+                        </div>
+                      </div>
                     </div>
                   )}
 

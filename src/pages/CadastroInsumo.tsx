@@ -10,6 +10,7 @@ interface Insumo {
   nome: string;
   codigo?: string;
   unidade: string;
+  preco: string;
 }
 
 const CadastroInsumo = () => {
@@ -19,7 +20,8 @@ const CadastroInsumo = () => {
   const [formData, setFormData] = useState({
     nome: "",
     codigo: "",
-    unidade: ""
+    unidade: "",
+    preco: ""
   });
 
   const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
@@ -31,6 +33,14 @@ const CadastroInsumo = () => {
     // Remove error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handlePrecoChange = (value: string) => {
+    const regex = /^\d*[.,]?\d*$/;
+    if (regex.test(value) || value === "") {
+      const standardizedValue = value.replace(',', '.');
+      handleInputChange("preco", standardizedValue);
     }
   };
 
@@ -46,6 +56,10 @@ const CadastroInsumo = () => {
       newErrors.unidade = "Unidade de Medida é obrigatória";
     }
 
+    if (!formData.preco.trim()) {
+      newErrors.preco = "Preço é obrigatório";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,7 +68,7 @@ const CadastroInsumo = () => {
     if (!validateForm()) {
       toast({
         title: "Campos obrigatórios",
-        description: "Os campos Nome e Unidade de Medida são obrigatórios",
+        description: "Os campos Nome, Unidade de Medida e Preço são obrigatórios",
         variant: "destructive"
       });
       return false;
@@ -66,7 +80,8 @@ const CadastroInsumo = () => {
       id: Date.now().toString(),
       nome: formData.nome.trim(),
       codigo: formData.codigo.trim(),
-      unidade: formData.unidade
+      unidade: formData.unidade,
+      preco: formData.preco
     };
 
     existingInsumos.push(newInsumo);
@@ -96,7 +111,8 @@ const CadastroInsumo = () => {
       setFormData({
         nome: "",
         codigo: "",
-        unidade: ""
+        unidade: "",
+        preco: ""
       });
       setErrors({});
     }
@@ -182,6 +198,23 @@ const CadastroInsumo = () => {
                   </select>
                   {errors.unidade && (
                     <p className="text-red-500 text-xs mt-1">{errors.unidade}</p>
+                  )}
+                </div>
+
+                {/* Preço Field */}
+                <div>
+                  <input
+                    type="text"
+                    value={formData.preco}
+                    onChange={(e) => handlePrecoChange(e.target.value)}
+                    placeholder="Preço"
+                    className={`w-full h-12 px-4 border rounded text-sm ${
+                      errors.preco ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    style={{ borderRadius: '3px', color: '#666666' }}
+                  />
+                  {errors.preco && (
+                    <p className="text-red-500 text-xs mt-1">{errors.preco}</p>
                   )}
                 </div>
               </div>
