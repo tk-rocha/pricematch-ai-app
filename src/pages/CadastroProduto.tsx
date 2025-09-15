@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Package, Search, Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { handleCurrencyInput, parseCurrencyToDecimal, formatCurrency } from "@/lib/utils";
 
 interface Produto {
   id: string;
@@ -75,11 +76,9 @@ const CadastroProduto = () => {
   };
 
   const handlePrecoChange = (value: string) => {
-    const regex = /^\d*[.,]?\d*$/;
-    if (regex.test(value) || value === "") {
-      const standardizedValue = value.replace(',', '.');
-      handleInputChange("precoVenda", standardizedValue);
-    }
+    handleCurrencyInput(value, (formattedValue) => {
+      handleInputChange("precoVenda", formattedValue);
+    });
   };
 
   const validateForm = () => {
@@ -146,7 +145,7 @@ const CadastroProduto = () => {
       codigo: formData.codigo.trim(),
       unidadeMedida: formData.unidadeMedida,
       custoProducao: formData.custoProducao,
-      precoVenda: parseFloat(formData.precoVenda) || 0,
+      precoVenda: parseCurrencyToDecimal(formData.precoVenda),
       fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined
     };
 
@@ -315,11 +314,11 @@ const CadastroProduto = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 border border-border rounded-sm">
                       <div className="text-sm text-muted-foreground">Custo Produção</div>
-                      <div className="text-lg font-bold">R$ {formData.custoProducao.toFixed(2)}</div>
+                      <div className="text-lg font-bold">{formatCurrency(formData.custoProducao)}</div>
                     </div>
                     <div className="text-center p-4 border border-border rounded-sm">
                       <div className="text-sm text-muted-foreground">Preço</div>
-                      <div className="text-lg font-bold">R$ {parseFloat(formData.precoVenda || "0").toFixed(2)}</div>
+                      <div className="text-lg font-bold">{formatCurrency(parseCurrencyToDecimal(formData.precoVenda))}</div>
                     </div>
                   </div>
                 </TabsContent>
@@ -382,7 +381,7 @@ const CadastroProduto = () => {
                               <span className="font-medium">{insumo.nome}</span>
                             </div>
                             <div className="text-sm text-muted-foreground mt-1">
-                              R$ {parseFloat(insumo.preco).toFixed(2)} / {insumo.unidade}
+                              {formatCurrency(parseFloat(insumo.preco))} / {insumo.unidade}
                             </div>
                           </div>
                           <Plus className="h-4 w-4 text-muted-foreground" />
@@ -408,7 +407,7 @@ const CadastroProduto = () => {
                           <div>
                             <div className="font-medium text-foreground">{item.nome}</div>
                             <div className="text-sm text-muted-foreground">
-                              {item.quantidade} {item.unidade} - R$ {(item.quantidade * item.preco).toFixed(2)}
+                              {item.quantidade} {item.unidade} - {formatCurrency(item.quantidade * item.preco)}
                             </div>
                           </div>
                           <Button
@@ -423,7 +422,7 @@ const CadastroProduto = () => {
                       ))}
                       <div className="mt-3 p-3 bg-primary/5 rounded-sm border-l-4 border-primary">
                         <div className="text-sm font-medium text-primary">
-                          Total do Custo de Produção: R$ {formData.custoProducao.toFixed(2)}
+                          Total do Custo de Produção: {formatCurrency(formData.custoProducao)}
                         </div>
                       </div>
                     </div>
@@ -433,11 +432,11 @@ const CadastroProduto = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 border border-border rounded-sm">
                       <div className="text-sm text-muted-foreground">Custo Produção</div>
-                      <div className="text-lg font-bold">R$ {formData.custoProducao.toFixed(2)}</div>
+                      <div className="text-lg font-bold">{formatCurrency(formData.custoProducao)}</div>
                     </div>
                     <div className="text-center p-4 border border-border rounded-sm">
                       <div className="text-sm text-muted-foreground">Preço</div>
-                      <div className="text-lg font-bold">R$ {parseFloat(formData.precoVenda || "0").toFixed(2)}</div>
+                      <div className="text-lg font-bold">{formatCurrency(parseCurrencyToDecimal(formData.precoVenda))}</div>
                     </div>
                   </div>
 

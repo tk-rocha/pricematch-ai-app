@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { handleCurrencyInput, parseCurrencyToDecimal } from "@/lib/utils";
 
 interface Insumo {
   id: string;
@@ -37,11 +38,9 @@ const CadastroInsumo = () => {
   };
 
   const handlePrecoChange = (value: string) => {
-    const regex = /^\d*[.,]?\d*$/;
-    if (regex.test(value) || value === "") {
-      const standardizedValue = value.replace(',', '.');
-      handleInputChange("preco", standardizedValue);
-    }
+    handleCurrencyInput(value, (formattedValue) => {
+      handleInputChange("preco", formattedValue);
+    });
   };
 
 
@@ -81,7 +80,7 @@ const CadastroInsumo = () => {
       nome: formData.nome.trim(),
       codigo: formData.codigo.trim(),
       unidade: formData.unidade,
-      preco: formData.preco
+      preco: parseCurrencyToDecimal(formData.preco).toString()
     };
 
     existingInsumos.push(newInsumo);
