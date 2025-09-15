@@ -300,14 +300,25 @@ const CadastroProduto = () => {
                 </TabsList>
 
                 <TabsContent value="normal" className="space-y-4">
+                  {/* Preço Field */}
+                  <div>
+                    <input
+                      type="text"
+                      value={formData.precoVenda}
+                      onChange={(e) => handlePrecoChange(e.target.value)}
+                      placeholder="Preço"
+                      className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
+                    />
+                  </div>
+
                   {/* Financial Indicators */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 border border-gray-300" style={{ borderRadius: '3px' }}>
-                      <div className="text-sm" style={{ color: '#666666' }}>Custo Produção</div>
+                    <div className="text-center p-4 border border-border rounded-sm">
+                      <div className="text-sm text-muted-foreground">Custo Produção</div>
                       <div className="text-lg font-bold">R$ {formData.custoProducao.toFixed(2)}</div>
                     </div>
-                    <div className="text-center p-4 border border-gray-300" style={{ borderRadius: '3px' }}>
-                      <div className="text-sm" style={{ color: '#666666' }}>Preço Venda</div>
+                    <div className="text-center p-4 border border-border rounded-sm">
+                      <div className="text-sm text-muted-foreground">Preço</div>
                       <div className="text-lg font-bold">R$ {parseFloat(formData.precoVenda || "0").toFixed(2)}</div>
                     </div>
                   </div>
@@ -409,19 +420,13 @@ const CadastroProduto = () => {
 
                   {/* Financial Indicators in Technical Sheet */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 border border-gray-300" style={{ borderRadius: '3px' }}>
-                      <div className="text-sm" style={{ color: '#666666' }}>Custo Produção</div>
+                    <div className="text-center p-4 border border-border rounded-sm">
+                      <div className="text-sm text-muted-foreground">Custo Produção</div>
                       <div className="text-lg font-bold">R$ {formData.custoProducao.toFixed(2)}</div>
                     </div>
-                    <div className="text-center p-4 border border-gray-300" style={{ borderRadius: '3px' }}>
-                      <div className="text-sm" style={{ color: '#666666' }}>Preço Venda</div>
-                      <input
-                        type="text"
-                        value={formData.precoVenda}
-                        onChange={(e) => handlePrecoChange(e.target.value)}
-                        placeholder="0,00"
-                        className="w-full text-center border-0 bg-transparent text-lg font-bold focus:outline-none"
-                      />
+                    <div className="text-center p-4 border border-border rounded-sm">
+                      <div className="text-sm text-muted-foreground">Preço</div>
+                      <div className="text-lg font-bold">R$ {parseFloat(formData.precoVenda || "0").toFixed(2)}</div>
                     </div>
                   </div>
 
