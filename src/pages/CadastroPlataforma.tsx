@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { handlePercentageInput, parsePercentageToDecimal } from "@/lib/utils";
 
 interface Plataforma {
   id: string;
@@ -31,11 +32,9 @@ const CadastroPlataforma = () => {
   };
 
   const handleTaxaChange = (value: string) => {
-    // Allow only numbers and decimal point
-    const regex = /^\d*\.?\d*$/;
-    if (regex.test(value) || value === "") {
-      handleInputChange("taxa", value);
-    }
+    handlePercentageInput(value, (formatted) => {
+      handleInputChange("taxa", formatted);
+    });
   };
 
   const validateForm = () => {
@@ -66,7 +65,7 @@ const CadastroPlataforma = () => {
     const newPlataforma: Plataforma = {
       id: Date.now().toString(),
       nome: formData.nome.trim(),
-      taxa: parseFloat(formData.taxa) || 0
+      taxa: parsePercentageToDecimal(formData.taxa)
     };
 
     // Save to localStorage
@@ -171,7 +170,7 @@ const CadastroPlataforma = () => {
                     type="text"
                     value={formData.taxa}
                     onChange={(e) => handleTaxaChange(e.target.value)}
-                    placeholder="Ex: 12.5"
+                    placeholder="Ex: 3,5"
                     className="w-full h-12 sm:h-14 px-4 py-3 pr-8 border border-input bg-background rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   />
                   <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground text-sm">

@@ -68,3 +68,50 @@ export function handleCurrencyInput(
   
   onChange(formatted);
 }
+
+// Utility functions for percentage formatting (Brazilian format)
+export function formatPercentageInput(value: string): string {
+  // Remove tudo exceto números e vírgula
+  let cleanValue = value.replace(/[^\d,]/g, '');
+  
+  // Se não tem vírgula e tem mais de 2 dígitos, adiciona vírgula automaticamente
+  if (!cleanValue.includes(',') && cleanValue.length > 2) {
+    const integerPart = cleanValue.slice(0, -1);
+    const decimalPart = cleanValue.slice(-1);
+    cleanValue = `${integerPart},${decimalPart}`;
+  }
+  
+  // Limita a 2 casas decimais após a vírgula
+  const parts = cleanValue.split(',');
+  if (parts.length > 2) {
+    cleanValue = `${parts[0]},${parts[1]}`;
+  }
+  if (parts[1] && parts[1].length > 2) {
+    cleanValue = `${parts[0]},${parts[1].slice(0, 2)}`;
+  }
+  
+  return cleanValue ? `${cleanValue}%` : '';
+}
+
+export function parsePercentageToDecimal(value: string): number {
+  // Remove % e espaços, converte vírgula para ponto
+  const cleanValue = value
+    .replace(/%/g, '')
+    .replace(/\s/g, '')
+    .replace(',', '.');
+  
+  return parseFloat(cleanValue) || 0;
+}
+
+export function handlePercentageInput(
+  value: string,
+  onChange: (value: string) => void
+): void {
+  // Remove o % se existir para trabalhar com o valor limpo
+  const cleanInput = value.replace(/%/g, '');
+  
+  // Aplica a formatação
+  const formatted = formatPercentageInput(cleanInput);
+  
+  onChange(formatted);
+}
