@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, Ruler } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,6 +10,7 @@ interface Unidade {
   id: string;
   nome: string;
   sigla: string;
+  fracionado: boolean;
 }
 
 const CadastroUnidade = () => {
@@ -17,12 +19,13 @@ const CadastroUnidade = () => {
   
   const [formData, setFormData] = useState({
     nome: "",
-    sigla: ""
+    sigla: "",
+    fracionado: false
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Remove error when user starts typing
     if (errors[field]) {
@@ -49,7 +52,7 @@ const CadastroUnidade = () => {
     if (!validateForm()) {
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha o nome da unidade e a sigla",
+        description: "Os campos Nome e Sigla são obrigatórios.",
         variant: "destructive"
       });
       return false;
@@ -62,7 +65,8 @@ const CadastroUnidade = () => {
     const newUnidade: Unidade = {
       id: Date.now().toString(),
       nome: formData.nome.trim(),
-      sigla: formData.sigla.trim().toUpperCase()
+      sigla: formData.sigla.trim().toUpperCase(),
+      fracionado: formData.fracionado
     };
 
     // Save to localStorage
@@ -92,7 +96,8 @@ const CadastroUnidade = () => {
       // Clear form
       setFormData({
         nome: "",
-        sigla: ""
+        sigla: "",
+        fracionado: false
       });
       setErrors({});
     }
@@ -117,7 +122,7 @@ const CadastroUnidade = () => {
           </Button>
           
           <h1 className="text-base sm:text-lg font-bold text-primary">
-            Unidade de Medida
+            UNIDADE DE MEDIDA
           </h1>
           
           <div className="w-10 sm:w-11"></div>
@@ -148,7 +153,7 @@ const CadastroUnidade = () => {
                   value={formData.nome}
                   onChange={(e) => handleInputChange("nome", e.target.value)}
                   placeholder="Ex: Quilograma, Metro, Litro..."
-                  className={`w-full h-12 sm:h-14 px-4 py-3 border rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${
+                  className={`w-full h-12 sm:h-14 px-4 py-3 border rounded-md text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${
                     errors.nome ? 'border-red-500' : 'border-input bg-background'
                   }`}
                 />
@@ -167,7 +172,7 @@ const CadastroUnidade = () => {
                   value={formData.sigla}
                   onChange={(e) => handleInputChange("sigla", e.target.value)}
                   placeholder="Ex: KG, M, L..."
-                  className={`w-full h-12 sm:h-14 px-4 py-3 border rounded-md text-sm placeholder:text-precifica-gray-text focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${
+                  className={`w-full h-12 sm:h-14 px-4 py-3 border rounded-md text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent ${
                     errors.sigla ? 'border-red-500' : 'border-input bg-background'
                   }`}
                 />
@@ -176,6 +181,30 @@ const CadastroUnidade = () => {
                 )}
                 <p className="text-xs text-muted-foreground">
                   Abreviação da unidade de medida
+                </p>
+              </div>
+
+              {/* Fracionado Field */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Fracionado?
+                </label>
+                <RadioGroup 
+                  value={formData.fracionado ? "sim" : "nao"} 
+                  onValueChange={(value) => handleInputChange("fracionado", value === "sim")}
+                  className="flex gap-6"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="nao" id="nao" />
+                    <label htmlFor="nao" className="text-sm text-foreground cursor-pointer">Não</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="sim" id="sim" />
+                    <label htmlFor="sim" className="text-sm text-foreground cursor-pointer">Sim</label>
+                  </div>
+                </RadioGroup>
+                <p className="text-xs text-muted-foreground">
+                  Se "Sim", aceita valores decimais (ex: 1,500 Kg). Se "Não", apenas valores inteiros (ex: 1 un).
                 </p>
               </div>
 
