@@ -44,8 +44,9 @@ const CadastroProduto = () => {
     codigo: "",
     unidadeMedida: "",
     quantoRende: "",
-    custoProducao: 0,
-    precoVenda: ""
+    custoTotalProducao: 0,
+    custoUnitario: 0,
+    precoSugerido: 0
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -53,6 +54,7 @@ const CadastroProduto = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [insumosVinculados, setInsumosVinculados] = useState<InsumoVinculado[]>([]);
   const [quantidadeTemp, setQuantidadeTemp] = useState("");
+  const [margem, setMargem] = useState(0);
 
   const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
 
@@ -60,6 +62,17 @@ const CadastroProduto = () => {
     // Load insumos from localStorage
     const savedInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
     setInsumos(savedInsumos);
+
+    // Load margin from localStorage
+    const savedMargem = localStorage.getItem("margem");
+    if (savedMargem) {
+      try {
+        const margemData = JSON.parse(savedMargem);
+        setMargem(margemData.margemDecimal || 0);
+      } catch (error) {
+        console.error("Erro ao carregar margem:", error);
+      }
+    }
 
     // Load product data if editing
     if (isEditing && id) {
@@ -71,8 +84,9 @@ const CadastroProduto = () => {
           codigo: produto.codigo || "",
           unidadeMedida: produto.unidadeMedida,
           quantoRende: "",
-          custoProducao: produto.custoProducao,
-          precoVenda: formatCurrency(produto.precoVenda)
+          custoTotalProducao: produto.custoProducao || 0,
+          custoUnitario: 0,
+          precoSugerido: produto.precoVenda || 0
         });
         if (produto.fichaTecnica) {
           setInsumosVinculados(produto.fichaTecnica);
@@ -82,24 +96,31 @@ const CadastroProduto = () => {
   }, [isEditing, id]);
 
   useEffect(() => {
-    // Recalculate production cost when linked inputs change
-    const custo = insumosVinculados.reduce((total, item) => {
+    // Calculate total production cost when linked inputs change
+    const custoTotal = insumosVinculados.reduce((total, item) => {
       return total + (item.quantidade * item.preco);
     }, 0);
-    setFormData(prev => ({ ...prev, custoProducao: custo }));
+    setFormData(prev => ({ ...prev, custoTotalProducao: custoTotal }));
   }, [insumosVinculados]);
+
+  // Calculate unit cost and suggested price when dependencies change
+  useEffect(() => {
+    const quantoRendeNum = parseFloat(formData.quantoRende) || 1;
+    const custoUnitario = formData.custoTotalProducao / quantoRendeNum;
+    const precoSugerido = custoUnitario * (1 + margem / 100);
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      custoUnitario: custoUnitario,
+      precoSugerido: precoSugerido
+    }));
+  }, [formData.custoTotalProducao, formData.quantoRende, margem]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
-  };
-
-  const handlePrecoChange = (value: string) => {
-    handleCurrencyInput(value, (formattedValue) => {
-      handleInputChange("precoVenda", formattedValue);
-    });
   };
 
   const validateForm = () => {
@@ -165,8 +186,8 @@ const CadastroProduto = () => {
       nome: formData.nome.trim(),
       codigo: formData.codigo.trim(),
       unidadeMedida: formData.unidadeMedida,
-      custoProducao: formData.custoProducao,
-      precoVenda: parseCurrencyToDecimal(formData.precoVenda),
+      custoProducao: formData.custoUnitario,
+      precoVenda: formData.precoSugerido,
       fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined
     };
 
@@ -205,8 +226,9 @@ const CadastroProduto = () => {
         codigo: "",
         unidadeMedida: "",
         quantoRende: "",
-        custoProducao: 0,
-        precoVenda: ""
+        custoTotalProducao: 0,
+        custoUnitario: 0,
+        precoSugerido: 0
       });
       setInsumosVinculados([]);
       setActiveTab("normal");
@@ -297,18 +319,6 @@ const CadastroProduto = () => {
                     <p className="text-red-500 text-xs mt-1">{errors.unidadeMedida}</p>
                   )}
                 </div>
-
-                {/* Preço Field - Moved outside tabs */}
-                <div>
-                  <input
-                    type="text"
-                    value={formData.precoVenda}
-                    onChange={(e) => handlePrecoChange(e.target.value)}
-                    placeholder="Preço"
-                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
-                    style={{ borderRadius: '3px', color: '#666666' }}
-                  />
-                </div>
               </div>
 
               {/* Tabs */}
@@ -342,12 +352,12 @@ const CadastroProduto = () => {
                   {/* Financial Indicators */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Custo Produção</div>
-                      <div className="text-lg font-bold">{formatCurrency(formData.custoProducao)}</div>
+                      <div className="text-sm text-muted-foreground">Custo Unitário</div>
+                      <div className="text-lg font-bold">{formatCurrency(formData.custoUnitario)}</div>
                     </div>
                     <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Preço</div>
-                      <div className="text-lg font-bold">{formatCurrency(parseCurrencyToDecimal(formData.precoVenda))}</div>
+                      <div className="text-sm text-muted-foreground">Preço Sugerido</div>
+                      <div className="text-lg font-bold">{formatCurrency(formData.precoSugerido)}</div>
                     </div>
                   </div>
                 </TabsContent>
@@ -441,7 +451,7 @@ const CadastroProduto = () => {
                       ))}
                       <div className="mt-3 p-3 bg-primary/5 rounded-sm border-l-4 border-primary">
                         <div className="text-sm font-medium text-primary">
-                          Total do Custo de Produção: {formatCurrency(formData.custoProducao)}
+                          Total do Custo de Produção: {formatCurrency(formData.custoTotalProducao)}
                         </div>
                       </div>
 
@@ -464,12 +474,12 @@ const CadastroProduto = () => {
                   {/* Financial Indicators in Technical Sheet */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Custo Produção</div>
-                      <div className="text-lg font-bold">{formatCurrency(formData.custoProducao)}</div>
+                      <div className="text-sm text-muted-foreground">Custo Unitário</div>
+                      <div className="text-lg font-bold">{formatCurrency(formData.custoUnitario)}</div>
                     </div>
                     <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Preço</div>
-                      <div className="text-lg font-bold">{formatCurrency(parseCurrencyToDecimal(formData.precoVenda))}</div>
+                      <div className="text-sm text-muted-foreground">Preço Sugerido</div>
+                      <div className="text-lg font-bold">{formatCurrency(formData.precoSugerido)}</div>
                     </div>
                   </div>
 
