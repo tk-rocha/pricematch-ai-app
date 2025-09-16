@@ -86,7 +86,7 @@ const ListagemMargem = () => {
                     Voltar
                   </Button>
                   <Button
-                    onClick={() => navigate("/cadastro-margem")}
+                    onClick={() => navigate("/cadastro-margem?modo=editar")}
                     className="flex-1"
                   >
                     <Edit className="w-4 h-4 mr-2" />

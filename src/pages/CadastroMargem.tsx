@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { handlePercentageInput, parsePercentageToDecimal } from "@/lib/utils";
 
 const CadastroMargem = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [margem, setMargem] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [hasExistingMargem, setHasExistingMargem] = useState(false);
@@ -26,7 +27,14 @@ const CadastroMargem = () => {
         console.error("Erro ao carregar margem:", error);
       }
     }
-  }, []);
+
+    // Modo edição via query param
+    const params = new URLSearchParams(location.search);
+    const modo = params.get("modo");
+    if (modo === "editar") {
+      setIsEditing(true);
+    }
+  }, [location.search]);
 
   const handleSave = () => {
     if (!margem.trim()) {
@@ -48,7 +56,7 @@ const CadastroMargem = () => {
 
     localStorage.setItem("margem", JSON.stringify(margemData));
     toast.success(hasExistingMargem ? "Margem atualizada com sucesso!" : "Margem cadastrada com sucesso!");
-    navigate("/cadastros");
+    navigate("/listagem-margem");
   };
 
   const handleEdit = () => {
@@ -56,17 +64,7 @@ const CadastroMargem = () => {
   };
 
   const handleCancel = () => {
-    if (hasExistingMargem) {
-      // Restore original value
-      const storedMargem = localStorage.getItem("margem");
-      if (storedMargem) {
-        const parsed = JSON.parse(storedMargem);
-        setMargem(parsed.margem || "");
-      }
-      setIsEditing(false);
-    } else {
-      navigate("/cadastros");
-    }
+    navigate("/listagem-margem");
   };
 
   return (
@@ -77,7 +75,7 @@ const CadastroMargem = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/cadastros")}
+            onClick={() => navigate("/listagem-margem")}
             className="hover:bg-muted min-w-[44px] min-h-[44px]"
           >
             <ArrowLeft className="h-6 w-6 text-foreground" />
@@ -112,7 +110,6 @@ const CadastroMargem = () => {
                   value={margem}
                   onChange={(e) => {
                     const value = e.target.value;
-                    // Permite backspace e delete - se o valor está diminuindo, não aplica formatação automática
                     if (value.length < margem.length) {
                       setMargem(value);
                     } else {
