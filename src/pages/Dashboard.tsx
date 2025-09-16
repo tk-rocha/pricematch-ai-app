@@ -56,7 +56,8 @@ const Dashboard = () => {
       path: "/cadastro-produto",
       count: counts.produtos,
       label: "Produtos cadastrados",
-      active: true
+      active: true,
+      countNavigateTo: "/listagem-produtos"
     },
     {
       title: "Novo Insumo",
@@ -64,7 +65,8 @@ const Dashboard = () => {
       path: "/cadastro-insumo", 
       count: counts.insumos,
       label: "Insumos cadastrados",
-      active: true
+      active: true,
+      countNavigateTo: "/listagem-insumos"
     },
     {
       title: "Nova Entrada",
@@ -176,7 +178,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Action Buttons */}
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {actionButtons.map((button, index) => {
               const IconComponent = button.icon;
               return (
@@ -214,10 +216,24 @@ const Dashboard = () => {
                         </div>
                       </div>
                       
-                      {/* Count */}
+                      {/* Count (only number clickable) */}
                       <div className="text-right">
-                        <p className="text-lg sm:text-xl font-bold text-foreground">{button.count.toString().padStart(4, '0')}</p>
-                        <p className="text-xs text-muted-foreground">{button.label}</p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if ((button as any).countNavigateTo) {
+                              navigate((button as any).countNavigateTo);
+                            }
+                          }}
+                          className="group text-right focus:outline-none"
+                          aria-label={`Abrir listagem de ${button.label}`}
+                        >
+                          <p className="text-lg sm:text-xl font-bold text-foreground group-hover:underline underline-offset-4">
+                            {button.count.toString().padStart(4, '0')}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{button.label}</p>
+                        </button>
                       </div>
                     </div>
                   </CardContent>
