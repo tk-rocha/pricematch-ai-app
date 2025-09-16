@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart, Beaker } from "lucide-react";
+import { getStoredCount } from "@/lib/utils";
 
 const Cadastros = () => {
   const navigate = useNavigate();
@@ -94,20 +95,20 @@ const Cadastros = () => {
               
               // Check if data exists and redirect accordingly
               if (option.path === "/cadastro-loja") {
-                const dadosLoja = localStorage.getItem("dadosLoja");
-                navigate(dadosLoja ? "/listagem-lojas" : "/cadastro-loja");
+                const count = getStoredCount("dadosLoja");
+                navigate(count > 0 ? "/listagem-lojas" : "/cadastro-loja");
               } else if (option.path === "/cadastro-plataforma") {
-                const plataformas = JSON.parse(localStorage.getItem("plataformas") || "[]");
-                navigate(plataformas.length > 0 ? "/listagem-plataformas" : "/cadastro-plataforma");
+                const count = getStoredCount("plataformas");
+                navigate(count > 0 ? "/listagem-plataformas" : "/cadastro-plataforma");
               } else if (option.path === "/cadastro-unidade") {
-                const unidades = JSON.parse(localStorage.getItem("unidades") || "[]");
-                navigate(unidades.length > 0 ? "/listagem-unidades" : "/cadastro-unidade");
+                const count = getStoredCount("unidades");
+                navigate(count > 0 ? "/listagem-unidades" : "/cadastro-unidade");
               } else if (option.path === "/cadastro-produto") {
-                const produtos = JSON.parse(localStorage.getItem("produtos") || "[]");
-                navigate(produtos.length > 0 ? "/listagem-produtos" : "/cadastro-produto");
+                const count = getStoredCount("produtos");
+                navigate(count > 0 ? "/listagem-produtos" : "/cadastro-produto");
               } else if (option.path === "/cadastro-insumo") {
-                const insumos = JSON.parse(localStorage.getItem("insumos") || "[]");
-                navigate(insumos.length > 0 ? "/listagem-insumos" : "/cadastro-insumo");
+                const count = getStoredCount("insumos");
+                navigate(count > 0 ? "/listagem-insumos" : "/cadastro-insumo");
               } else {
                 navigate(option.path);
               }

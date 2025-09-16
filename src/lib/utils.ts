@@ -115,3 +115,29 @@ export function handlePercentageInput(
   
   onChange(formatted);
 }
+
+// Utility function to get count of stored items in localStorage
+export function getStoredCount(key: string): number {
+  try {
+    const stored = localStorage.getItem(key);
+    if (!stored) return 0;
+    
+    const parsed = JSON.parse(stored);
+    
+    // If it's an array, return its length
+    if (Array.isArray(parsed)) {
+      return parsed.length;
+    }
+    
+    // If it's an object, return the number of keys
+    if (typeof parsed === 'object' && parsed !== null) {
+      return Object.keys(parsed).length;
+    }
+    
+    // If it's a string or other primitive, consider it as 1 item if not empty
+    return parsed ? 1 : 0;
+  } catch (error) {
+    console.debug(`Error parsing localStorage key "${key}":`, error);
+    return 0;
+  }
+}
