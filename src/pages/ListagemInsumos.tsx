@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, Beaker, Trash2, Edit } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 interface Insumo {
   id: string;
@@ -81,6 +82,27 @@ const ListagemInsumos = () => {
       {/* Main Content */}
       <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
         <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4">
+          {/* Breadcrumb */}
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/dashboard">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/cadastros">Cadastros</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Insumos</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
           {insumos.length === 0 ? (
             <Card className="shadow-sm">
               <CardContent className="p-6 text-center">
@@ -101,44 +123,44 @@ const ListagemInsumos = () => {
                         <Beaker className="h-6 w-6 sm:h-7 sm:w-7 text-primary-foreground" />
                       </div>
                        
-                       <div className="flex-1 min-w-0">
-                         <h3 className="font-semibold text-sm sm:text-base text-foreground">
-                           {insumo.nome}
-                         </h3>
-                         {insumo.codigo && (
-                           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                             Código: {insumo.codigo}
-                           </p>
-                         )}
-                         <div className="flex items-center gap-4 mt-1">
-                           <p className="text-xs sm:text-sm text-muted-foreground">
-                             Unidade: {insumo.unidade}
-                           </p>
-                           <p className="text-xs sm:text-sm font-medium text-foreground">
-                             {formatCurrency(insumo.preco || 0)}
-                           </p>
-                         </div>
-                       </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                          {insumo.nome}
+                        </h3>
+                        {insumo.codigo && (
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                            Código: {insumo.codigo}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4 mt-1">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
+                            Unidade: {insumo.unidade}
+                          </p>
+                          <p className="text-xs sm:text-sm font-medium text-foreground">
+                            {formatCurrency(insumo.preco || 0)}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                     
-                     <div className="flex gap-2">
-                       <Button
-                         variant="ghost"
-                         size="icon"
-                         onClick={() => handleEditInsumo(insumo.id)}
-                         className="shrink-0 text-primary hover:text-primary/80"
-                       >
-                         <Edit className="h-4 w-4" />
-                       </Button>
-                       <Button
-                         variant="ghost"
-                         size="icon"
-                         onClick={() => handleDeleteInsumo(insumo.id)}
-                         className="shrink-0 text-red-500 hover:text-red-700"
-                       >
-                         <Trash2 className="h-4 w-4" />
-                       </Button>
-                     </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditInsumo(insumo.id)}
+                        className="shrink-0 text-primary hover:text-primary/80"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteInsumo(insumo.id)}
+                        className="shrink-0 text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
