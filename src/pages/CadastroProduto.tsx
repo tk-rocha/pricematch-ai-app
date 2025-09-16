@@ -375,16 +375,6 @@ const CadastroProduto = () => {
                     />
                   </div>
 
-                  {/* Quanto Rende Field */}
-                  <div>
-                    <input
-                      type="text"
-                      value={formData.quantoRende}
-                      onChange={(e) => handleInputChange("quantoRende", e.target.value)}
-                      placeholder="Quanto Rende"
-                      className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
-                    />
-                  </div>
 
                   {/* Confirm Button */}
                   <Button
@@ -453,6 +443,20 @@ const CadastroProduto = () => {
                         <div className="text-sm font-medium text-primary">
                           Total do Custo de Produção: {formatCurrency(formData.custoProducao)}
                         </div>
+                      </div>
+
+                      {/* Quanto Rende Field - After ingredient list */}
+                      <div className="mt-4">
+                        <input
+                          type="text"
+                          value={formData.quantoRende}
+                          onChange={(e) => handleInputChange("quantoRende", e.target.value)}
+                          placeholder="Quanto Rende"
+                          className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Informe o quanto todas essas quantidades de insumos irão render
+                        </p>
                       </div>
                     </div>
                   )}
