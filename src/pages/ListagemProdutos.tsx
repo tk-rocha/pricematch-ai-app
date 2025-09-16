@@ -60,6 +60,25 @@ const ListagemProdutos = () => {
     );
   });
 
+  const renderMargemBadge = (produto: Produto) => {
+    const custo = produto.custoProducao || 0;
+    const preco = produto.precoVenda || 0;
+    if (custo <= 0 || preco <= 0) return null;
+    const percent = ((preco - custo) / custo) * 100;
+    const rounded = Math.round(percent);
+    const positive = percent >= 0;
+    const bg = positive ? 'bg-green-600' : 'bg-red-600';
+    const sign = positive ? '+' : '';
+    return (
+      <div
+        className={`absolute top-2 right-7 w-8 h-8 rounded-full ${bg} text-white text-[9px] font-bold flex items-center justify-center shadow-sm`}
+        title={`Margem ${rounded}%`}
+      >
+        {sign}{rounded}%
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -140,11 +159,12 @@ const ListagemProdutos = () => {
           ) : (
             filteredProdutos.map((produto) => (
               <Card key={produto.id} className="shadow-sm hover:shadow-md transition-all duration-200">
-                <CardContent className="p-4 sm:p-6">
+                <CardContent className="p-4 sm:p-6 relative">
+                  {renderMargemBadge(produto)}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary flex items-center justify-center">
-                        <ShoppingCart className="h-6 w-6 sm:h-7 sm:w-7 text-primary-foreground" />
+                        <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
                       </div>
                       
                       <div className="flex-1 min-w-0">
