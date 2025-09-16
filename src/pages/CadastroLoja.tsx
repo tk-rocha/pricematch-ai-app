@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin } from "lucide-react";
@@ -15,6 +15,7 @@ interface AddressData {
 
 const CadastroLoja = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -34,6 +35,31 @@ const CadastroLoja = () => {
 
   const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Carrega dados salvos ao abrir a tela
+  useEffect(() => {
+    const saved = localStorage.getItem("dadosLoja");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setFormData((prev) => ({ ...prev, ...parsed }));
+      } catch {}
+    }
+
+    // Se vier algo via navigate state (ex.: clique em editar), mescla os campos básicos
+    const stateLoja: any = (location as any).state?.loja;
+    if (stateLoja) {
+      setFormData((prev) => ({
+        ...prev,
+        nome: stateLoja.nome || prev.nome,
+        cep: stateLoja.cep || prev.cep,
+        endereco: stateLoja.endereco || prev.endereco,
+        bairro: stateLoja.bairro || prev.bairro,
+        cidade: stateLoja.cidade || prev.cidade,
+        estado: stateLoja.uf || prev.estado,
+      }));
+    }
+  }, [location]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
