@@ -57,6 +57,7 @@ const CadastroProduto = () => {
   const [insumosVinculados, setInsumosVinculados] = useState<InsumoVinculado[]>([]);
   const [quantidadeTemp, setQuantidadeTemp] = useState("");
   const [margem, setMargem] = useState(0);
+  const [custoUnitarioInput, setCustoUnitarioInput] = useState("");
 
   const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
 
@@ -88,9 +89,10 @@ const CadastroProduto = () => {
           preco: formatCurrency(produto.precoVenda || 0),
           quantoRende: produto.quantoRende ? String(produto.quantoRende) : "",
           custoTotalProducao: produto.custoProducao || 0,
-          custoUnitario: 0,
+          custoUnitario: produto.custoProducao || 0,
           precoSugerido: produto.precoVenda || 0
         });
+        setCustoUnitarioInput(formatCurrency(produto.custoProducao || 0));
         if (produto.fichaTecnica) {
           setInsumosVinculados(produto.fichaTecnica);
         }
@@ -108,16 +110,36 @@ const CadastroProduto = () => {
 
   // Calculate unit cost and suggested price when dependencies change
   useEffect(() => {
-    const quantoRendeNum = parseFloat(formData.quantoRende) || 1;
-    const custoUnitario = formData.custoTotalProducao / quantoRendeNum;
-    const precoSugerido = custoUnitario * (1 + margem / 100);
-    
-    setFormData(prev => ({ 
-      ...prev, 
-      custoUnitario: custoUnitario,
-      precoSugerido: precoSugerido
-    }));
-  }, [formData.custoTotalProducao, formData.quantoRende, margem]);
+    if (activeTab === 'ficha') {
+      const quantoRendeNum = parseFloat(formData.quantoRende) || 1;
+      const custoUnitario = formData.custoTotalProducao / quantoRendeNum;
+      const precoSugerido = custoUnitario * (1 + margem / 100);
+      setFormData(prev => ({
+        ...prev,
+        custoUnitario: custoUnitario,
+        precoSugerido: precoSugerido
+      }));
+      // Atualiza o input mascarado quando o valor vier da Ficha Técnica
+      setCustoUnitarioInput(formatCurrency(custoUnitario));
+    }
+  }, [formData.custoTotalProducao, formData.quantoRende, margem, activeTab]);
+
+  // Keep suggested price updated when editing manually in Normal tab
+  useEffect(() => {
+    if (activeTab === 'normal') {
+      setFormData(prev => ({
+        ...prev,
+        precoSugerido: prev.custoUnitario * (1 + margem / 100)
+      }));
+    }
+  }, [formData.custoUnitario, margem, activeTab]);
+
+  // Garante que o input já apareça com a máscara "R$" quando entrar na aba Normal
+  useEffect(() => {
+    if (activeTab === 'normal') {
+      setCustoUnitarioInput(formatCurrency(formData.custoUnitario || 0));
+    }
+  }, [activeTab, formData.custoUnitario]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -370,7 +392,19 @@ const CadastroProduto = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 border border-border rounded-sm">
                       <div className="text-sm text-muted-foreground">Custo Unitário</div>
-                      <div className="text-lg font-bold">{formatCurrency(formData.custoUnitario)}</div>
+                      <input
+                        type="text"
+                        value={custoUnitarioInput}
+                        onChange={(e) =>
+                          handleCurrencyInput(e.target.value, (masked) => {
+                            setCustoUnitarioInput(masked);
+                            const numeric = parseCurrencyToDecimal(masked) || 0;
+                            setFormData(prev => ({ ...prev, custoUnitario: numeric }));
+                          })
+                        }
+                        className="mt-2 w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground text-center"
+                        placeholder="R$ 0,00"
+                      />
                     </div>
                     <div className="text-center p-4 border border-border rounded-sm">
                       <div className="text-sm text-muted-foreground">Preço Sugerido</div>
