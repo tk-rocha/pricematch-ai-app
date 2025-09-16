@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Beaker, Trash2, Edit } from "lucide-react";
+import { ArrowLeft, Plus, Beaker, Trash2, Edit, Search } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
@@ -19,6 +19,7 @@ const ListagemInsumos = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [insumos, setInsumos] = useState<Insumo[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const dadosInsumos = localStorage.getItem("insumos");
@@ -49,6 +50,15 @@ const ListagemInsumos = () => {
       description: "O insumo foi excluído com sucesso"
     });
   };
+
+  const filteredInsumos = insumos.filter((i) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      i.nome.toLowerCase().includes(term) ||
+      (i.codigo ? i.codigo.toLowerCase().includes(term) : false)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,18 +113,32 @@ const ListagemInsumos = () => {
             </BreadcrumbList>
           </Breadcrumb>
 
-          {insumos.length === 0 ? (
+          {/* Busca rápida */}
+          <div className="relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar por nome ou código"
+              className="w-full h-11 sm:h-12 pl-10 pr-3 border border-border rounded-sm text-sm text-foreground"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          </div>
+
+          {filteredInsumos.length === 0 ? (
             <Card className="shadow-sm">
               <CardContent className="p-6 text-center">
                 <Beaker className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Nenhum insumo cadastrado</p>
-                <Button onClick={handleNovoInsumo} className="mt-4">
-                  Cadastrar Primeiro Insumo
-                </Button>
+                <p className="text-muted-foreground">Nenhum insumo encontrado</p>
+                {insumos.length === 0 && (
+                  <Button onClick={handleNovoInsumo} className="mt-4">
+                    Cadastrar Primeiro Insumo
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ) : (
-            insumos.map((insumo) => (
+            filteredInsumos.map((insumo) => (
               <Card key={insumo.id} className="shadow-sm hover:shadow-md transition-all duration-200">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">

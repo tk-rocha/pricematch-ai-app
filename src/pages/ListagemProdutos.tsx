@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, ShoppingCart, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Plus, ShoppingCart, Trash2, Pencil, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
@@ -19,6 +19,7 @@ const ListagemProdutos = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const dadosProdutos = localStorage.getItem("produtos");
@@ -49,6 +50,15 @@ const ListagemProdutos = () => {
       description: "O produto foi excluído com sucesso"
     });
   };
+
+  const filteredProdutos = produtos.filter((p) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+    return (
+      p.nome.toLowerCase().includes(term) ||
+      (p.codigo ? p.codigo.toLowerCase().includes(term) : false)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,18 +113,32 @@ const ListagemProdutos = () => {
             </BreadcrumbList>
           </Breadcrumb>
 
-          {produtos.length === 0 ? (
+          {/* Busca rápida */}
+          <div className="relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar por nome ou código"
+              className="w-full h-11 sm:h-12 pl-10 pr-3 border border-border rounded-sm text-sm text-foreground"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          </div>
+
+          {filteredProdutos.length === 0 ? (
             <Card className="shadow-sm">
               <CardContent className="p-6 text-center">
                 <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Nenhum produto cadastrado</p>
-                <Button onClick={handleNovoProduto} className="mt-4">
-                  Cadastrar Primeiro Produto
-                </Button>
+                <p className="text-muted-foreground">Nenhum produto encontrado</p>
+                {produtos.length === 0 && (
+                  <Button onClick={handleNovoProduto} className="mt-4">
+                    Cadastrar Primeiro Produto
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ) : (
-            produtos.map((produto) => (
+            filteredProdutos.map((produto) => (
               <Card key={produto.id} className="shadow-sm hover:shadow-md transition-all duration-200">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">

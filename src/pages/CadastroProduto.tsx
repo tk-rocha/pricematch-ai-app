@@ -58,6 +58,7 @@ const CadastroProduto = () => {
   const [quantidadeTemp, setQuantidadeTemp] = useState("");
   const [margem, setMargem] = useState(0);
   const [custoUnitarioInput, setCustoUnitarioInput] = useState("");
+  const [margemAtualPercent, setMargemAtualPercent] = useState<number | null>(null);
 
   const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
 
@@ -133,6 +134,18 @@ const CadastroProduto = () => {
       }));
     }
   }, [formData.custoUnitario, margem, activeTab]);
+
+  // Calcula margem atual com base no Preço de venda e Custo Unitário
+  useEffect(() => {
+    const custo = formData.custoUnitario || 0;
+    const precoVenda = parseCurrencyToDecimal(formData.preco) || 0;
+    if (custo > 0 && precoVenda > 0) {
+      const percent = ((precoVenda - custo) / custo) * 100;
+      setMargemAtualPercent(percent);
+    } else {
+      setMargemAtualPercent(null);
+    }
+  }, [formData.preco, formData.custoUnitario]);
 
   // Garante que o input já apareça com a máscara "R$" quando entrar na aba Normal
   useEffect(() => {
@@ -300,6 +313,7 @@ const CadastroProduto = () => {
               <div className="space-y-4 mb-6">
                 {/* Nome Field */}
                 <div>
+                  <label className="text-sm font-medium text-foreground mb-1 block">Nome</label>
                   <input
                     type="text"
                     value={formData.nome}
@@ -317,6 +331,7 @@ const CadastroProduto = () => {
 
                 {/* Código Field */}
                 <div>
+                  <label className="text-sm font-medium text-foreground mb-1 block">Código</label>
                   <input
                     type="text"
                     value={formData.codigo}
@@ -329,6 +344,7 @@ const CadastroProduto = () => {
 
                 {/* Unidade de Medida Field */}
                 <div>
+                  <label className="text-sm font-medium text-foreground mb-1 block">Unidade de Medida</label>
                   <select
                     value={formData.unidadeMedida}
                     onChange={(e) => handleInputChange("unidadeMedida", e.target.value)}
@@ -349,6 +365,7 @@ const CadastroProduto = () => {
 
                 {/* Preço Field */}
                 <div>
+                  <label className="text-sm font-medium text-foreground mb-1 block">Preço</label>
                   <input
                     type="text"
                     value={formData.preco}
@@ -357,6 +374,14 @@ const CadastroProduto = () => {
                     className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
                     style={{ borderRadius: '3px', color: '#666666' }}
                   />
+                  {margemAtualPercent !== null && (
+                    <div className="mt-1 text-xs font-medium">
+                      <span className={margemAtualPercent >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        {margemAtualPercent >= 0 ? '+' : ''}{Math.round(margemAtualPercent)}%
+                      </span>
+                      <span className="text-muted-foreground ml-1">margem</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
