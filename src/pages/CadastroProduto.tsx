@@ -14,6 +14,7 @@ interface Produto {
   unidadeMedida: string;
   custoProducao: number;
   precoVenda: number;
+  quantoRende?: number;
   fichaTecnica?: InsumoVinculado[];
 }
 
@@ -85,7 +86,7 @@ const CadastroProduto = () => {
           codigo: produto.codigo || "",
           unidadeMedida: produto.unidadeMedida,
           preco: formatCurrency(produto.precoVenda || 0),
-          quantoRende: "",
+          quantoRende: produto.quantoRende ? String(produto.quantoRende) : "",
           custoTotalProducao: produto.custoProducao || 0,
           custoUnitario: 0,
           precoSugerido: produto.precoVenda || 0
@@ -190,6 +191,7 @@ const CadastroProduto = () => {
       unidadeMedida: formData.unidadeMedida,
       custoProducao: formData.custoUnitario,
       precoVenda: parseCurrencyToDecimal(formData.preco) || formData.precoSugerido,
+      quantoRende: parseFloat(formData.quantoRende) || 0,
       fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined
     };
 
