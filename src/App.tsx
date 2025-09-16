@@ -16,6 +16,8 @@ import ListagemPlataformas from "./pages/ListagemPlataformas";
 import ListagemUnidades from "./pages/ListagemUnidades";
 import ListagemProdutos from "./pages/ListagemProdutos";
 import ListagemInsumos from "./pages/ListagemInsumos";
+import CadastroMargem from "./pages/CadastroMargem";
+import ListagemMargem from "./pages/ListagemMargem";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,8 @@ const App = () => (
           <Route path="/listagem-unidades" element={<ListagemUnidades />} />
           <Route path="/listagem-produtos" element={<ListagemProdutos />} />
           <Route path="/listagem-insumos" element={<ListagemInsumos />} />
+          <Route path="/cadastro-margem" element={<CadastroMargem />} />
+          <Route path="/listagem-margem" element={<ListagemMargem />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

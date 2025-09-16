@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart, Beaker } from "lucide-react";
+import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart, Beaker, Percent } from "lucide-react";
 import { getStoredCount } from "@/lib/utils";
 
 const Cadastros = () => {
@@ -41,6 +41,13 @@ const Cadastros = () => {
       description: "Cadastre seus insumos",
       icon: Beaker,
       path: "/cadastro-insumo",
+      active: true
+    },
+    {
+      title: "Margem",
+      description: "Configure a margem padrão",
+      icon: Percent,
+      path: "/cadastro-margem",
       active: true
     },
     {
@@ -109,6 +116,9 @@ const Cadastros = () => {
               } else if (option.path === "/cadastro-insumo") {
                 const count = getStoredCount("insumos");
                 navigate(count > 0 ? "/listagem-insumos" : "/cadastro-insumo");
+              } else if (option.path === "/cadastro-margem") {
+                const count = getStoredCount("margem");
+                navigate(count > 0 ? "/listagem-margem" : "/cadastro-margem");
               } else {
                 navigate(option.path);
               }
