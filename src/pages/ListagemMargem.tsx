@@ -72,10 +72,18 @@ const ListagemMargem = () => {
                 <CardTitle className="text-lg font-semibold">Margem Padrão</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="p-4 bg-muted rounded-lg">
+              <div className="p-4 bg-muted rounded-lg space-y-4">
+                <div>
                   <div className="text-sm text-muted-foreground">% Margem</div>
                   <div className="text-2xl font-bold text-foreground">{margem.margem}</div>
                 </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">% Custo Indireto Padrão</div>
+                  <div className="text-2xl font-bold text-foreground">{margem.custoIndireto}
+                  </div>
+                </div>
+              </div>
+
                 
                 <div className="flex gap-3">
                   <Button

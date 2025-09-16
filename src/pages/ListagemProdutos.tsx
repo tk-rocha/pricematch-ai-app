@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, ShoppingCart, Trash2, Pencil, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { parsePercentageToDecimal } from "@/lib/utils";
 
 interface Produto {
   id: string;
@@ -13,6 +14,7 @@ interface Produto {
   unidadeMedida: string;
   custoProducao: number;
   precoVenda: number;
+  custoIndireto?: string;
 }
 
 const ListagemProdutos = () => {
@@ -64,14 +66,33 @@ const ListagemProdutos = () => {
     const custo = produto.custoProducao || 0;
     const preco = produto.precoVenda || 0;
     if (custo <= 0 || preco <= 0) return null;
-    const percent = ((preco - custo) / custo) * 100;
+  
+    // Busca custo indireto salvo no produto ou no padrão
+    const saved = localStorage.getItem("margem");
+    let custoIndiretoPercent = 0;
+    try {
+      if (produto.custoIndireto) {
+        custoIndiretoPercent = parsePercentageToDecimal(produto.custoIndireto);
+      } else if (saved) {
+        const parsed = JSON.parse(saved);
+        custoIndiretoPercent = parsePercentageToDecimal(parsed?.custoIndireto || "0");
+      }
+    } catch {
+      custoIndiretoPercent = 0;
+    }
+  
+    // Aplica custo indireto
+    const custoComIndireto = custo * (1 + custoIndiretoPercent / 100);
+  
+    // Mantém a fórmula original
+    const percent = ((preco - custoComIndireto) / preco) * 100;
     const rounded = Math.round(percent);
     const positive = percent >= 0;
     const bg = positive ? 'bg-green-600' : 'bg-red-600';
     const sign = positive ? '+' : '';
     return (
       <div
-        className={`absolute top-2 right-7 w-8 h-8 rounded-full ${bg} text-white text-[9px] font-bold flex items-center justify-center shadow-sm`}
+        className={`absolute top-2 right-6 w-8 h-8 rounded-full ${bg} text-white text-[9px] font-bold flex items-center justify-center shadow-sm`}
         title={`Margem ${rounded}%`}
       >
         {sign}{rounded}%

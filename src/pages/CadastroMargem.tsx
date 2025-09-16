@@ -14,19 +14,22 @@ const CadastroMargem = () => {
   const [margem, setMargem] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [hasExistingMargem, setHasExistingMargem] = useState(false);
+  // Adicione ao topo junto com os outros useState
+const [custoIndireto, setCustoIndireto] = useState("");
 
-  useEffect(() => {
-    // Check if margin already exists
-    const storedMargem = localStorage.getItem("margem");
-    if (storedMargem) {
-      try {
-        const parsed = JSON.parse(storedMargem);
-        setMargem(parsed.margem || "");
-        setHasExistingMargem(true);
-      } catch (error) {
-        console.error("Erro ao carregar margem:", error);
+// Check if margin already exists
+    useEffect(() => {
+      const storedMargem = localStorage.getItem("margem");
+      if (storedMargem) {
+        try {
+          const parsed = JSON.parse(storedMargem);
+          setMargem(parsed.margem || "");
+          setCustoIndireto(parsed.custoIndireto || "");
+          setHasExistingMargem(true);
+        } catch (error) {
+          console.error("Erro ao carregar margem:", error);
+        }
       }
-    }
 
     // Modo edição via query param
     const params = new URLSearchParams(location.search);
@@ -47,10 +50,13 @@ const CadastroMargem = () => {
       toast.error("A margem deve estar entre 0,1% e 100%.");
       return;
     }
-
+    const custoIndiretoDecimal = parsePercentageToDecimal(custoIndireto || "0");
+   
     const margemData = {
       margem: margem,
       margemDecimal: margemDecimal,
+      custoIndireto: custoIndireto,
+      custoIndiretoDecimal: custoIndiretoDecimal,
       updatedAt: new Date().toISOString()
     };
 
@@ -114,6 +120,27 @@ const CadastroMargem = () => {
                       setMargem(value);
                     } else {
                       handlePercentageInput(value, setMargem);
+                    }
+                  }}
+                  disabled={hasExistingMargem && !isEditing}
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="custo-indireto" className="text-sm font-medium">
+                  Custo Indireto Padrão (%)
+                </Label>
+                <Input
+                  id="custo-indireto"
+                  type="text"
+                  placeholder="Ex: 10,0%"
+                  value={custoIndireto}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value.length < custoIndireto.length) {
+                      setCustoIndireto(value);
+                    } else {
+                      handlePercentageInput(value, setCustoIndireto);
                     }
                   }}
                   disabled={hasExistingMargem && !isEditing}
