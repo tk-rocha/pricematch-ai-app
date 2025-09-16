@@ -43,6 +43,7 @@ const CadastroProduto = () => {
     nome: "",
     codigo: "",
     unidadeMedida: "",
+    preco: "",
     quantoRende: "",
     custoTotalProducao: 0,
     custoUnitario: 0,
@@ -83,6 +84,7 @@ const CadastroProduto = () => {
           nome: produto.nome,
           codigo: produto.codigo || "",
           unidadeMedida: produto.unidadeMedida,
+          preco: formatCurrency(produto.precoVenda || 0),
           quantoRende: "",
           custoTotalProducao: produto.custoProducao || 0,
           custoUnitario: 0,
@@ -187,7 +189,7 @@ const CadastroProduto = () => {
       codigo: formData.codigo.trim(),
       unidadeMedida: formData.unidadeMedida,
       custoProducao: formData.custoUnitario,
-      precoVenda: formData.precoSugerido,
+      precoVenda: parseCurrencyToDecimal(formData.preco) || formData.precoSugerido,
       fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined
     };
 
@@ -225,6 +227,7 @@ const CadastroProduto = () => {
         nome: "",
         codigo: "",
         unidadeMedida: "",
+        preco: "",
         quantoRende: "",
         custoTotalProducao: 0,
         custoUnitario: 0,
@@ -318,6 +321,18 @@ const CadastroProduto = () => {
                   {errors.unidadeMedida && (
                     <p className="text-red-500 text-xs mt-1">{errors.unidadeMedida}</p>
                   )}
+                </div>
+
+                {/* Preço Field */}
+                <div>
+                  <input
+                    type="text"
+                    value={formData.preco}
+                    onChange={(e) => handleCurrencyInput(e.target.value, (value) => handleInputChange("preco", value))}
+                    placeholder="Preço"
+                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    style={{ borderRadius: '3px', color: '#666666' }}
+                  />
                 </div>
               </div>
 
