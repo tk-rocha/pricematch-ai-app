@@ -110,19 +110,23 @@ const CadastroMargem = () => {
                   type="text"
                   placeholder="Ex: 30,0%"
                   value={margem}
-                  onChange={(e) => handlePercentageInput(e.target.value, setMargem)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Permite backspace e delete - se o valor está diminuindo, não aplica formatação automática
+                    if (value.length < margem.length) {
+                      setMargem(value);
+                    } else {
+                      handlePercentageInput(value, setMargem);
+                    }
+                  }}
                   disabled={hasExistingMargem && !isEditing}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Formato brasileiro: use vírgula como separador decimal (ex: 30,5%)
-                </p>
               </div>
 
               {/* Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex gap-3">
                 <Button
-                  type="button"
                   variant="outline"
                   onClick={handleCancel}
                   className="flex-1"
@@ -132,7 +136,6 @@ const CadastroMargem = () => {
 
                 {hasExistingMargem && !isEditing ? (
                   <Button
-                    type="button"
                     onClick={handleEdit}
                     className="flex-1"
                   >
@@ -141,7 +144,6 @@ const CadastroMargem = () => {
                   </Button>
                 ) : (
                   <Button
-                    type="button"
                     onClick={handleSave}
                     className="flex-1"
                   >
