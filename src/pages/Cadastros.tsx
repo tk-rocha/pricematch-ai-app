@@ -1,8 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart, Beaker, Percent } from "lucide-react";
 import { getStoredCount } from "@/lib/utils";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 const Cadastros = () => {
   const navigate = useNavigate();
@@ -59,10 +60,7 @@ const Cadastros = () => {
     },
     {
       title: "Relatórios",
-      description: "Visualize relatórios",
-      icon: BarChart,
-      path: "#",
-      active: false
+      description: "Visualize relatórios"
     }
   ];
 
@@ -71,7 +69,6 @@ const Cadastros = () => {
       {/* Header */}
       <header className="sticky top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
         <div className="flex items-center justify-between px-4 py-3 h-14">
-          {/* Botão Voltar */}
           <Button
             variant="ghost"
             size="icon"
@@ -81,8 +78,7 @@ const Cadastros = () => {
             <ArrowLeft className="h-6 w-6 text-foreground" />
           </Button>
 
-          {/* Título Central */}
-          <h1 className="text-base sm:text-lg font-bold text-foreground">
+          <h1 className="text-base sm:text-lg font-bold text-primary">
             Cadastros
           </h1>
 
@@ -94,6 +90,21 @@ const Cadastros = () => {
       {/* Main Content */}
       <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
         <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4">
+          {/* Breadcrumb */}
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/dashboard">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Cadastros</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
           {cadastroOptions.map((option, index) => {
             const IconComponent = option.icon;
             
@@ -118,48 +129,33 @@ const Cadastros = () => {
                 navigate(count > 0 ? "/listagem-insumos" : "/cadastro-insumo");
               } else if (option.path === "/cadastro-margem") {
                 const count = getStoredCount("margem");
-                navigate(count > 0 ? "/listagem-margem" : "/cadastro-margem");
-              } else {
-                navigate(option.path);
+                navigate(count ? "/listagem-margem" : "/cadastro-margem");
               }
             };
-            
+
             return (
-              <Card 
-                key={index} 
-                className={`shadow-sm transition-all duration-200 ${
-                  option.active 
-                    ? 'hover:shadow-md cursor-pointer' 
-                    : 'opacity-60 cursor-not-allowed'
-                }`}
+              <Card
+                key={index}
+                className={`shadow-sm transition-all duration-200 ${option.active ? "hover:shadow-md cursor-pointer" : "opacity-50 cursor-not-allowed"}`}
                 onClick={handleClick}
               >
                 <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-4">
-                    {/* Ícone com "+" */}
-                    <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center ${
-                      option.active ? 'bg-primary' : 'bg-muted'
-                    }`}>
-                      <IconComponent className={`h-6 w-6 sm:h-7 sm:w-7 ${
-                        option.active ? 'text-primary-foreground' : 'text-muted-foreground'
-                      }`} />
-                      {option.active && (
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-background">
-                          <Plus className="h-3 w-3 text-primary-foreground" />
-                        </div>
-                      )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ${option.active ? "bg-primary" : "bg-muted"} flex items-center justify-center`}>
+                        {IconComponent && <IconComponent className={`h-6 w-6 sm:h-7 sm:w-7 ${option.active ? "text-primary-foreground" : "text-muted-foreground"}`} />}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm sm:text-base text-foreground">{option.title}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">{option.description}</p>
+                      </div>
                     </div>
-                    
-                    {/* Conteúdo */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className={`font-semibold text-sm sm:text-base ${
-                        option.active ? 'text-foreground' : 'text-muted-foreground'
-                      }`}>
-                        {option.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                        {option.description}
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <div className="hidden sm:block">
+                        <Button variant="outline" size="sm" disabled={!option.active}>
+                          <Plus className="h-3.5 w-3.5 mr-1" /> Abrir
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
