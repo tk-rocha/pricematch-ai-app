@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,7 +34,9 @@ interface InsumoVinculado {
 
 const CadastroProduto = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { toast } = useToast();
+  const isEditing = !!id;
   
   const [activeTab, setActiveTab] = useState("normal");
   const [formData, setFormData] = useState({
@@ -58,7 +60,26 @@ const CadastroProduto = () => {
     // Load insumos from localStorage
     const savedInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
     setInsumos(savedInsumos);
-  }, []);
+
+    // Load product data if editing
+    if (isEditing && id) {
+      const savedProdutos = JSON.parse(localStorage.getItem("produtos") || "[]");
+      const produto = savedProdutos.find((p: Produto) => p.id === id);
+      if (produto) {
+        setFormData({
+          nome: produto.nome,
+          codigo: produto.codigo || "",
+          unidadeMedida: produto.unidadeMedida,
+          quantoRende: "",
+          custoProducao: produto.custoProducao,
+          precoVenda: formatCurrency(produto.precoVenda)
+        });
+        if (produto.fichaTecnica) {
+          setInsumosVinculados(produto.fichaTecnica);
+        }
+      }
+    }
+  }, [isEditing, id]);
 
   useEffect(() => {
     // Recalculate production cost when linked inputs change
@@ -139,8 +160,8 @@ const CadastroProduto = () => {
 
     const existingProdutos = JSON.parse(localStorage.getItem("produtos") || "[]");
     
-    const newProduto: Produto = {
-      id: Date.now().toString(),
+    const produtoData: Produto = {
+      id: isEditing ? id! : Date.now().toString(),
       nome: formData.nome.trim(),
       codigo: formData.codigo.trim(),
       unidadeMedida: formData.unidadeMedida,
@@ -149,9 +170,16 @@ const CadastroProduto = () => {
       fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined
     };
 
-    existingProdutos.push(newProduto);
-    localStorage.setItem("produtos", JSON.stringify(existingProdutos));
+    if (isEditing) {
+      const index = existingProdutos.findIndex((p: Produto) => p.id === id);
+      if (index !== -1) {
+        existingProdutos[index] = produtoData;
+      }
+    } else {
+      existingProdutos.push(produtoData);
+    }
 
+    localStorage.setItem("produtos", JSON.stringify(existingProdutos));
     return true;
   };
 
@@ -159,7 +187,7 @@ const CadastroProduto = () => {
     if (saveProduto()) {
       toast({
         title: "Produto salvo!",
-        description: "O produto foi cadastrado com sucesso"
+        description: isEditing ? "O produto foi atualizado com sucesso" : "O produto foi cadastrado com sucesso"
       });
       navigate("/listagem-produtos");
     }
@@ -205,7 +233,7 @@ const CadastroProduto = () => {
           </Button>
           
           <h1 className="text-base sm:text-lg font-bold text-primary">
-            Produtos
+            {isEditing ? "Editar Produto" : "Cadastrar Produto"}
           </h1>
           
           <div className="w-10 sm:w-11"></div>
@@ -269,6 +297,18 @@ const CadastroProduto = () => {
                     <p className="text-red-500 text-xs mt-1">{errors.unidadeMedida}</p>
                   )}
                 </div>
+
+                {/* Preço Field - Moved outside tabs */}
+                <div>
+                  <input
+                    type="text"
+                    value={formData.precoVenda}
+                    onChange={(e) => handlePrecoChange(e.target.value)}
+                    placeholder="Preço"
+                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    style={{ borderRadius: '3px', color: '#666666' }}
+                  />
+                </div>
               </div>
 
               {/* Tabs */}
@@ -299,17 +339,6 @@ const CadastroProduto = () => {
                 </TabsList>
 
                 <TabsContent value="normal" className="space-y-4">
-                  {/* Preço Field */}
-                  <div>
-                    <input
-                      type="text"
-                      value={formData.precoVenda}
-                      onChange={(e) => handlePrecoChange(e.target.value)}
-                      placeholder="Preço"
-                      className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
-                    />
-                  </div>
-
                   {/* Financial Indicators */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 border border-border rounded-sm">
@@ -446,11 +475,11 @@ const CadastroProduto = () => {
               {/* Continue Button */}
               <div className="mt-6">
                 <Button
-                  onClick={handleContinuarCadastrando}
+                  onClick={isEditing ? handleSave : handleContinuarCadastrando}
                   className="w-full h-12 font-bold"
                   style={{ backgroundColor: '#180F33', borderRadius: '3px' }}
                 >
-                  Salvar e Continuar Cadastrando
+                  {isEditing ? "Atualizar Produto" : "Salvar e Continuar Cadastrando"}
                 </Button>
               </div>
             </CardContent>

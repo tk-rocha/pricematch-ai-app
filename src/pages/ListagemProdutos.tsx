@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, ShoppingCart, Trash2, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Produto {
@@ -32,6 +32,10 @@ const ListagemProdutos = () => {
 
   const handleNovoProduto = () => {
     navigate("/cadastro-produto");
+  };
+
+  const handleEditProduto = (id: string) => {
+    navigate(`/cadastro-produto/${id}`);
   };
 
   const handleDeleteProduto = (id: string) => {
@@ -110,12 +114,20 @@ const ListagemProdutos = () => {
                           Unidade: {produto.unidadeMedida}
                         </p>
                         <p className="text-xs sm:text-sm text-muted-foreground">
-                          Preço: R$ {produto.precoVenda.toFixed(2)}
+                          Preço: R$ {produto.precoVenda.toFixed(2).replace('.', ',')}
                         </p>
                       </div>
                     </div>
                     
                     <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditProduto(produto.id)}
+                        className="shrink-0 text-primary hover:text-primary/80"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
