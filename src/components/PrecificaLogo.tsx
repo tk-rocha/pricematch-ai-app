@@ -2,7 +2,7 @@ import logoImage from "@/assets/logo-precifica.png";
 
 const PrecificaLogo = () => {
   return (
-    <div className="bg-precifica-white rounded-lg px-4 sm:px-6 py-3 sm:py-4 shadow-lg">
+    <div className="px-4 sm:px-6 py-3 sm:py-4">
       <img 
         src={logoImage} 
         alt="Precific.aí Logo" 
