@@ -100,21 +100,24 @@ const CadastroProduto = () => {
       const savedProdutos = JSON.parse(localStorage.getItem("produtos") || "[]");
       const produto: Produto | undefined = savedProdutos.find((p: Produto) => p.id === id);
       if (produto) {
-        console.log("Produto carregado para edição:", produto);
-        console.log("precoVenda original:", produto.precoVenda);
-        console.log("precoVenda formatado:", formatCurrency(produto.precoVenda || 0));
         setFormData({
           nome: produto.nome,
           codigo: produto.codigo || "",
           unidadeMedida: produto.unidadeMedida,
-          preco: formatCurrency(produto.precoVenda || 0),
+          preco: (produto.precoVenda || 0).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }),
           quantoRende: produto.quantoRende ? String(produto.quantoRende) : "",
           custoTotalProducao: produto.custoProducao || 0,
           custoUnitario: produto.custoProducao || 0,
           precoSugerido: produto.precoVenda || 0,
           custoIndireto: produto.custoIndireto ?? margemData?.custoIndireto ?? defaultCustoIndireto,
         });
-        setCustoUnitarioInput(formatCurrency(produto.custoProducao || 0));
+        setCustoUnitarioInput((produto.custoProducao || 0).toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
         if (produto.fichaTecnica) setInsumosVinculados(produto.fichaTecnica);
       }
     }
