@@ -100,6 +100,9 @@ const CadastroProduto = () => {
       const savedProdutos = JSON.parse(localStorage.getItem("produtos") || "[]");
       const produto: Produto | undefined = savedProdutos.find((p: Produto) => p.id === id);
       if (produto) {
+        console.log("Produto carregado para edição:", produto);
+        console.log("precoVenda original:", produto.precoVenda);
+        console.log("precoVenda formatado:", formatCurrency(produto.precoVenda || 0));
         setFormData({
           nome: produto.nome,
           codigo: produto.codigo || "",
