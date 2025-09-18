@@ -72,6 +72,7 @@ const CadastroProduto = () => {
   const [custoUnitarioInput, setCustoUnitarioInput] = useState("");
   const [margemAtualPercent, setMargemAtualPercent] = useState<number | null>(null);
   const [margemCadastrada, setMargemCadastrada] = useState(false);
+  const [margemLoaded, setMargemLoaded] = useState(false);
 
   const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
 
@@ -132,11 +133,12 @@ const CadastroProduto = () => {
         if (produto.fichaTecnica) setInsumosVinculados(produto.fichaTecnica);
       }
     }
+  setMargemLoaded(true);
   }, [isEditing, id, defaultCustoIndireto]);
 
-  // Alerta de margem não cadastrada
+  // Alerta de margem não cadastrada (somente após carregar a margem)
   useEffect(() => {
-    if (!margemCadastrada && !isEditing) {
+    if (margemLoaded && !margemCadastrada && !isEditing) {
       toast({
         title: "⚠️ Margem não cadastrada",
         description: "Para cálculos precisos de preço, cadastre uma margem antes de adicionar produtos.",
@@ -152,7 +154,7 @@ const CadastroProduto = () => {
         duration: 8000,
       });
     }
-  }, [margemCadastrada, isEditing, navigate, toast]);
+  }, [margemLoaded, margemCadastrada, isEditing, navigate, toast]);
 
   // Recalcula custo total de produção quando a ficha muda
   useEffect(() => {
