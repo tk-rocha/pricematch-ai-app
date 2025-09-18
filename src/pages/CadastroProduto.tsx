@@ -12,12 +12,14 @@ import {
   parsePercentageToDecimal,
   handlePercentageInput,
 } from "@/lib/utils";
+import { formatCentsToBRL } from "@/lib/monetary";
 
 interface Insumo {
   id: string;
   nome: string;
-  preco: string;
   unidade: string;
+  preco?: string | number;
+  preco_cents?: number;
 }
 
 interface InsumoVinculado {
@@ -214,10 +216,13 @@ const CadastroProduto = () => {
       return;
     }
 
-    // Converte o preço de string para número corretamente
-    const precoNumerico = typeof insumo.preco === 'string' ? 
-      parseCurrencyToDecimal(insumo.preco) : 
-      parseFloat(String(insumo.preco));
+    // Obtém o preço do insumo em decimal (R$ por unidade), compatível com formatos antigos e novos
+    const precoNumerico = typeof (insumo as any).preco_cents === 'number'
+      ? (insumo as any).preco_cents / 100
+      : (() => {
+          const raw = (insumo as any).preco;
+          return typeof raw === 'number' ? raw : parseCurrencyToDecimal(String(raw ?? '0'));
+        })();
 
     const novoInsumo: InsumoVinculado = {
       insumoId: insumo.id,
@@ -526,7 +531,10 @@ const CadastroProduto = () => {
                               <span className="font-medium">{insumo.nome}</span>
                             </div>
                             <div className="text-sm text-muted-foreground mt-1">
-                              {formatCurrency(parseFloat(insumo.preco))} / {insumo.unidade}
+                              {insumo.preco_cents !== undefined 
+                                ? formatCentsToBRL(insumo.preco_cents)
+                                : formatCurrency(parseCurrencyToDecimal(String(insumo.preco ?? '0')))
+                              } / {insumo.unidade}
                             </div>
                           </div>
                           <Button
@@ -556,7 +564,7 @@ const CadastroProduto = () => {
                           <div>
                             <div className="font-medium text-foreground">{item.nome}</div>
                             <div className="text-sm text-muted-foreground">
-                              {item.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} {item.unidade} - {formatCurrency(item.quantidade * item.preco)}
+                              {item.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} {item.unidade} - {formatCurrency((item.quantidade || 0) * (typeof item.preco === 'number' ? item.preco : parseCurrencyToDecimal(String((item as any).preco ?? '0'))))}
                             </div>
                           </div>
                           <Button
