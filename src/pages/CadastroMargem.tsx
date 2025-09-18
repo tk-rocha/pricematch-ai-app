@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Save, Edit } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { handlePercentageInput, parsePercentageToDecimal } from "@/lib/utils";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 const CadastroMargem = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   const [margem, setMargem] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [hasExistingMargem, setHasExistingMargem] = useState(false);
-  // Adicione ao topo junto com os outros useState
-const [custoIndireto, setCustoIndireto] = useState("");
+  const [custoIndireto, setCustoIndireto] = useState("");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
 // Check if margin already exists
     useEffect(() => {
@@ -39,17 +39,33 @@ const [custoIndireto, setCustoIndireto] = useState("");
     }
   }, [location.search]);
 
-  const handleSave = () => {
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
     if (!margem.trim()) {
-      toast.error("Por favor, informe a % de margem.");
+      newErrors.margem = "% Margem é obrigatória";
+    } else {
+      const margemDecimal = parsePercentageToDecimal(margem);
+      if (margemDecimal <= 0 || margemDecimal > 100) {
+        newErrors.margem = "A margem deve estar entre 0,1% e 100%";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = () => {
+    if (!validateForm()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, verifique os campos obrigatórios",
+        variant: "destructive"
+      });
       return;
     }
 
     const margemDecimal = parsePercentageToDecimal(margem);
-    if (margemDecimal <= 0 || margemDecimal > 100) {
-      toast.error("A margem deve estar entre 0,1% e 100%.");
-      return;
-    }
     const custoIndiretoDecimal = parsePercentageToDecimal(custoIndireto || "0");
    
     const margemData = {
@@ -61,7 +77,10 @@ const [custoIndireto, setCustoIndireto] = useState("");
     };
 
     localStorage.setItem("margem", JSON.stringify(margemData));
-    toast.success(hasExistingMargem ? "Margem atualizada com sucesso!" : "Margem cadastrada com sucesso!");
+    toast({
+      title: hasExistingMargem ? "Margem atualizada!" : "Margem cadastrada!",
+      description: hasExistingMargem ? "A margem foi atualizada com sucesso" : "A margem foi cadastrada com sucesso"
+    });
     navigate("/listagem-margem");
   };
 
@@ -69,8 +88,21 @@ const [custoIndireto, setCustoIndireto] = useState("");
     setIsEditing(true);
   };
 
-  const handleCancel = () => {
+  const handleBack = () => {
     navigate("/listagem-margem");
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    if (field === "margem") {
+      setMargem(value);
+    } else if (field === "custoIndireto") {
+      setCustoIndireto(value);
+    }
+    
+    // Remove error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
   };
 
   return (
@@ -81,14 +113,14 @@ const [custoIndireto, setCustoIndireto] = useState("");
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/listagem-margem")}
+            onClick={handleBack}
             className="hover:bg-muted min-w-[44px] min-h-[44px]"
           >
             <ArrowLeft className="h-6 w-6 text-foreground" />
           </Button>
 
           <h1 className="text-base sm:text-lg font-bold text-primary">
-            {hasExistingMargem && !isEditing ? "Margem Cadastrada" : "Cadastro de Margem"}
+            {hasExistingMargem && !isEditing ? "Margem Cadastrada" : "Margem"}
           </h1>
 
           <div className="w-10 sm:w-11"></div>
@@ -98,47 +130,75 @@ const [custoIndireto, setCustoIndireto] = useState("");
       {/* Main Content */}
       <main className="pt-16 pb-20">
         <div className="max-w-lg mx-auto p-4">
+          {/* Breadcrumb */}
+          <Breadcrumb className="mb-4">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/dashboard">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/cadastros">Cadastros</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/listagem-margem">Margem</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{hasExistingMargem && !isEditing ? "Visualizar" : "Cadastrar"}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+
           <Card className="shadow-lg border-0" style={{ borderRadius: "3px" }}>
             <CardContent className="p-6">
               <div className="space-y-4">
+                {/* % Margem Field */}
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1 block">
-                    % Margem *
-                  </label>
                   <input
                     type="text"
-                    placeholder="Ex: 30,0%"
                     value={margem}
                     onChange={(e) => {
                       const value = e.target.value;
                       if (value.length < margem.length) {
-                        setMargem(value);
+                        handleInputChange("margem", value);
                       } else {
-                        handlePercentageInput(value, setMargem);
+                        handlePercentageInput(value, (newValue) => handleInputChange("margem", newValue));
                       }
                     }}
+                    placeholder="% Margem"
                     disabled={hasExistingMargem && !isEditing}
-                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    className={`w-full h-12 px-4 border rounded text-sm ${
+                      errors.margem ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     style={{ borderRadius: "3px", color: "#666666" }}
                   />
+                  {errors.margem && (
+                    <p className="text-red-500 text-xs mt-1">{errors.margem}</p>
+                  )}
                 </div>
 
+                {/* Custo Indireto Field */}
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1 block">
-                    Custo Indireto Padrão (%)
-                  </label>
                   <input
                     type="text"
-                    placeholder="Ex: 10,0%"
                     value={custoIndireto}
                     onChange={(e) => {
                       const value = e.target.value;
                       if (value.length < custoIndireto.length) {
-                        setCustoIndireto(value);
+                        handleInputChange("custoIndireto", value);
                       } else {
-                        handlePercentageInput(value, setCustoIndireto);
+                        handlePercentageInput(value, (newValue) => handleInputChange("custoIndireto", newValue));
                       }
                     }}
+                    placeholder="Custo Indireto Padrão (%)"
                     disabled={hasExistingMargem && !isEditing}
                     className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
                     style={{ borderRadius: "3px", color: "#666666" }}
@@ -146,8 +206,9 @@ const [custoIndireto, setCustoIndireto] = useState("");
                 </div>
               </div>
 
+              {/* Save/Edit Button */}
               {hasExistingMargem && !isEditing && (
-                <div className="mt-6">
+                <div className="mt-16">
                   <Button
                     onClick={handleEdit}
                     className="w-full h-12 font-bold"
@@ -160,14 +221,14 @@ const [custoIndireto, setCustoIndireto] = useState("");
               )}
 
               {(!hasExistingMargem || isEditing) && (
-                <div className="mt-6">
+                <div className="mt-16">
                   <Button
                     onClick={handleSave}
                     className="w-full h-12 font-bold"
                     style={{ backgroundColor: "#180F33", borderRadius: "3px" }}
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    Salvar
+                    {hasExistingMargem ? "Salvar Alterações" : "Salvar"}
                   </Button>
                 </div>
               )}
@@ -178,13 +239,19 @@ const [custoIndireto, setCustoIndireto] = useState("");
 
       {/* Footer */}
       <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 sm:p-4 safe-area-bottom">
-        <div className="max-w-2xl mx-auto">
-          <Button 
-            variant="outline" 
-            onClick={handleCancel} 
-            className="w-full h-11 sm:h-12 text-sm"
+        <div className="max-w-2xl mx-auto flex gap-3 sm:gap-4">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            className="flex-1 h-11 sm:h-12 text-sm"
           >
             Voltar
+          </Button>
+          <Button
+            onClick={handleSave}
+            className="flex-1 h-11 sm:h-12 text-sm font-semibold"
+          >
+            {hasExistingMargem ? "Atualizar" : "Salvar"}
           </Button>
         </div>
       </footer>
