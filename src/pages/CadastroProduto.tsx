@@ -564,6 +564,19 @@ const CadastroProduto = () => {
                           </Button>
                         </div>
                       ))}
+                      
+                      <Button 
+                        className="w-full h-12 font-bold bg-primary text-primary-foreground rounded-sm mt-4"
+                        onClick={() => {
+                          toast({
+                            title: "Ficha técnica confirmada!",
+                            description: "Cálculos atualizados com base nos insumos adicionados",
+                          });
+                        }}
+                      >
+                        Confirmar Ficha
+                      </Button>
+
                       <div className="mt-3 p-3 bg-primary/5 rounded-sm border-l-4 border-primary">
                         <div className="text-sm font-medium text-primary">
                           Total do Custo de Produção: {formatCurrency(formData.custoTotalProducao)}
@@ -620,17 +633,6 @@ const CadastroProduto = () => {
                         </div>
                       </div>
 
-                      <Button 
-                        className="w-full h-12 font-bold bg-primary text-primary-foreground rounded-sm mt-4"
-                        onClick={() => {
-                          toast({
-                            title: "Ficha técnica confirmada!",
-                            description: "Cálculos atualizados com base nos insumos adicionados",
-                          });
-                        }}
-                      >
-                        Confirmar Ficha
-                      </Button>
                     </div>
                   )}
                 </TabsContent>
