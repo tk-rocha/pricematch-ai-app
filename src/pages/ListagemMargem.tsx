@@ -23,7 +23,7 @@ const ListagemMargem = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
+      <header className="sticky top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
         <div className="flex items-center justify-between px-4 py-3 h-14">
           <Button
             variant="ghost"
@@ -38,15 +38,22 @@ const ListagemMargem = () => {
             Margem
           </h1>
 
-          <div className="w-10 sm:w-11"></div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/cadastro-margem")}
+            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+          >
+            <Plus className="h-6 w-6 text-foreground" />
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 pb-20">
-        <div className="max-w-lg mx-auto p-4">
+      <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
+        <div className="max-w-2xl mx-auto space-y-3 sm:space-y-4">
           {/* Breadcrumb */}
-          <Breadcrumb className="mb-4">
+          <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
@@ -67,67 +74,55 @@ const ListagemMargem = () => {
           </Breadcrumb>
 
           {margem ? (
-            <Card className="shadow-lg border-0" style={{ borderRadius: "3px" }}>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="p-4 bg-muted rounded" style={{ borderRadius: "3px" }}>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="text-sm text-muted-foreground">% Margem</div>
-                        <div className="text-2xl font-bold text-foreground">{margem.margem}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-muted-foreground">% Custo Indireto Padrão</div>
-                        <div className="text-2xl font-bold text-foreground">{margem.custoIndireto}</div>
-                      </div>
+            <Card className="shadow-sm hover:shadow-md transition-all duration-200">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary flex items-center justify-center">
+                      <span className="text-primary-foreground font-bold text-sm">%</span>
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                        Configuração de Margem
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                        % Margem: {margem.margem}
+                      </p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        % Custo Indireto: {margem.custoIndireto || "0,0%"}
+                      </p>
                     </div>
                   </div>
-
-                  <div className="mt-6">
+                  
+                  <div className="flex gap-2">
                     <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => navigate("/cadastro-margem?modo=editar")}
-                      className="w-full h-12 font-bold"
-                      style={{ backgroundColor: "#180F33", borderRadius: "3px" }}
+                      className="shrink-0 text-primary hover:text-primary/80"
                     >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Editar
+                      <Edit className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            <Card className="shadow-lg border-0" style={{ borderRadius: "3px" }}>
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="text-muted-foreground">
-                  Nenhuma margem cadastrada
+            <Card className="shadow-sm">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 text-muted-foreground mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <span className="font-bold text-sm">%</span>
                 </div>
-                <Button
-                  onClick={() => navigate("/cadastro-margem")}
-                  className="w-full h-12 font-bold"
-                  style={{ backgroundColor: "#180F33", borderRadius: "3px" }}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Cadastrar Margem
+                <p className="text-muted-foreground">Nenhuma margem cadastrada</p>
+                <Button onClick={() => navigate("/cadastro-margem")} className="mt-4">
+                  Cadastrar Primeira Margem
                 </Button>
               </CardContent>
             </Card>
           )}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 sm:p-4 safe-area-bottom">
-        <div className="max-w-2xl mx-auto">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate("/cadastros")} 
-            className="w-full h-11 sm:h-12 text-sm"
-          >
-            Voltar
-          </Button>
-        </div>
-      </footer>
     </div>
   );
 };

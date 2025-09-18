@@ -87,7 +87,10 @@ const CadastroProduto = () => {
     if (savedMargem) {
       try {
         margemData = JSON.parse(savedMargem);
-        const hasValidMargem = margemData && margemData.margemDecimal !== undefined;
+        const hasValidMargem = margemData && 
+          margemData.margem && 
+          margemData.margem.trim() !== "" && 
+          margemData.margemDecimal !== undefined;
         setMargemCadastrada(hasValidMargem);
         setMargem(margemData.margemDecimal || 0);
         setDefaultCustoIndireto(margemData.custoIndireto || "0,0%");
