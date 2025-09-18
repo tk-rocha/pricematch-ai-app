@@ -71,6 +71,7 @@ const CadastroProduto = () => {
   const [margem, setMargem] = useState(0);
   const [custoUnitarioInput, setCustoUnitarioInput] = useState("");
   const [margemAtualPercent, setMargemAtualPercent] = useState<number | null>(null);
+  const [margemCadastrada, setMargemCadastrada] = useState(false);
 
   const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
 
@@ -86,6 +87,8 @@ const CadastroProduto = () => {
     if (savedMargem) {
       try {
         margemData = JSON.parse(savedMargem);
+        const hasValidMargem = margemData && margemData.margemDecimal !== undefined;
+        setMargemCadastrada(hasValidMargem);
         setMargem(margemData.margemDecimal || 0);
         setDefaultCustoIndireto(margemData.custoIndireto || "0,0%");
         setFormData((prev) => ({
@@ -94,7 +97,10 @@ const CadastroProduto = () => {
         }));
       } catch (error) {
         console.error("Erro ao carregar margem:", error);
+        setMargemCadastrada(false);
       }
+    } else {
+      setMargemCadastrada(false);
     }
 
     // produto (edição)
@@ -124,6 +130,26 @@ const CadastroProduto = () => {
       }
     }
   }, [isEditing, id, defaultCustoIndireto]);
+
+  // Alerta de margem não cadastrada
+  useEffect(() => {
+    if (!margemCadastrada && !isEditing) {
+      toast({
+        title: "⚠️ Margem não cadastrada",
+        description: "Para cálculos precisos de preço, cadastre uma margem antes de adicionar produtos.",
+        action: (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/cadastro-margem")}
+          >
+            Cadastrar Margem
+          </Button>
+        ),
+        duration: 8000,
+      });
+    }
+  }, [margemCadastrada, isEditing, navigate, toast]);
 
   // Recalcula custo total de produção quando a ficha muda
   useEffect(() => {
