@@ -506,17 +506,12 @@ const CadastroProduto = () => {
                     />
                   </div>
 
-                  <Button className="w-full h-12 font-bold bg-primary text-primary-foreground rounded-sm">
-                    Confirmar Ficha
-                  </Button>
-
                   {searchTerm && filteredInsumos.length > 0 && (
                     <div className="max-h-40 overflow-y-auto border border-border rounded-sm">
                       {filteredInsumos.map((insumo) => (
                         <div
                           key={insumo.id}
-                          onClick={() => addInsumo(insumo)}
-                          className="p-3 hover:bg-muted cursor-pointer border-b border-border last:border-b-0 flex items-center justify-between"
+                          className="p-3 border-b border-border last:border-b-0 flex items-center justify-between"
                         >
                           <div>
                             <div className="flex items-center gap-2">
@@ -529,7 +524,13 @@ const CadastroProduto = () => {
                               {formatCurrency(parseFloat(insumo.preco))} / {insumo.unidade}
                             </div>
                           </div>
-                          <Plus className="h-4 w-4 text-muted-foreground" />
+                          <Button
+                            onClick={() => addInsumo(insumo)}
+                            size="sm"
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                          >
+                            Adicionar
+                          </Button>
                         </div>
                       ))}
                     </div>
@@ -581,45 +582,57 @@ const CadastroProduto = () => {
                           Informe o quanto todas essas quantidades de insumos irão render
                         </p>
                       </div>
+
+                      {/* Custo Indireto (%) também na Ficha Técnica */}
+                      <div className="mt-4">
+                        <div className="text-center p-4 border border-border rounded-sm">
+                          <div className="text-sm text-muted-foreground">Custo Indireto (%)</div>
+                          <input
+                            type="text"
+                            value={formData.custoIndireto}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value.length < (formData.custoIndireto?.length || 0)) {
+                                setFormData(prev => ({ ...prev, custoIndireto: value }));
+                              } else {
+                                handlePercentageInput(value, (masked) =>
+                                  setFormData(prev => ({ ...prev, custoIndireto: masked }))
+                                );
+                              }
+                            }}
+                            className="mt-2 w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground text-center"
+                            placeholder="Ex: 10,0%"
+                          />
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Percentual aplicado sobre o custo unitário para despesas indiretas.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 gap-4">
+                        <div className="text-center p-4 border border-border rounded-sm">
+                          <div className="text-sm text-muted-foreground">Custo Unitário</div>
+                          <div className="text-lg font-bold">{formatCurrency(formData.custoUnitario)}</div>
+                        </div>
+                        <div className="text-center p-4 border border-border rounded-sm">
+                          <div className="text-sm text-muted-foreground">Preço Sugerido</div>
+                          <div className="text-lg font-bold">{formatCurrency(formData.precoSugerido)}</div>
+                        </div>
+                      </div>
+
+                      <Button 
+                        className="w-full h-12 font-bold bg-primary text-primary-foreground rounded-sm mt-4"
+                        onClick={() => {
+                          toast({
+                            title: "Ficha técnica confirmada!",
+                            description: "Cálculos atualizados com base nos insumos adicionados",
+                          });
+                        }}
+                      >
+                        Confirmar Ficha
+                      </Button>
                     </div>
                   )}
-                  {/* Custo Indireto (%) também na Ficha Técnica */}
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Custo Indireto (%)</div>
-                      <input
-                        type="text"
-                        value={formData.custoIndireto}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value.length < (formData.custoIndireto?.length || 0)) {
-                            setFormData(prev => ({ ...prev, custoIndireto: value }));
-                          } else {
-                            handlePercentageInput(value, (masked) =>
-                              setFormData(prev => ({ ...prev, custoIndireto: masked }))
-                            );
-                          }
-                        }}
-                        className="mt-2 w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground text-center"
-                        placeholder="Ex: 10,0%"
-                      />
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Percentual aplicado sobre o custo unitário para despesas indiretas.
-                      </p>
-                    </div>
-                    <div /> {/* espaçador para manter 2 colunas */}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Custo Unitário</div>
-                      <div className="text-lg font-bold">{formatCurrency(formData.custoUnitario)}</div>
-                    </div>
-                    <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Preço Sugerido</div>
-                      <div className="text-lg font-bold">{formatCurrency(formData.precoSugerido)}</div>
-                    </div>
-                  </div>
                 </TabsContent>
               </Tabs>
 
