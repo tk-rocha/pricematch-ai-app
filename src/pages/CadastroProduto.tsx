@@ -381,7 +381,7 @@ const CadastroProduto = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1 block">Preço</label>
+                  <label className="text-sm font-medium text-foreground mb-1 block">Preço de Venda</label>
                   <input
                     type="text"
                     value={formData.preco}
