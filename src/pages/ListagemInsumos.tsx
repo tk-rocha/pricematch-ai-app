@@ -3,8 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Plus, Beaker, Trash2, Edit, Search } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { formatCentsToBRL, decimalToCents } from "@/lib/monetary";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 interface Insumo {
@@ -12,7 +12,8 @@ interface Insumo {
   nome: string;
   codigo?: string;
   unidade: string;
-  preco: number;
+  preco_cents?: number; // New format
+  preco?: number; // Legacy format for compatibility
 }
 
 const ListagemInsumos = () => {
@@ -161,7 +162,11 @@ const ListagemInsumos = () => {
                             Unidade: {insumo.unidade}
                           </p>
                           <p className="text-xs sm:text-sm font-medium text-foreground">
-                            {formatCurrency(insumo.preco || 0)}
+                            {formatCentsToBRL(
+                              insumo.preco_cents !== undefined 
+                                ? insumo.preco_cents 
+                                : decimalToCents(insumo.preco || 0)
+                            )}
                           </p>
                         </div>
                       </div>
