@@ -4,14 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { handleCurrencyInput, parseCurrencyToDecimal, formatCurrencyInput } from "@/lib/utils";
+import { parseBRLToCents, formatCentsToBRL, decimalToCents } from "@/lib/monetary";
 
 interface Insumo {
   id: string;
   nome: string;
   codigo?: string;
   unidade: string;
-  preco: number;
+  preco_cents: number; // Store as cents for consistency
 }
 
 const CadastroInsumo = () => {
@@ -26,6 +26,8 @@ const CadastroInsumo = () => {
     unidade: "",
     preco: ""
   });
+
+  const [internalCents, setInternalCents] = useState(0);
 
   const [unidadesMedida, setUnidadesMedida] = useState<string[]>([]);
 
@@ -47,18 +49,21 @@ const CadastroInsumo = () => {
   useEffect(() => {
     if (editId) {
       const existingInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
-      const insumoToEdit = existingInsumos.find((insumo: Insumo) => insumo.id === editId);
+      const insumoToEdit = existingInsumos.find((insumo: any) => insumo.id === editId);
       
       if (insumoToEdit) {
+        // Handle both old format (preco as decimal) and new format (preco_cents)
+        const cents = insumoToEdit.preco_cents !== undefined
+          ? Number(insumoToEdit.preco_cents)
+          : decimalToCents(insumoToEdit.preco || 0);
+        
         setFormData({
           nome: insumoToEdit.nome,
           codigo: insumoToEdit.codigo || "",
           unidade: insumoToEdit.unidade,
-          preco: (insumoToEdit.preco || 0).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          }).replace('.', ',').replace(/^/, 'R$ ')
+          preco: formatCentsToBRL(cents)
         });
+        setInternalCents(cents);
       }
     }
   }, [editId]);
@@ -72,9 +77,14 @@ const CadastroInsumo = () => {
   };
 
   const handlePrecoChange = (value: string) => {
-    handleCurrencyInput(value, (formattedValue) => {
-      handleInputChange("preco", formattedValue);
-    });
+    // Update display value
+    setFormData(prev => ({ ...prev, preco: value }));
+    // Update internal cents value
+    setInternalCents(parseBRLToCents(value));
+    // Remove error when user starts typing
+    if (errors.preco) {
+      setErrors(prev => ({ ...prev, preco: "" }));
+    }
   };
 
 
@@ -111,26 +121,26 @@ const CadastroInsumo = () => {
     
     if (editId) {
       // Update existing insumo
-      const updatedInsumos = existingInsumos.map((insumo: Insumo) => 
+      const updatedInsumos = existingInsumos.map((insumo: any) => 
         insumo.id === editId 
           ? {
               ...insumo,
               nome: formData.nome.trim(),
               codigo: formData.codigo.trim(),
               unidade: formData.unidade,
-              preco: parseCurrencyToDecimal(formData.preco)
+              preco_cents: internalCents
             }
           : insumo
       );
       localStorage.setItem("insumos", JSON.stringify(updatedInsumos));
     } else {
       // Create new insumo
-      const newInsumo: Insumo = {
+      const newInsumo = {
         id: Date.now().toString(),
         nome: formData.nome.trim(),
         codigo: formData.codigo.trim(),
         unidade: formData.unidade,
-        preco: parseCurrencyToDecimal(formData.preco)
+        preco_cents: internalCents
       };
       existingInsumos.push(newInsumo);
       localStorage.setItem("insumos", JSON.stringify(existingInsumos));
@@ -169,6 +179,7 @@ const CadastroInsumo = () => {
         unidade: "",
         preco: ""
       });
+      setInternalCents(0);
       setErrors({});
     }
   };
