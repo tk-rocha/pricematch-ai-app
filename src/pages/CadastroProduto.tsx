@@ -570,36 +570,6 @@ const CadastroProduto = () => {
                         </div>
                       ))}
                       
-                      <Button 
-                        className="w-full h-12 font-bold bg-primary text-primary-foreground rounded-sm mt-4"
-                        onClick={() => {
-                          // Força o recálculo dos valores
-                          const custoTotal = insumosVinculados.reduce((total, item) => total + item.quantidade * item.preco, 0);
-                          const quantoRendeNum = parseFloat(formData.quantoRende) || 1;
-                          const custoUnitario = custoTotal / quantoRendeNum;
-                          
-                          const custoIndiretoDecimal = parsePercentageToDecimal(formData.custoIndireto || "0");
-                          const custoComIndireto = custoUnitario * (1 + custoIndiretoDecimal / 100);
-                          const precoSugerido = custoComIndireto * (1 + margem / 100);
-
-                          setFormData((prev) => ({
-                            ...prev,
-                            custoTotalProducao: custoTotal,
-                            custoUnitario,
-                            precoSugerido,
-                          }));
-
-                          setCustoUnitarioInput(formatCurrency(custoUnitario));
-
-                          toast({
-                            title: "Ficha técnica confirmada!",
-                            description: "Cálculos atualizados com base nos insumos adicionados",
-                          });
-                        }}
-                      >
-                        Confirmar Ficha
-                      </Button>
-
                       <div className="mt-3 p-3 bg-primary/5 rounded-sm border-l-4 border-primary">
                         <div className="text-sm font-medium text-primary">
                           Total do Custo de Produção: {formatCurrency(formData.custoTotalProducao)}
