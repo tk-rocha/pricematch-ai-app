@@ -214,12 +214,17 @@ const CadastroProduto = () => {
       return;
     }
 
+    // Converte o preço de string para número corretamente
+    const precoNumerico = typeof insumo.preco === 'string' ? 
+      parseCurrencyToDecimal(insumo.preco) : 
+      parseFloat(String(insumo.preco));
+
     const novoInsumo: InsumoVinculado = {
       insumoId: insumo.id,
       nome: insumo.nome,
       quantidade: parseFloat(quantidadeTemp),
       unidade: insumo.unidade,
-      preco: parseFloat(insumo.preco),
+      preco: precoNumerico,
     };
 
     setInsumosVinculados((prev) => [...prev, novoInsumo]);
@@ -551,7 +556,7 @@ const CadastroProduto = () => {
                           <div>
                             <div className="font-medium text-foreground">{item.nome}</div>
                             <div className="text-sm text-muted-foreground">
-                              {item.quantidade} {item.unidade} - {formatCurrency(item.quantidade * item.preco)}
+                              {item.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} {item.unidade} - {formatCurrency(item.quantidade * item.preco)}
                             </div>
                           </div>
                           <Button
@@ -568,6 +573,24 @@ const CadastroProduto = () => {
                       <Button 
                         className="w-full h-12 font-bold bg-primary text-primary-foreground rounded-sm mt-4"
                         onClick={() => {
+                          // Força o recálculo dos valores
+                          const custoTotal = insumosVinculados.reduce((total, item) => total + item.quantidade * item.preco, 0);
+                          const quantoRendeNum = parseFloat(formData.quantoRende) || 1;
+                          const custoUnitario = custoTotal / quantoRendeNum;
+                          
+                          const custoIndiretoDecimal = parsePercentageToDecimal(formData.custoIndireto || "0");
+                          const custoComIndireto = custoUnitario * (1 + custoIndiretoDecimal / 100);
+                          const precoSugerido = custoComIndireto * (1 + margem / 100);
+
+                          setFormData((prev) => ({
+                            ...prev,
+                            custoTotalProducao: custoTotal,
+                            custoUnitario,
+                            precoSugerido,
+                          }));
+
+                          setCustoUnitarioInput(formatCurrency(custoUnitario));
+
                           toast({
                             title: "Ficha técnica confirmada!",
                             description: "Cálculos atualizados com base nos insumos adicionados",
