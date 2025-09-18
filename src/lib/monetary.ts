@@ -1,128 +1,73 @@
-/**
- * Utility functions for Brazilian currency formatting and parsing
- */
+// helpers/monetary.ts
 
 /**
- * Formats a number to Brazilian currency format (R$ 0,00)
- * @param value - Number to format
- * @returns Formatted currency string
+ * Recebe string exibida na UI e retorna integer cents (ex: "R$ 10,10" -> 1010)
+ * Funciona para R$ 10,10, 10,10, R$10,10
  */
-export function formatCurrency(value: number | string): string {
-  const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(numValue);
+export function parseBRLToCents(brlString: string): number {
+  if (!brlString) return 0;
+  // remove tudo que não for dígito
+  const onlyDigits = brlString.replace(/\D/g, "");
+  // se onlyDigits for "" -> 0
+  return onlyDigits === "" ? 0 : parseInt(onlyDigits, 10);
 }
 
 /**
- * Formats currency input as user types (R$ 0,00 format)
- * @param value - Input string
- * @returns Formatted string with R$ prefix
+ * Recebe integer cents e formata para "R$ 10,10"
  */
-export function formatCurrencyInput(value: string): string {
-  // Remove tudo exceto números
-  const numbers = value.replace(/\D/g, '');
-  
-  if (!numbers) return '';
-  
-  // Converte para centavos
-  const cents = parseInt(numbers);
-  const reais = cents / 100;
-  
-  return reais.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
+export function formatCentsToBRL(cents: number | string): string {
+  const value = (Number(cents) / 100).toFixed(2); // string "10.10"
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value));
 }
 
 /**
- * Parses Brazilian currency string to decimal number
- * @param value - Currency string (e.g., "R$ 10,50" or "10,50")
- * @returns Decimal number
+ * Se sua API já retorna decimal (ex: 10.10), converte para cents
  */
-export function parseCurrencyToDecimal(value: string): number {
-  // Remove R$, espaços, pontos (milhares) e converte vírgula para ponto
-  const cleanValue = value
-    .replace(/R\$\s?/g, '')
-    .replace(/\./g, '')
-    .replace(/,/g, '.');
-  
-  return parseFloat(cleanValue) || 0;
+export function decimalToCents(decimal: number | string): number {
+  return Math.round(Number(decimal) * 100);
 }
 
-/**
- * Handles currency input with automatic formatting
- * @param value - Input value
- * @param onChange - Callback function to update the value
- */
-export function handleCurrencyInput(
-  value: string,
-  onChange: (value: string) => void
-): void {
-  // Remove tudo exceto números
-  const numbers = value.replace(/\D/g, '');
-  
-  if (!numbers) {
-    onChange('');
-    return;
-  }
-  
-  // Limita a 10 dígitos (R$ 99.999.999,99)
-  if (numbers.length > 10) return;
-  
-  // Converte para centavos e formata
-  const cents = parseInt(numbers);
-  const reais = cents / 100;
-  
-  const formatted = reais.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-  
-  onChange(formatted);
+/*
+Exemplo de uso (React):
+
+// ao editar (carregar dados):
+useEffect(() => {
+  // data.price_cents pode vir da API como integer ou decimal
+  const cents = data.price_cents !== undefined
+    ? Number(data.price_cents)
+    : decimalToCents(data.price);
+  setDisplayValue(formatCentsToBRL(cents)); // mostra "R$ 10,10"
+  setInternalCents(cents);
+}, [data]);
+
+// no input controlado:
+function onInputChange(e) {
+  const raw = e.target.value;
+  // mantém máscara na UI (você pode usar uma lib de mask)
+  setDisplayValue(raw);
+  // sempre atualiza o valor "normalizado" em cents
+  setInternalCents(parseBRLToCents(raw));
 }
 
-/**
- * Formats a number to Brazilian currency display (without R$ symbol)
- * @param value - Number to format
- * @returns Formatted string with comma separator
- */
-export function formatCurrencyDisplay(value: number): string {
-  return value.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
+// ao salvar:
+async function onSave() {
+  // envia price_cents (integer) para a API — evita ambiguidade
+  await api.put('/insumos/123', { price_cents: internalCents, ...otherFields });
 }
 
-/**
- * Validates if a currency string is valid
- * @param value - Currency string to validate
- * @returns True if valid, false otherwise
- */
-export function isValidCurrency(value: string): boolean {
-  const cleanValue = value.replace(/R\$\s?/g, '');
-  const pattern = /^\d{1,3}(\.\d{3})*,\d{2}$|^\d{1,6},\d{2}$/;
-  return pattern.test(cleanValue);
-}
+Backend — garantir contrato e salvar corretamente
 
-/**
- * Converts cents to reais format
- * @param cents - Amount in cents
- * @returns Formatted currency string
- */
-export function centsToReais(cents: number): string {
-  const reais = cents / 100;
-  return formatCurrencyDisplay(reais);
-}
+Se optar por cents (recomendado): salvar no banco como integer price_cents.
 
-/**
- * Converts reais to cents
- * @param reais - Amount in reais (as number)
- * @returns Amount in cents
- */
-export function reaisToCents(reais: number): number {
-  return Math.round(reais * 100);
-}
+Se optar por decimal: salvar em coluna DECIMAL(12,2) e no backend converter incoming price_cents → price = price_cents / 100.
+
+Exemplo Node/Express (simples):
+
+// Recebe price_cents do frontend e salva decimal no DB (opção A -> converte para decimal)
+app.post('/insumos', async (req, res) => {
+  const { price_cents, ...rest } = req.body;
+  const price_decimal = Number(price_cents) / 100; // 1010 -> 10.10
+  // Salvar price_decimal em DECIMAL(12,2) ou salvar price_cents como integer conforme sua escolha
+  await db.query('INSERT INTO insumos (name, price) VALUES ($1, $2)', [rest.name, price_decimal]);
+});
+*/
