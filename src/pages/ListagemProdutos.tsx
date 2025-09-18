@@ -189,9 +189,16 @@ const ListagemProdutos = () => {
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm sm:text-base text-foreground">
-                          {produto.nome}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                            {produto.nome}
+                          </h3>
+                          {(produto as any).tipoItem === 'intermediario' && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Intermediário
+                            </span>
+                          )}
+                        </div>
                         {produto.codigo && (
                           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                             Código: {produto.codigo}

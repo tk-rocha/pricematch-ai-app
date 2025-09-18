@@ -30,6 +30,14 @@ interface InsumoVinculado {
   preco: number;
 }
 
+interface ProdutoVinculado {
+  produtoId: string;
+  nome: string;
+  quantidade: number;
+  unidade: string;
+  custoUnitario: number;
+}
+
 interface Produto {
   id: string;
   nome: string;
@@ -39,7 +47,9 @@ interface Produto {
   precoVenda: number;
   quantoRende?: number;
   fichaTecnica?: InsumoVinculado[];
-  custoIndireto?: string; // novo
+  produtosVinculados?: ProdutoVinculado[];
+  custoIndireto?: string;
+  tipoItem?: 'produto' | 'intermediario';
 }
 
 const CadastroProduto = () => {
@@ -60,14 +70,19 @@ const CadastroProduto = () => {
     custoTotalProducao: 0,
     custoUnitario: 0,
     precoSugerido: 0,
-    custoIndireto: "0,0%", // novo
+    custoIndireto: "0,0%",
+    tipoItem: "produto" as 'produto' | 'intermediario',
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [insumos, setInsumos] = useState<Insumo[]>([]);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [produtoSearchTerm, setProdutoSearchTerm] = useState("");
   const [insumosVinculados, setInsumosVinculados] = useState<InsumoVinculado[]>([]);
+  const [produtosVinculados, setProdutosVinculados] = useState<ProdutoVinculado[]>([]);
   const [quantidadeTemp, setQuantidadeTemp] = useState("");
+  const [quantidadeProdutoTemp, setQuantidadeProdutoTemp] = useState("");
   const [margem, setMargem] = useState(0);
   const [custoUnitarioInput, setCustoUnitarioInput] = useState("");
   const [margemAtualPercent, setMargemAtualPercent] = useState<number | null>(null);
@@ -76,11 +91,16 @@ const CadastroProduto = () => {
 
   const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
 
-  // Carrega dados base (insumos, margem padrão, produto em edição)
+  // Carrega dados base (insumos, produtos, margem padrão, produto em edição)
   useEffect(() => {
     // insumos
     const savedInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
     setInsumos(savedInsumos);
+    
+    // produtos (para usar como componentes)
+    const savedProdutos = JSON.parse(localStorage.getItem("produtos") || "[]");
+    const produtosIntermediarios = savedProdutos.filter((p: Produto) => p.tipoItem === 'intermediario');
+    setProdutos(produtosIntermediarios);
 
     // margem padrão
     const savedMargem = localStorage.getItem("margem");
@@ -125,12 +145,14 @@ const CadastroProduto = () => {
           custoUnitario: produto.custoProducao || 0,
           precoSugerido: produto.precoVenda || 0,
           custoIndireto: produto.custoIndireto ?? margemData?.custoIndireto ?? defaultCustoIndireto,
+          tipoItem: produto.tipoItem || "produto",
         });
         setCustoUnitarioInput((produto.custoProducao || 0).toLocaleString('pt-BR', {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         }));
         if (produto.fichaTecnica) setInsumosVinculados(produto.fichaTecnica);
+        if (produto.produtosVinculados) setProdutosVinculados(produto.produtosVinculados);
       }
     }
   setMargemLoaded(true);
@@ -158,9 +180,11 @@ const CadastroProduto = () => {
 
   // Recalcula custo total de produção quando a ficha muda
   useEffect(() => {
-    const custoTotal = insumosVinculados.reduce((total, item) => total + item.quantidade * item.preco, 0);
+    const custoInsumos = insumosVinculados.reduce((total, item) => total + item.quantidade * item.preco, 0);
+    const custoProdutos = produtosVinculados.reduce((total, item) => total + item.quantidade * item.custoUnitario, 0);
+    const custoTotal = custoInsumos + custoProdutos;
     setFormData((prev) => ({ ...prev, custoTotalProducao: custoTotal }));
-  }, [insumosVinculados]);
+  }, [insumosVinculados, produtosVinculados]);
 
   // Ficha Técnica: calcula custo unitário e preço sugerido (considera custo indireto e margem)
   useEffect(() => {
@@ -237,6 +261,10 @@ const CadastroProduto = () => {
     insumo.nome.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredProdutos = produtos.filter((produto) =>
+    produto.nome.toLowerCase().includes(produtoSearchTerm.toLowerCase())
+  );
+
   const addInsumo = (insumo: Insumo) => {
     if (!quantidadeTemp || parseFloat(quantidadeTemp) <= 0) {
       toast({
@@ -272,6 +300,33 @@ const CadastroProduto = () => {
     setInsumosVinculados((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const addProduto = (produto: Produto) => {
+    if (!quantidadeProdutoTemp || parseFloat(quantidadeProdutoTemp) <= 0) {
+      toast({
+        title: "Quantidade inválida",
+        description: "Informe uma quantidade válida",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const novoProduto: ProdutoVinculado = {
+      produtoId: produto.id,
+      nome: produto.nome,
+      quantidade: parseFloat(quantidadeProdutoTemp),
+      unidade: produto.unidadeMedida,
+      custoUnitario: produto.custoProducao,
+    };
+
+    setProdutosVinculados((prev) => [...prev, novoProduto]);
+    setQuantidadeProdutoTemp("");
+    setProdutoSearchTerm("");
+  };
+
+  const removeProduto = (index: number) => {
+    setProdutosVinculados((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const saveProduto = () => {
     if (!validateForm()) {
       toast({
@@ -293,7 +348,9 @@ const CadastroProduto = () => {
       precoVenda: parseCurrencyToDecimal(formData.preco) || formData.precoSugerido,
       quantoRende: parseFloat(formData.quantoRende) || 0,
       fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined,
-      custoIndireto: formData.custoIndireto, // persistência por produto
+      produtosVinculados: produtosVinculados.length > 0 ? produtosVinculados : undefined,
+      custoIndireto: formData.custoIndireto,
+      tipoItem: formData.tipoItem,
     };
 
     if (isEditing) {
@@ -334,8 +391,10 @@ const CadastroProduto = () => {
         custoUnitario: 0,
         precoSugerido: 0,
         custoIndireto: defaultCustoIndireto,
+        tipoItem: "produto",
       });
       setInsumosVinculados([]);
+      setProdutosVinculados([]);
       setActiveTab("normal");
       setErrors({});
     }
@@ -419,6 +478,24 @@ const CadastroProduto = () => {
                   {errors.unidadeMedida && (
                     <p className="text-red-500 text-xs mt-1">{errors.unidadeMedida}</p>
                   )}
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1 block">Tipo de Item</label>
+                  <select
+                    value={formData.tipoItem}
+                    onChange={(e) => handleInputChange("tipoItem", e.target.value)}
+                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    style={{ borderRadius: "3px", color: "#000" }}
+                  >
+                    <option value="produto">Produto Final</option>
+                    <option value="intermediario">Produto Intermediário</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formData.tipoItem === 'intermediario' 
+                      ? 'Pode ser usado como componente de outros produtos' 
+                      : 'Produto final para venda'}
+                  </p>
                 </div>
 
                 <div>
@@ -526,25 +603,29 @@ const CadastroProduto = () => {
 
                 {/* Aba Ficha Técnica */}
                 <TabsContent value="ficha" className="space-y-4">
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
+                  {/* Seção de Insumos */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">Insumos</h3>
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <input
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Pesquisar insumos"
+                          className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
+                        />
+                        <Search className="absolute right-3 top-3 h-6 w-6 text-muted-foreground" />
+                      </div>
                       <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Pesquisar insumos"
-                        className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
+                        type="number"
+                        step="0.01"
+                        value={quantidadeTemp}
+                        onChange={(e) => setQuantidadeTemp(e.target.value)}
+                        placeholder="Quantidade"
+                        className="w-24 h-12 px-2 border border-border rounded-sm text-sm text-foreground"
                       />
-                      <Search className="absolute right-3 top-3 h-6 w-6 text-muted-foreground" />
                     </div>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={quantidadeTemp}
-                      onChange={(e) => setQuantidadeTemp(e.target.value)}
-                      placeholder="Quantidade"
-                      className="w-24 h-12 px-2 border border-border rounded-sm text-sm text-foreground"
-                    />
                   </div>
 
                   {searchTerm && filteredInsumos.length > 0 && (
@@ -587,7 +668,93 @@ const CadastroProduto = () => {
                     </div>
                   )}
 
-                  {insumosVinculados.length > 0 && (
+                  {/* Seção de Produtos Intermediários */}
+                  <div className="space-y-4 mt-6">
+                    <h3 className="text-lg font-semibold text-foreground">Produtos Intermediários</h3>
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <input
+                          type="text"
+                          value={produtoSearchTerm}
+                          onChange={(e) => setProdutoSearchTerm(e.target.value)}
+                          placeholder="Pesquisar produtos intermediários"
+                          className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
+                        />
+                        <Search className="absolute right-3 top-3 h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={quantidadeProdutoTemp}
+                        onChange={(e) => setQuantidadeProdutoTemp(e.target.value)}
+                        placeholder="Quantidade"
+                        className="w-24 h-12 px-2 border border-border rounded-sm text-sm text-foreground"
+                      />
+                    </div>
+
+                    {produtoSearchTerm && filteredProdutos.length > 0 && (
+                      <div className="max-h-40 overflow-y-auto border border-border rounded-sm">
+                        {filteredProdutos.map((produto) => (
+                          <div
+                            key={produto.id}
+                            className="p-3 border-b border-border last:border-b-0 flex items-center justify-between"
+                          >
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  Produto
+                                </span>
+                                <span className="font-medium">{produto.nome}</span>
+                              </div>
+                              <div className="text-sm text-muted-foreground mt-1">
+                                {formatCurrency(produto.custoProducao)} / {produto.unidadeMedida}
+                              </div>
+                            </div>
+                            <Button
+                              onClick={() => addProduto(produto)}
+                              size="sm"
+                              className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            >
+                              Adicionar
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {produtoSearchTerm && filteredProdutos.length === 0 && (
+                      <div className="text-center p-4 text-muted-foreground">
+                        <p>Nenhum produto intermediário encontrado</p>
+                        <p className="text-xs mt-1">Cadastre produtos intermediários primeiro</p>
+                      </div>
+                    )}
+
+                    {produtosVinculados.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-foreground">Produtos Vinculados:</h4>
+                        {produtosVinculados.map((item, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-sm">
+                            <div>
+                              <div className="font-medium text-foreground">{item.nome}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {item.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} {item.unidade} - {formatCurrency(item.quantidade * item.custoUnitario)}
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeProduto(index)}
+                              className="hover:bg-destructive/10 hover:text-destructive"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {(insumosVinculados.length > 0 || produtosVinculados.length > 0) && (
                     <div className="space-y-2">
                       <h4 className="font-medium text-foreground">Insumos Vinculados:</h4>
                       {insumosVinculados.map((item, index) => (
