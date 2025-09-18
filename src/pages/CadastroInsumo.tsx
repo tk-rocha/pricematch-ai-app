@@ -11,7 +11,7 @@ interface Insumo {
   nome: string;
   codigo?: string;
   unidade: string;
-  preco: string;
+  preco: number;
 }
 
 const CadastroInsumo = () => {
@@ -54,7 +54,10 @@ const CadastroInsumo = () => {
           nome: insumoToEdit.nome,
           codigo: insumoToEdit.codigo || "",
           unidade: insumoToEdit.unidade,
-          preco: formatCurrencyInput(insumoToEdit.preco || "0")
+          preco: (insumoToEdit.preco || 0).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).replace('.', ',').replace(/^/, 'R$ ')
         });
       }
     }
@@ -115,7 +118,7 @@ const CadastroInsumo = () => {
               nome: formData.nome.trim(),
               codigo: formData.codigo.trim(),
               unidade: formData.unidade,
-              preco: parseCurrencyToDecimal(formData.preco).toString()
+              preco: parseCurrencyToDecimal(formData.preco)
             }
           : insumo
       );
@@ -127,7 +130,7 @@ const CadastroInsumo = () => {
         nome: formData.nome.trim(),
         codigo: formData.codigo.trim(),
         unidade: formData.unidade,
-        preco: parseCurrencyToDecimal(formData.preco).toString()
+        preco: parseCurrencyToDecimal(formData.preco)
       };
       existingInsumos.push(newInsumo);
       localStorage.setItem("insumos", JSON.stringify(existingInsumos));
