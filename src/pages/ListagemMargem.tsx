@@ -23,7 +23,7 @@ const ListagemMargem = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
+      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
         <div className="flex items-center justify-between px-4 py-3 h-14">
           <Button
             variant="ghost"
@@ -34,7 +34,7 @@ const ListagemMargem = () => {
             <ArrowLeft className="h-6 w-6 text-foreground" />
           </Button>
 
-          <h1 className="text-base sm:text-lg font-bold text-foreground">
+          <h1 className="text-base sm:text-lg font-bold text-primary">
             Margem
           </h1>
 
@@ -43,10 +43,10 @@ const ListagemMargem = () => {
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
-        <div className="max-w-lg mx-auto space-y-4">
+      <main className="pt-16 pb-20">
+        <div className="max-w-lg mx-auto p-4">
           {/* Breadcrumb */}
-          <Breadcrumb>
+          <Breadcrumb className="mb-4">
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
@@ -67,51 +67,45 @@ const ListagemMargem = () => {
           </Breadcrumb>
 
           {margem ? (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Margem Padrão</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-              <div className="p-4 bg-muted rounded-lg space-y-4">
-                <div>
-                  <div className="text-sm text-muted-foreground">% Margem</div>
-                  <div className="text-2xl font-bold text-foreground">{margem.margem}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">% Custo Indireto Padrão</div>
-                  <div className="text-2xl font-bold text-foreground">{margem.custoIndireto}
+            <Card className="shadow-lg border-0" style={{ borderRadius: "3px" }}>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="p-4 bg-muted rounded" style={{ borderRadius: "3px" }}>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="text-sm text-muted-foreground">% Margem</div>
+                        <div className="text-2xl font-bold text-foreground">{margem.margem}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">% Custo Indireto Padrão</div>
+                        <div className="text-2xl font-bold text-foreground">{margem.custoIndireto}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-                
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate("/cadastros")}
-                    className="flex-1"
-                  >
-                    Voltar
-                  </Button>
-                  <Button
-                    onClick={() => navigate("/cadastro-margem?modo=editar")}
-                    className="flex-1"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Editar
-                  </Button>
+                  <div className="mt-6">
+                    <Button
+                      onClick={() => navigate("/cadastro-margem?modo=editar")}
+                      className="w-full h-12 font-bold"
+                      style={{ backgroundColor: "#180F33", borderRadius: "3px" }}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            <Card>
+            <Card className="shadow-lg border-0" style={{ borderRadius: "3px" }}>
               <CardContent className="p-8 text-center space-y-4">
                 <div className="text-muted-foreground">
                   Nenhuma margem cadastrada
                 </div>
                 <Button
                   onClick={() => navigate("/cadastro-margem")}
-                  className="w-full"
+                  className="w-full h-12 font-bold"
+                  style={{ backgroundColor: "#180F33", borderRadius: "3px" }}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Cadastrar Margem
@@ -121,6 +115,19 @@ const ListagemMargem = () => {
           )}
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 sm:p-4 safe-area-bottom">
+        <div className="max-w-2xl mx-auto">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/cadastros")} 
+            className="w-full h-11 sm:h-12 text-sm"
+          >
+            Voltar
+          </Button>
+        </div>
+      </footer>
     </div>
   );
 };

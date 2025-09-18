@@ -76,7 +76,7 @@ const [custoIndireto, setCustoIndireto] = useState("");
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
+      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50 safe-area-top">
         <div className="flex items-center justify-between px-4 py-3 h-14">
           <Button
             variant="ghost"
@@ -87,7 +87,7 @@ const [custoIndireto, setCustoIndireto] = useState("");
             <ArrowLeft className="h-6 w-6 text-foreground" />
           </Button>
 
-          <h1 className="text-base sm:text-lg font-bold text-foreground">
+          <h1 className="text-base sm:text-lg font-bold text-primary">
             {hasExistingMargem && !isEditing ? "Margem Cadastrada" : "Cadastro de Margem"}
           </h1>
 
@@ -96,90 +96,98 @@ const [custoIndireto, setCustoIndireto] = useState("");
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 p-3 sm:p-4 pb-6 safe-area-bottom">
-        <div className="max-w-lg mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">
-                {hasExistingMargem && !isEditing ? "Margem Padrão" : "Configure a Margem"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="margem" className="text-sm font-medium">
-                  % Margem *
-                </Label>
-                <Input
-                  id="margem"
-                  type="text"
-                  placeholder="Ex: 30,0%"
-                  value={margem}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value.length < margem.length) {
-                      setMargem(value);
-                    } else {
-                      handlePercentageInput(value, setMargem);
-                    }
-                  }}
-                  disabled={hasExistingMargem && !isEditing}
-                  className="w-full"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="custo-indireto" className="text-sm font-medium">
-                  Custo Indireto Padrão (%)
-                </Label>
-                <Input
-                  id="custo-indireto"
-                  type="text"
-                  placeholder="Ex: 10,0%"
-                  value={custoIndireto}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value.length < custoIndireto.length) {
-                      setCustoIndireto(value);
-                    } else {
-                      handlePercentageInput(value, setCustoIndireto);
-                    }
-                  }}
-                  disabled={hasExistingMargem && !isEditing}
-                  className="w-full"
-                />
+      <main className="pt-16 pb-20">
+        <div className="max-w-lg mx-auto p-4">
+          <Card className="shadow-lg border-0" style={{ borderRadius: "3px" }}>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1 block">
+                    % Margem *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 30,0%"
+                    value={margem}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value.length < margem.length) {
+                        setMargem(value);
+                      } else {
+                        handlePercentageInput(value, setMargem);
+                      }
+                    }}
+                    disabled={hasExistingMargem && !isEditing}
+                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    style={{ borderRadius: "3px", color: "#666666" }}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1 block">
+                    Custo Indireto Padrão (%)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 10,0%"
+                    value={custoIndireto}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value.length < custoIndireto.length) {
+                        setCustoIndireto(value);
+                      } else {
+                        handlePercentageInput(value, setCustoIndireto);
+                      }
+                    }}
+                    disabled={hasExistingMargem && !isEditing}
+                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    style={{ borderRadius: "3px", color: "#666666" }}
+                  />
+                </div>
               </div>
 
-              {/* Buttons */}
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleCancel}
-                  className="flex-1"
-                >
-                  Voltar
-                </Button>
-
-                {hasExistingMargem && !isEditing ? (
+              {hasExistingMargem && !isEditing && (
+                <div className="mt-6">
                   <Button
                     onClick={handleEdit}
-                    className="flex-1"
+                    className="w-full h-12 font-bold"
+                    style={{ backgroundColor: "#180F33", borderRadius: "3px" }}
                   >
                     <Edit className="w-4 h-4 mr-2" />
                     Editar
                   </Button>
-                ) : (
+                </div>
+              )}
+
+              {(!hasExistingMargem || isEditing) && (
+                <div className="mt-6">
                   <Button
                     onClick={handleSave}
-                    className="flex-1"
+                    className="w-full h-12 font-bold"
+                    style={{ backgroundColor: "#180F33", borderRadius: "3px" }}
                   >
                     <Save className="w-4 h-4 mr-2" />
                     Salvar
                   </Button>
-                )}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 sm:p-4 safe-area-bottom">
+        <div className="max-w-2xl mx-auto">
+          <Button 
+            variant="outline" 
+            onClick={handleCancel} 
+            className="w-full h-11 sm:h-12 text-sm"
+          >
+            Voltar
+          </Button>
+        </div>
+      </footer>
     </div>
   );
 };
