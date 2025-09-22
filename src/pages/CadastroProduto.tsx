@@ -74,14 +74,23 @@ const CadastroProduto = () => {
   const [margemAtualPercent, setMargemAtualPercent] = useState<number | null>(null);
   const [margemCadastrada, setMargemCadastrada] = useState(false);
   const [margemLoaded, setMargemLoaded] = useState(false);
-
-  const unidadesMedida = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
+  const [unidadesMedida, setUnidadesMedida] = useState<string[]>([]);
 
   // Carrega dados base (insumos, produtos, margem padrão, produto em edição)
   useEffect(() => {
     // insumos
     const savedInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
     setInsumos(savedInsumos);
+    
+    // unidades de medida
+    const storedUnidades = JSON.parse(localStorage.getItem("unidades") || "[]");
+    const unidadeOptions = storedUnidades.map((unidade: any) => unidade.sigla);
+    
+    // Add default options if no stored units
+    const defaultUnidades = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
+    const allUnidades = [...new Set([...unidadeOptions, ...defaultUnidades])];
+    
+    setUnidadesMedida(allUnidades);
     
 
     // margem padrão
