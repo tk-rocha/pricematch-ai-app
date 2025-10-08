@@ -86,11 +86,7 @@ const CadastroProduto = () => {
     const storedUnidades = JSON.parse(localStorage.getItem("unidades") || "[]");
     const unidadeOptions = storedUnidades.map((unidade: any) => unidade.sigla);
     
-    // Add default options if no stored units
-    const defaultUnidades = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
-    const allUnidades = [...new Set([...unidadeOptions, ...defaultUnidades])];
-    
-    setUnidadesMedida(allUnidades);
+    setUnidadesMedida(unidadeOptions);
     
 
     // margem padrão
