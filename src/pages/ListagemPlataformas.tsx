@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Package, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Package, Pencil, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
@@ -30,6 +30,10 @@ const ListagemPlataformas = () => {
 
   const handleNovaPlataforma = () => {
     navigate("/cadastro-plataforma");
+  };
+
+  const handleEditPlataforma = (plataforma: Plataforma) => {
+    navigate("/cadastro-plataforma", { state: { plataforma } });
   };
 
   const handleDeletePlataforma = (id: string) => {
@@ -127,6 +131,14 @@ const ListagemPlataformas = () => {
                     </div>
                     
                     <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditPlataforma(plataforma)}
+                        className="shrink-0 text-primary hover:text-primary/80"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
