@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ArrowLeft, Save, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { handlePercentageInput, parsePercentageToDecimal } from "@/lib/utils";
@@ -162,7 +163,7 @@ const CadastroMargem = () => {
               <div className="space-y-4">
                 {/* % Margem Field */}
                 <div>
-                  <input
+                  <Input
                     type="text"
                     value={margem}
                     onChange={(e) => {
@@ -175,19 +176,16 @@ const CadastroMargem = () => {
                     }}
                     placeholder="% Margem"
                     disabled={hasExistingMargem && !isEditing}
-                    className={`w-full h-12 px-4 border rounded text-sm ${
-                      errors.margem ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    style={{ borderRadius: "3px", color: "#666666" }}
+                    className={errors.margem ? 'border-destructive' : ''}
                   />
                   {errors.margem && (
-                    <p className="text-red-500 text-xs mt-1">{errors.margem}</p>
+                    <p className="text-destructive text-xs mt-1">{errors.margem}</p>
                   )}
                 </div>
 
                 {/* Custo Indireto Field */}
                 <div>
-                  <input
+                  <Input
                     type="text"
                     value={custoIndireto}
                     onChange={(e) => {
@@ -200,8 +198,6 @@ const CadastroMargem = () => {
                     }}
                     placeholder="Custo Indireto Padrão (%)"
                     disabled={hasExistingMargem && !isEditing}
-                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
-                    style={{ borderRadius: "3px", color: "#666666" }}
                   />
                 </div>
               </div>

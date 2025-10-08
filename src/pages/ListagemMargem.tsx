@@ -9,7 +9,7 @@ const ListagemMargem = () => {
   const navigate = useNavigate();
   const [margem, setMargem] = useState<any>(null);
 
-  useEffect(() => {
+  const loadMargem = () => {
     const storedMargem = localStorage.getItem("margem");
     if (storedMargem) {
       try {
@@ -18,6 +18,21 @@ const ListagemMargem = () => {
         console.error("Erro ao carregar margem:", error);
       }
     }
+  };
+
+  useEffect(() => {
+    loadMargem();
+  }, []);
+
+  // Recarrega quando a página fica visível
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadMargem();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
   return (
@@ -79,7 +94,7 @@ const ListagemMargem = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary flex items-center justify-center">
-                      <span className="text-primary-foreground font-bold text-sm">%</span>
+                      <span className="text-primary-foreground font-bold text-lg">%</span>
                     </div>
                     
                     <div className="flex-1 min-w-0">
@@ -87,32 +102,30 @@ const ListagemMargem = () => {
                         Configuração de Margem
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                        % Margem: {margem.margem}
+                        Margem: {margem.margem}
                       </p>
                       <p className="text-xs sm:text-sm text-muted-foreground">
-                        % Custo Indireto: {margem.custoIndireto || "0,0%"}
+                        Custo Indireto: {margem.custoIndireto || "0,0%"}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => navigate("/cadastro-margem?modo=editar")}
-                      className="shrink-0 text-primary hover:text-primary/80"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate("/cadastro-margem?modo=editar")}
+                    className="shrink-0 text-primary hover:text-primary/80"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           ) : (
             <Card className="shadow-sm">
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 text-muted-foreground mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                  <span className="font-bold text-sm">%</span>
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <span className="font-bold text-lg text-muted-foreground">%</span>
                 </div>
                 <p className="text-muted-foreground">Nenhuma margem cadastrada</p>
                 <Button onClick={() => navigate("/cadastro-margem")} className="mt-4">
