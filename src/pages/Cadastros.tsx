@@ -1,7 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart, Beaker, Percent } from "lucide-react";
+import { ArrowLeft, Store, Package, Ruler, Plus, ShoppingCart, Users, BarChart, Beaker, Percent, PackageOpen } from "lucide-react";
 import { getStoredCount } from "@/lib/utils";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
@@ -49,6 +49,13 @@ const Cadastros = () => {
       description: "Configure a margem padrão",
       icon: Percent,
       path: "/cadastro-margem",
+      active: true
+    },
+    {
+      title: "Estoque",
+      description: "Gerencie o estoque",
+      icon: PackageOpen,
+      path: "/estoque",
       active: true
     },
     {
@@ -130,6 +137,8 @@ const Cadastros = () => {
               } else if (option.path === "/cadastro-margem") {
                 const count = getStoredCount("margem");
                 navigate(count ? "/listagem-margem" : "/cadastro-margem");
+              } else if (option.path === "/estoque") {
+                navigate("/estoque");
               }
             };
 
