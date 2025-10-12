@@ -239,12 +239,19 @@ const Estoque = () => {
             Estoque
           </h1>
 
-          <div className="w-10 sm:w-11"></div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleNovoMovimento}
+            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+          >
+            <Plus className="h-6 w-6 text-foreground" />
+          </Button>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-16 pb-20 p-3 sm:p-4 safe-area-bottom">
+      <main className="pt-16 p-3 sm:p-4 safe-area-bottom">{/* ... keep existing code */}
         <div className="max-w-6xl mx-auto space-y-4">
           <Card>
             <CardContent className="p-4">
@@ -303,26 +310,6 @@ const Estoque = () => {
           </Card>
         </div>
       </main>
-
-      {/* Footer Buttons */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 sm:p-4 safe-area-bottom">
-        <div className="max-w-2xl mx-auto flex gap-3 sm:gap-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/cadastros")}
-            className="flex-1 h-11 sm:h-12 text-sm"
-          >
-            Voltar
-          </Button>
-          <Button
-            onClick={handleNovoMovimento}
-            className="flex-1 h-11 sm:h-12 text-sm font-semibold"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Movimento
-          </Button>
-        </div>
-      </footer>
 
       {/* Dialog: Escolher Tipo de Movimentação */}
       <Dialog open={tipoMovimentacaoDialogOpen} onOpenChange={setTipoMovimentacaoDialogOpen}>
