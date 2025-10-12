@@ -19,6 +19,7 @@ import ListagemInsumos from "./pages/ListagemInsumos";
 import CadastroMargem from "./pages/CadastroMargem";
 import ListagemMargem from "./pages/ListagemMargem";
 import Estoque from "./pages/Estoque";
+import NovoPedido from "./pages/NovoPedido";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/cadastro-margem" element={<CadastroMargem />} />
           <Route path="/listagem-margem" element={<ListagemMargem />} />
           <Route path="/estoque" element={<Estoque />} />
+          <Route path="/pedidos/novo" element={<NovoPedido />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

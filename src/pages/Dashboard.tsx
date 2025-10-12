@@ -77,12 +77,12 @@ const Dashboard = () => {
       active: false
     },
     {
-      title: "Nova Venda",
+      title: "Novo Pedido",
       icon: ShoppingCart,
-      path: "#",
+      path: "/pedidos/novo",
       count: counts.vendas,
-      label: "Vendas hoje",
-      active: false
+      label: "Pedidos hoje",
+      active: true
     }
   ];
 
