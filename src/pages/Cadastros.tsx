@@ -10,24 +10,10 @@ const Cadastros = () => {
 
   const cadastroOptions = [
     {
-      title: "Cadastro da Loja",
-      description: "Configure os dados da sua loja",
-      icon: Store,
-      path: "/cadastro-loja",
-      active: true
-    },
-    {
-      title: "Plataformas",
-      description: "Adicione plataformas de venda",
-      icon: Package,
-      path: "/cadastro-plataforma",
-      active: true
-    },
-    {
-      title: "Cadastro de Unidade",
-      description: "Defina unidades de medida",
-      icon: Ruler,
-      path: "/cadastro-unidade",
+      title: "Estoque",
+      description: "Gerencie o estoque",
+      icon: PackageOpen,
+      path: "/estoque",
       active: true
     },
     {
@@ -52,10 +38,24 @@ const Cadastros = () => {
       active: true
     },
     {
-      title: "Estoque",
-      description: "Gerencie o estoque",
-      icon: PackageOpen,
-      path: "/estoque",
+      title: "Plataformas",
+      description: "Adicione plataformas de venda",
+      icon: Package,
+      path: "/cadastro-plataforma",
+      active: true
+    },
+    {
+      title: "Cadastro de Unidade",
+      description: "Defina unidades de medida",
+      icon: Ruler,
+      path: "/cadastro-unidade",
+      active: true
+    },
+    {
+      title: "Cadastro da Loja",
+      description: "Configure os dados da sua loja",
+      icon: Store,
+      path: "/cadastro-loja",
       active: true
     },
     {
@@ -119,15 +119,8 @@ const Cadastros = () => {
               if (!option.active) return;
               
               // Check if data exists and redirect accordingly
-              if (option.path === "/cadastro-loja") {
-                const count = getStoredCount("dadosLoja");
-                navigate(count > 0 ? "/listagem-lojas" : "/cadastro-loja");
-              } else if (option.path === "/cadastro-plataforma") {
-                const count = getStoredCount("plataformas");
-                navigate(count > 0 ? "/listagem-plataformas" : "/cadastro-plataforma");
-              } else if (option.path === "/cadastro-unidade") {
-                const count = getStoredCount("unidades");
-                navigate(count > 0 ? "/listagem-unidades" : "/cadastro-unidade");
+              if (option.path === "/estoque") {
+                navigate("/estoque");
               } else if (option.path === "/cadastro-produto") {
                 const count = getStoredCount("produtos");
                 navigate(count > 0 ? "/listagem-produtos" : "/cadastro-produto");
@@ -137,8 +130,15 @@ const Cadastros = () => {
               } else if (option.path === "/cadastro-margem") {
                 const count = getStoredCount("margem");
                 navigate(count ? "/listagem-margem" : "/cadastro-margem");
-              } else if (option.path === "/estoque") {
-                navigate("/estoque");
+              } else if (option.path === "/cadastro-plataforma") {
+                const count = getStoredCount("plataformas");
+                navigate(count > 0 ? "/listagem-plataformas" : "/cadastro-plataforma");
+              } else if (option.path === "/cadastro-unidade") {
+                const count = getStoredCount("unidades");
+                navigate(count > 0 ? "/listagem-unidades" : "/cadastro-unidade");
+              } else if (option.path === "/cadastro-loja") {
+                const count = getStoredCount("dadosLoja");
+                navigate(count > 0 ? "/listagem-lojas" : "/cadastro-loja");
               }
             };
 
