@@ -822,7 +822,7 @@ const CadastroProduto = () => {
                           <td className="py-3 px-4">
                             <input
                               type="text"
-                              value={getCanalVendaValor("balcao")}
+                              value={formatCurrency(formData.precoSugerido || 0)}
                               onChange={(e) =>
                                 handleCurrencyInput(e.target.value, (value) =>
                                   handleCanalVendaChange("balcao", value)
@@ -848,7 +848,7 @@ const CadastroProduto = () => {
                             <td className="py-3 px-4">
                               <input
                                 type="text"
-                                value={getCanalVendaValor(plataforma.id)}
+                                value={formatCurrency(calcularPrecoSugeridoPlataforma(plataforma.taxa))}
                                 onChange={(e) =>
                                   handleCurrencyInput(e.target.value, (value) =>
                                     handleCanalVendaChange(plataforma.id, value)
