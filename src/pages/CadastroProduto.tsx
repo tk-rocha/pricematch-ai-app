@@ -31,6 +31,17 @@ interface InsumoVinculado {
 }
 
 
+interface Plataforma {
+  id: string;
+  nome: string;
+  taxa: number;
+}
+
+interface CanalVenda {
+  plataformaId: string;
+  valorFinal: string;
+}
+
 interface Produto {
   id: string;
   nome: string;
@@ -41,6 +52,7 @@ interface Produto {
   quantoRende?: number;
   fichaTecnica?: InsumoVinculado[];
   custoIndireto?: string;
+  canaisVenda?: CanalVenda[];
 }
 
 const CadastroProduto = () => {
@@ -75,6 +87,8 @@ const CadastroProduto = () => {
   const [margemCadastrada, setMargemCadastrada] = useState(false);
   const [margemLoaded, setMargemLoaded] = useState(false);
   const [unidadesMedida, setUnidadesMedida] = useState<string[]>([]);
+  const [plataformas, setPlataformas] = useState<Plataforma[]>([]);
+  const [canaisVenda, setCanaisVenda] = useState<CanalVenda[]>([]);
 
   // Carrega dados base (insumos, produtos, margem padrão, produto em edição)
   useEffect(() => {
@@ -87,6 +101,10 @@ const CadastroProduto = () => {
     const unidadeOptions = storedUnidades.map((unidade: any) => unidade.sigla);
     
     setUnidadesMedida(unidadeOptions);
+    
+    // plataformas
+    const savedPlataformas = JSON.parse(localStorage.getItem("plataformas") || "[]");
+    setPlataformas(savedPlataformas);
     
 
     // margem padrão
@@ -123,7 +141,7 @@ const CadastroProduto = () => {
           nome: produto.nome,
           codigo: produto.codigo || "",
           unidadeMedida: produto.unidadeMedida,
-          preco: (produto.precoVenda || 0).toLocaleString('pt-BR', {
+          preco: (produto.custoProducao || 0).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           }),
@@ -138,6 +156,7 @@ const CadastroProduto = () => {
           maximumFractionDigits: 2
         }));
         if (produto.fichaTecnica) setInsumosVinculados(produto.fichaTecnica);
+        if (produto.canaisVenda) setCanaisVenda(produto.canaisVenda);
       }
     }
   setMargemLoaded(true);
@@ -303,6 +322,7 @@ const CadastroProduto = () => {
       quantoRende: parseFloat(formData.quantoRende) || 0,
       fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined,
       custoIndireto: formData.custoIndireto,
+      canaisVenda: canaisVenda.length > 0 ? canaisVenda : undefined,
     };
 
     if (isEditing) {
@@ -345,9 +365,33 @@ const CadastroProduto = () => {
         custoIndireto: defaultCustoIndireto,
       });
       setInsumosVinculados([]);
+      setCanaisVenda([]);
       setActiveTab("normal");
       setErrors({});
     }
+  };
+
+  const calcularPrecoSugeridoPlataforma = (taxa: number) => {
+    const precoVenda = parseCurrencyToDecimal(formData.preco) || 0;
+    if (precoVenda === 0) return 0;
+    return precoVenda / (1 - taxa / 100);
+  };
+
+  const handleCanalVendaChange = (plataformaId: string, valor: string) => {
+    setCanaisVenda((prev) => {
+      const existing = prev.find((c) => c.plataformaId === plataformaId);
+      if (existing) {
+        return prev.map((c) =>
+          c.plataformaId === plataformaId ? { ...c, valorFinal: valor } : c
+        );
+      } else {
+        return [...prev, { plataformaId, valorFinal: valor }];
+      }
+    });
+  };
+
+  const getCanalVendaValor = (plataformaId: string) => {
+    return canaisVenda.find((c) => c.plataformaId === plataformaId)?.valorFinal || "";
   };
 
   const handleBack = () => navigate("/listagem-produtos");
@@ -432,30 +476,21 @@ const CadastroProduto = () => {
 
 
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1 block">Preço de Venda</label>
+                  <label className="text-sm font-medium text-foreground mb-1 block">Custo</label>
                   <input
                     type="text"
                     value={formData.preco}
                     onChange={(e) => handleCurrencyInput(e.target.value, (value) => handleInputChange("preco", value))}
-                    placeholder="Preço"
+                    placeholder="R$ 0,00"
                     className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
                     style={{ borderRadius: "3px", color: "#666666" }}
                   />
-                  {margemAtualPercent !== null && (
-                    <div className="mt-1 text-xs font-medium">
-                      <span className={margemAtualPercent >= 0 ? "text-green-600" : "text-red-600"}>
-                        {margemAtualPercent >= 0 ? "+" : ""}
-                        {Math.round(margemAtualPercent)}%
-                      </span>
-                      <span className="text-muted-foreground ml-1">margem</span>
-                    </div>
-                  )}
                 </div>
               </div>
 
               {/* Tabs */}
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "normal" | "ficha")} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6" style={{ backgroundColor: "#E1E1E5" }}>
+                <TabsList className="grid w-full grid-cols-2 mb-4" style={{ backgroundColor: "#E1E1E5" }}>
                   <TabsTrigger
                     value="normal"
                     className="data-[state=active]:bg-white data-[state=active]:text-white font-bold"
@@ -482,55 +517,50 @@ const CadastroProduto = () => {
 
                 {/* Aba Normal */}
                 <TabsContent value="normal" className="space-y-4">
-                  {/* Linha 1 */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Custo Unitário</div>
-                      <input
-                        type="text"
-                        value={custoUnitarioInput}
-                        onChange={(e) =>
-                          handleCurrencyInput(e.target.value, (masked) => {
-                            setCustoUnitarioInput(masked);
-                            const numeric = parseCurrencyToDecimal(masked) || 0;
-                            setFormData((prev) => ({ ...prev, custoUnitario: numeric }));
-                          })
+                  {/* Custo Indireto */}
+                  <div className="text-center p-4 border border-border rounded-sm">
+                    <div className="text-sm text-muted-foreground">Custo Indireto (%)</div>
+                    <input
+                      type="text"
+                      value={formData.custoIndireto}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length < (formData.custoIndireto?.length || 0)) {
+                          setFormData((prev) => ({ ...prev, custoIndireto: value }));
+                        } else {
+                          handlePercentageInput(value, (masked) =>
+                            setFormData((prev) => ({ ...prev, custoIndireto: masked }))
+                          );
                         }
-                        className="mt-2 w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground text-center"
-                        placeholder="R$ 0,00"
-                      />
-                    </div>
-                    <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Preço Sugerido</div>
-                      <div className="text-lg font-bold">{formatCurrency(formData.precoSugerido)}</div>
-                    </div>
+                      }}
+                      className="mt-2 w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground text-center"
+                      placeholder="Ex: 10,0%"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Percentual aplicado sobre o custo unitário para despesas indiretas.
+                    </p>
                   </div>
 
-                  {/* Linha 2 */}
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="text-center p-4 border border-border rounded-sm">
-                      <div className="text-sm text-muted-foreground">Custo Indireto (%)</div>
-                      <input
-                        type="text"
-                        value={formData.custoIndireto}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value.length < (formData.custoIndireto?.length || 0)) {
-                            setFormData((prev) => ({ ...prev, custoIndireto: value }));
-                          } else {
-                            handlePercentageInput(value, (masked) =>
-                              setFormData((prev) => ({ ...prev, custoIndireto: masked }))
-                            );
-                          }
-                        }}
-                        className="mt-2 w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground text-center"
-                        placeholder="Ex: 10,0%"
-                      />
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Percentual aplicado sobre o custo unitário para despesas indiretas.
-                      </p>
-                    </div>
-                    <div />
+                  {/* Preço de Venda */}
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Preço de Venda</label>
+                    <input
+                      type="text"
+                      value={formData.preco}
+                      onChange={(e) => handleCurrencyInput(e.target.value, (value) => handleInputChange("preco", value))}
+                      placeholder="R$ 0,00"
+                      className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                      style={{ borderRadius: "3px", color: "#666666" }}
+                    />
+                    {margemAtualPercent !== null && (
+                      <div className="mt-1 text-xs font-medium">
+                        <span className={margemAtualPercent >= 0 ? "text-green-600" : "text-red-600"}>
+                          {margemAtualPercent >= 0 ? "+" : ""}
+                          {Math.round(margemAtualPercent)}%
+                        </span>
+                        <span className="text-muted-foreground ml-1">margem</span>
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
 
@@ -684,6 +714,74 @@ const CadastroProduto = () => {
                   )}
                 </TabsContent>
               </Tabs>
+
+              {/* Canais de Venda */}
+              {plataformas.length > 0 && (
+                <div className="mt-6 space-y-4">
+                  <h3 className="text-lg font-bold text-foreground">Canais de Venda</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Venda</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Taxa (%)</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Preço Sugerido (R$)</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Valor Final (R$)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-border">
+                          <td className="py-3 px-4 text-sm text-foreground">Balcão</td>
+                          <td className="py-3 px-4 text-sm text-muted-foreground">-</td>
+                          <td className="py-3 px-4 text-sm font-medium text-foreground">
+                            {formatCurrency(parseCurrencyToDecimal(formData.preco) || 0)}
+                          </td>
+                          <td className="py-3 px-4">
+                            <input
+                              type="text"
+                              value={getCanalVendaValor("balcao")}
+                              onChange={(e) =>
+                                handleCurrencyInput(e.target.value, (value) =>
+                                  handleCanalVendaChange("balcao", value)
+                                )
+                              }
+                              placeholder="R$ 0,00"
+                              className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground"
+                            />
+                          </td>
+                        </tr>
+                        {plataformas.map((plataforma) => (
+                          <tr key={plataforma.id} className="border-b border-border">
+                            <td className="py-3 px-4 text-sm text-foreground">{plataforma.nome}</td>
+                            <td className="py-3 px-4 text-sm text-muted-foreground">
+                              {plataforma.taxa.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })}%
+                            </td>
+                            <td className="py-3 px-4 text-sm font-medium text-foreground">
+                              {formatCurrency(calcularPrecoSugeridoPlataforma(plataforma.taxa))}
+                            </td>
+                            <td className="py-3 px-4">
+                              <input
+                                type="text"
+                                value={getCanalVendaValor(plataforma.id)}
+                                onChange={(e) =>
+                                  handleCurrencyInput(e.target.value, (value) =>
+                                    handleCanalVendaChange(plataforma.id, value)
+                                  )
+                                }
+                                placeholder="R$ 0,00"
+                                className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground"
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               <div className="mt-6">
                 <Button
