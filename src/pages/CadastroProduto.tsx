@@ -244,6 +244,16 @@ const CadastroProduto = () => {
     }
   }, [formData.preco, formData.custoUnitario, formData.custoIndireto]);
 
+  // Sincroniza campo "Custo" com custoUnitario para ativar cálculos (aba Normal)
+  useEffect(() => {
+    if (activeTab === "normal") {
+      const novoCusto = parseCurrencyToDecimal(formData.preco) || 0;
+      if (formData.custoUnitario !== novoCusto) {
+        setFormData(prev => ({ ...prev, custoUnitario: novoCusto }));
+      }
+    }
+  }, [formData.preco, formData.custoUnitario, activeTab]);
+
   // Garante máscara de moeda ao entrar na aba Normal
   useEffect(() => {
     if (activeTab === "normal") {
