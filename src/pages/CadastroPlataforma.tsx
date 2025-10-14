@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { handleCurrencyInput, parseCurrencyToDecimal, formatCurrency } from "@/lib/utils";
+import { handlePercentageInput, parsePercentageToDecimal, formatPercentageInput } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
@@ -18,7 +18,7 @@ const CadastroPlataforma = () => {
 
   useEffect(() => {
     if (editPlataforma) {
-      setFormData({ nome: editPlataforma.nome, taxa: formatCurrency(editPlataforma.taxa) });
+      setFormData({ nome: editPlataforma.nome, taxa: formatPercentageInput(editPlataforma.taxa.toString()) });
     }
   }, [editPlataforma]);
 
@@ -38,14 +38,14 @@ const CadastroPlataforma = () => {
         dadosPlataformas[index] = {
           ...dadosPlataformas[index],
           nome: formData.nome,
-          taxa: parseCurrencyToDecimal(formData.taxa)
+          taxa: parsePercentageToDecimal(formData.taxa)
         };
       }
     } else {
       dadosPlataformas.push({
         id: Date.now().toString(),
         nome: formData.nome,
-        taxa: parseCurrencyToDecimal(formData.taxa)
+        taxa: parsePercentageToDecimal(formData.taxa)
       });
     }
 
@@ -131,7 +131,7 @@ const CadastroPlataforma = () => {
                   <input
                     type="text"
                     value={formData.taxa}
-                    onChange={(e) => handleCurrencyInput(e.target.value, (value) => setFormData(prev => ({ ...prev, taxa: value })))}
+                    onChange={(e) => handlePercentageInput(e.target.value, (value) => setFormData(prev => ({ ...prev, taxa: value })))}
                     placeholder="Taxa (%)"
                     className={`w-full h-12 px-4 border rounded text-sm ${errors.taxa ? 'border-red-500' : 'border-gray-300'}`}
                     style={{ borderRadius: '3px', color: '#666666' }}
