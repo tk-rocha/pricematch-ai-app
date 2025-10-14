@@ -567,6 +567,39 @@ const CadastroProduto = () => {
                     </p>
                   </div>
 
+                  {/* Detalhamento do Cálculo */}
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-sm space-y-2">
+                    <div className="text-sm font-semibold text-blue-900">Composição do Preço de Venda:</div>
+                    <div className="space-y-1 text-xs text-blue-800">
+                      <div className="flex justify-between">
+                        <span>Preço de Custo:</span>
+                        <span className="font-medium">{formatCurrency(formData.custoUnitario || 0)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>+ Custo Indireto ({formData.custoIndireto}):</span>
+                        <span className="font-medium">
+                          {formatCurrency((formData.custoUnitario || 0) * (parsePercentageToDecimal(formData.custoIndireto || "0") / 100))}
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-t border-blue-300 pt-1">
+                        <span>Custo Total:</span>
+                        <span className="font-medium">
+                          {formatCurrency((formData.custoUnitario || 0) * (1 + parsePercentageToDecimal(formData.custoIndireto || "0") / 100))}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>+ Margem ({margem.toFixed(1)}%):</span>
+                        <span className="font-medium">
+                          {formatCurrency(((formData.custoUnitario || 0) * (1 + parsePercentageToDecimal(formData.custoIndireto || "0") / 100)) * (margem / 100))}
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-t border-blue-300 pt-1 font-bold">
+                        <span>Preço Sugerido:</span>
+                        <span>{formatCurrency(formData.precoSugerido)}</span>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Preço de Venda */}
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Preço de Venda</label>
@@ -724,6 +757,39 @@ const CadastroProduto = () => {
                         <div className="text-center p-4 border border-border rounded-sm">
                           <div className="text-sm text-muted-foreground">Preço Sugerido</div>
                           <div className="text-lg font-bold">{formatCurrency(formData.precoSugerido)}</div>
+                        </div>
+                      </div>
+
+                      {/* Detalhamento do Cálculo na Ficha Técnica */}
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-sm space-y-2">
+                        <div className="text-sm font-semibold text-blue-900">Composição do Preço de Venda:</div>
+                        <div className="space-y-1 text-xs text-blue-800">
+                          <div className="flex justify-between">
+                            <span>Custo Unitário:</span>
+                            <span className="font-medium">{formatCurrency(formData.custoUnitario || 0)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>+ Custo Indireto ({formData.custoIndireto}):</span>
+                            <span className="font-medium">
+                              {formatCurrency((formData.custoUnitario || 0) * (parsePercentageToDecimal(formData.custoIndireto || "0") / 100))}
+                            </span>
+                          </div>
+                          <div className="flex justify-between border-t border-blue-300 pt-1">
+                            <span>Custo Total:</span>
+                            <span className="font-medium">
+                              {formatCurrency((formData.custoUnitario || 0) * (1 + parsePercentageToDecimal(formData.custoIndireto || "0") / 100))}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>+ Margem ({margem.toFixed(1)}%):</span>
+                            <span className="font-medium">
+                              {formatCurrency(((formData.custoUnitario || 0) * (1 + parsePercentageToDecimal(formData.custoIndireto || "0") / 100)) * (margem / 100))}
+                            </span>
+                          </div>
+                          <div className="flex justify-between border-t border-blue-300 pt-1 font-bold">
+                            <span>Preço Sugerido:</span>
+                            <span>{formatCurrency(formData.precoSugerido)}</span>
+                          </div>
                         </div>
                       </div>
 
