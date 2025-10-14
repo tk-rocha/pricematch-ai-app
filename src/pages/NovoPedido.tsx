@@ -502,13 +502,29 @@ const NovoPedido = () => {
             </CardContent>
           </Card>
 
-          {/* Total */}
+          {/* Resumo do Pedido */}
           {itens.length > 0 && (
-            <Card className="bg-primary/5 border-primary/20">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-semibold">Total do Pedido</span>
-                  <span className="text-2xl font-bold text-primary">
+            <Card className="bg-primary/10 border-primary/30 shadow-lg">
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-primary/20">
+                  <span className="text-base font-semibold text-foreground">Subtotal dos Itens</span>
+                  <span className="text-lg font-bold text-foreground">
+                    {formatCurrency(itens.reduce((acc, item) => acc + item.subtotal, 0))}
+                  </span>
+                </div>
+                
+                {temFrete && responsavelFrete === "loja" && valorFrete && (
+                  <div className="flex items-center justify-between pb-2 border-b border-primary/20">
+                    <span className="text-base font-semibold text-foreground">Frete</span>
+                    <span className="text-lg font-bold text-foreground">
+                      {formatCurrency(parseCurrencyToDecimal(valorFrete))}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-xl font-bold text-foreground">TOTAL DO PEDIDO</span>
+                  <span className="text-3xl font-bold text-primary">
                     {formatCurrency(calcularTotal())}
                   </span>
                 </div>
