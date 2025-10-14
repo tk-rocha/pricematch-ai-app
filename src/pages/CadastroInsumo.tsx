@@ -37,12 +37,8 @@ const CadastroInsumo = () => {
   useEffect(() => {
     const storedUnidades = JSON.parse(localStorage.getItem("unidades") || "[]");
     const unidadeOptions = storedUnidades.map((unidade: any) => unidade.sigla);
-    
-    // Add default options if no stored units
-    const defaultUnidades = ["Un", "L", "Kg", "M", "Caixa", "Pacote"];
-    const allUnidades = [...new Set([...unidadeOptions, ...defaultUnidades])];
-    
-    setUnidadesMedida(allUnidades);
+
+    setUnidadesMedida(unidadeOptions);
   }, []);
 
   // Load existing data for editing
@@ -90,6 +86,15 @@ const CadastroInsumo = () => {
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
+
+    if (unidadesMedida.length === 0) {
+      toast({
+        title: "Nenhuma unidade cadastrada",
+        description: "É necessário cadastrar pelo menos uma unidade de medida antes de cadastrar insumos.",
+        variant: "destructive"
+      });
+      return false;
+    }
 
     if (!formData.nome.trim()) {
       newErrors.nome = "Nome é obrigatório";
@@ -256,14 +261,24 @@ const CadastroInsumo = () => {
                       errors.unidade ? 'border-red-500' : 'border-gray-300'
                     }`}
                     style={{ borderRadius: '3px', color: formData.unidade ? '#000' : '#666666' }}
+                    disabled={unidadesMedida.length === 0}
                   >
-                    <option value="">Unidade Medida</option>
+                    <option value="">
+                      {unidadesMedida.length === 0
+                        ? "Nenhuma unidade cadastrada"
+                        : "Unidade Medida"}
+                    </option>
                     {unidadesMedida.map(unidade => (
                       <option key={unidade} value={unidade}>{unidade}</option>
                     ))}
                   </select>
                   {errors.unidade && (
                     <p className="text-red-500 text-xs mt-1">{errors.unidade}</p>
+                  )}
+                  {unidadesMedida.length === 0 && (
+                    <p className="text-yellow-600 text-xs mt-1">
+                      Cadastre uma unidade de medida antes de cadastrar insumos.
+                    </p>
                   )}
                 </div>
 
