@@ -69,6 +69,7 @@ const CadastroProduto = () => {
     codigo: "",
     unidadeMedida: "",
     preco: "",
+    precoVendaFinal: "",
     quantoRende: "",
     custoTotalProducao: 0,
     custoUnitario: 0,
@@ -142,6 +143,10 @@ const CadastroProduto = () => {
           codigo: produto.codigo || "",
           unidadeMedida: produto.unidadeMedida,
           preco: (produto.custoProducao || 0).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }),
+          precoVendaFinal: (produto.precoVenda || 0).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           }),
@@ -246,6 +251,16 @@ const CadastroProduto = () => {
     }
   }, [activeTab, formData.custoUnitario]);
 
+  // Preenche automaticamente o precoVendaFinal com precoSugerido (apenas se vazio)
+  useEffect(() => {
+    if (formData.precoSugerido > 0 && !formData.precoVendaFinal && !isEditing) {
+      setFormData((prev) => ({
+        ...prev,
+        precoVendaFinal: formatCurrency(formData.precoSugerido),
+      }));
+    }
+  }, [formData.precoSugerido, formData.precoVendaFinal, isEditing]);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -318,7 +333,7 @@ const CadastroProduto = () => {
       codigo: formData.codigo.trim(),
       unidadeMedida: formData.unidadeMedida,
       custoProducao: formData.custoUnitario,
-      precoVenda: parseCurrencyToDecimal(formData.preco) || formData.precoSugerido,
+      precoVenda: parseCurrencyToDecimal(formData.precoVendaFinal) || formData.precoSugerido,
       quantoRende: parseFloat(formData.quantoRende) || 0,
       fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined,
       custoIndireto: formData.custoIndireto,
@@ -358,6 +373,7 @@ const CadastroProduto = () => {
         codigo: "",
         unidadeMedida: "",
         preco: "",
+        precoVendaFinal: "",
         quantoRende: "",
         custoTotalProducao: 0,
         custoUnitario: 0,
@@ -372,7 +388,7 @@ const CadastroProduto = () => {
   };
 
   const calcularPrecoSugeridoPlataforma = (taxa: number) => {
-    const precoVenda = parseCurrencyToDecimal(formData.preco) || 0;
+    const precoVenda = parseCurrencyToDecimal(formData.precoVendaFinal) || formData.precoSugerido || 0;
     if (precoVenda === 0) return 0;
     return precoVenda / (1 - taxa / 100);
   };
@@ -546,21 +562,12 @@ const CadastroProduto = () => {
                     <label className="text-sm font-medium text-foreground mb-1 block">Preço de Venda</label>
                     <input
                       type="text"
-                      value={formData.preco}
-                      onChange={(e) => handleCurrencyInput(e.target.value, (value) => handleInputChange("preco", value))}
+                      value={formData.precoVendaFinal}
+                      onChange={(e) => handleCurrencyInput(e.target.value, (value) => handleInputChange("precoVendaFinal", value))}
                       placeholder="R$ 0,00"
                       className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
                       style={{ borderRadius: "3px", color: "#666666" }}
                     />
-                    {margemAtualPercent !== null && (
-                      <div className="mt-1 text-xs font-medium">
-                        <span className={margemAtualPercent >= 0 ? "text-green-600" : "text-red-600"}>
-                          {margemAtualPercent >= 0 ? "+" : ""}
-                          {Math.round(margemAtualPercent)}%
-                        </span>
-                        <span className="text-muted-foreground ml-1">margem</span>
-                      </div>
-                    )}
                   </div>
                 </TabsContent>
 
@@ -734,7 +741,7 @@ const CadastroProduto = () => {
                           <td className="py-3 px-4 text-sm text-foreground">Balcão</td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">-</td>
                           <td className="py-3 px-4 text-sm font-medium text-foreground">
-                            {formatCurrency(parseCurrencyToDecimal(formData.preco) || 0)}
+                            {formatCurrency(parseCurrencyToDecimal(formData.precoVendaFinal) || formData.precoSugerido || 0)}
                           </td>
                           <td className="py-3 px-4">
                             <input
