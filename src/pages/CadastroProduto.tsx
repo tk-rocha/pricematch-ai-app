@@ -817,7 +817,7 @@ const CadastroProduto = () => {
                           <td className="py-3 px-4 text-sm text-foreground">Balcão</td>
                           <td className="py-3 px-4 text-sm text-muted-foreground">-</td>
                           <td className="py-3 px-4 text-sm font-medium text-foreground">
-                            {formatCurrency(parseCurrencyToDecimal(formData.precoVendaFinal) || formData.precoSugerido || 0)}
+                            {formatCurrency(formData.precoSugerido || 0)}
                           </td>
                           <td className="py-3 px-4">
                             <input
