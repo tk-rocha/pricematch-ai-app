@@ -276,8 +276,10 @@ const NovoPedido = () => {
           {/* Buscar Produto */}
           <Card>
             <CardContent className="p-4 space-y-4">
-              <div>
-                <Label htmlFor="produto">Buscar Produto</Label>
+              <div className="relative">
+                <Label htmlFor="produto" className="text-foreground font-semibold">
+                  Buscar Produto
+                </Label>
                 <div className="relative mt-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -290,35 +292,55 @@ const NovoPedido = () => {
                     }}
                     onFocus={() => setMostrarResultados(true)}
                     placeholder="Digite o nome ou código do produto"
-                    className="pl-10"
+                    className="pl-10 bg-background border-input"
                   />
                 </div>
 
                 {/* Resultados da Busca */}
-                {mostrarResultados && buscaProduto && produtosFiltrados.length > 0 && (
-                  <div className="absolute z-10 mt-1 w-full max-w-md bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto">
-                    {produtosFiltrados.map((produto) => (
-                      <button
-                        key={produto.id}
-                        onClick={() => handleSelecionarProduto(produto)}
-                        className="w-full text-left px-4 py-3 hover:bg-muted transition-colors border-b border-border last:border-0"
-                      >
-                        <div className="font-medium text-foreground">{produto.nome}</div>
-                        <div className="text-sm text-muted-foreground flex justify-between">
-                          <span>{produto.codigo}</span>
-                          <span className="font-semibold text-primary">
-                            {formatCurrency(produto.precoVenda)}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
+                {mostrarResultados && buscaProduto && (
+                  <div className="absolute z-10 mt-1 w-full bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                    {produtosFiltrados.length > 0 ? (
+                      produtosFiltrados.map((produto) => (
+                        <button
+                          key={produto.id}
+                          onClick={() => handleSelecionarProduto(produto)}
+                          className="w-full text-left px-4 py-3 hover:bg-muted transition-colors border-b border-border last:border-0"
+                        >
+                          <div className="font-medium text-foreground">{produto.nome}</div>
+                          <div className="text-sm text-muted-foreground flex justify-between items-center mt-1">
+                            {produto.codigo && <span className="text-xs">{produto.codigo}</span>}
+                            <span className="font-semibold text-primary ml-auto">
+                              {formatCurrency(produto.precoVenda)}
+                            </span>
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-muted-foreground text-center">
+                        Nenhum produto encontrado.
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
 
+              {/* Preço de Venda e Quantidade */}
+              {produtoSelecionado && (
+                <div className="p-3 bg-muted/50 rounded-md border border-border">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-foreground">Preço de Venda:</span>
+                    <span className="text-lg font-bold text-primary">
+                      {formatCurrency(produtoSelecionado.precoVenda)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Quantidade */}
               <div>
-                <Label htmlFor="quantidade">Quantidade</Label>
+                <Label htmlFor="quantidade" className="text-foreground font-semibold">
+                  Quantidade
+                </Label>
                 <Input
                   id="quantidade"
                   type="text"
@@ -328,13 +350,27 @@ const NovoPedido = () => {
                     setQuantidade(value);
                   }}
                   placeholder="0,00"
-                  className="mt-2"
+                  className="mt-2 bg-background border-input"
                 />
               </div>
 
+              {/* Subtotal Preview */}
+              {produtoSelecionado && quantidade && parseFloat(quantidade.replace(",", ".")) > 0 && (
+                <div className="p-3 bg-primary/5 rounded-md border border-primary/20">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-foreground">Subtotal:</span>
+                    <span className="text-xl font-bold text-primary">
+                      {formatCurrency(
+                        parseFloat(quantidade.replace(",", ".")) * produtoSelecionado.precoVenda
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <Button
                 onClick={handleAdicionarItem}
-                className="w-full"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Adicionar Item
               </Button>
