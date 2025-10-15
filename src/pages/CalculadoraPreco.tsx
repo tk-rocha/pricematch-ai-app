@@ -20,14 +20,23 @@ const CalculadoraPreco = () => {
     const percentualMargem = parsePercentageToDecimal(margem || "0");
     const percentualTaxa = parsePercentageToDecimal(taxa || "0");
 
-    // Calcula custo total (custo base + custo indireto)
-    const custoTotal = custoBase * (1 + percentualCustoIndireto / 100);
+    // Valor do custo indireto (percentual sobre o custo base)
+    const valorCustoIndireto = custoBase * (percentualCustoIndireto / 100);
+    
+    // Custo total (custo base + custo indireto)
+    const custoTotal = custoBase + valorCustoIndireto;
 
-    // Calcula preço com margem
-    const precoComMargem = custoTotal * (1 + percentualMargem / 100);
+    // Valor da margem (percentual sobre o custo total)
+    const valorMargem = custoTotal * (percentualMargem / 100);
+    
+    // Preço com margem
+    const precoComMargem = custoTotal + valorMargem;
 
-    // Calcula preço final com taxa
-    const precoFinal = precoComMargem * (1 + percentualTaxa / 100);
+    // Valor da taxa (percentual sobre o preço com margem)
+    const valorTaxa = precoComMargem * (percentualTaxa / 100);
+    
+    // Preço final com taxa
+    const precoFinal = precoComMargem + valorTaxa;
 
     // Calcula lucro
     const lucro = precoFinal - custoTotal;
@@ -38,9 +47,9 @@ const CalculadoraPreco = () => {
     return {
       custoBase,
       custoTotal,
-      valorCustoIndireto: custoTotal - custoBase,
-      valorMargem: precoComMargem - custoTotal,
-      valorTaxa: precoFinal - precoComMargem,
+      valorCustoIndireto,
+      valorMargem,
+      valorTaxa,
       precoFinal,
       lucro,
       rentabilidade
