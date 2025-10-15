@@ -20,8 +20,21 @@ interface Insumo {
   unidade: string;
   preco?: string | number;
   preco_cents?: number;
+  quantidadeEmbalagem?: number;
+  preco_unitario_cents?: number; // Novo campo para o preço unitário calculado
 }
 
+// Nova interface para representar um componente (insumo ou produto) dentro de outro produto
+interface ComponenteProduto {
+  itemId: string; // ID do insumo ou do produto
+  itemNome: string; // Nome do insumo ou do produto
+  itemTipo: "insumo" | "produto_intermediario" | "produto_final"; // Tipo do item
+  quantidade: number;
+  unidade: string;
+  custoUnitarioCalculado: number; // O custo unitário do item
+}
+
+// Interface legada para compatibilidade (será removida gradualmente)
 interface InsumoVinculado {
   insumoId: string;
   nome: string;
@@ -47,10 +60,12 @@ interface Produto {
   nome: string;
   codigo?: string;
   unidadeMedida: string;
+  tipo: "intermediario" | "final"; // Novo campo para o tipo de produto
   custoProducao: number;
   precoVenda: number;
   quantoRende?: number;
-  fichaTecnica?: InsumoVinculado[];
+  componentes?: ComponenteProduto[]; // Nova estrutura para componentes
+  fichaTecnica?: InsumoVinculado[]; // Mantido para compatibilidade
   custoIndireto?: string;
   canaisVenda?: CanalVenda[];
 }
@@ -68,6 +83,7 @@ const CadastroProduto = () => {
     nome: "",
     codigo: "",
     unidadeMedida: "",
+    tipo: "final" as "intermediario" | "final", // Novo campo para tipo de produto
     preco: "",
     quantoRende: "",
     custoTotalProducao: 0,
@@ -78,8 +94,10 @@ const CadastroProduto = () => {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [insumos, setInsumos] = useState<Insumo[]>([]);
+  const [produtosDisponiveis, setProdutosDisponiveis] = useState<Produto[]>([]); // Para buscar produtos como componentes
   const [searchTerm, setSearchTerm] = useState("");
-  const [insumosVinculados, setInsumosVinculados] = useState<InsumoVinculado[]>([]);
+  const [componentesDoProduto, setComponentesDoProduto] = useState<ComponenteProduto[]>([]); // Nova estrutura para componentes
+  const [insumosVinculados, setInsumosVinculados] = useState<InsumoVinculado[]>([]); // Mantido para compatibilidade
   const [quantidadeTemp, setQuantidadeTemp] = useState("");
   const [margem, setMargem] = useState(0);
   const [custoUnitarioInput, setCustoUnitarioInput] = useState("");
@@ -95,6 +113,12 @@ const CadastroProduto = () => {
     // insumos
     const savedInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
     setInsumos(savedInsumos);
+    
+    // produtos disponíveis (para usar como componentes)
+    const savedProdutos = JSON.parse(localStorage.getItem("produtos") || "[]");
+    // Filtra para não incluir o próprio produto em edição na lista de componentes selecionáveis
+    const produtosParaComponentes = savedProdutos.filter((p: Produto) => p.id !== id);
+    setProdutosDisponiveis(produtosParaComponentes);
     
     // unidades de medida
     const storedUnidades = JSON.parse(localStorage.getItem("unidades") || "[]");
@@ -134,13 +158,13 @@ const CadastroProduto = () => {
 
     // produto (edição)
     if (isEditing && id) {
-      const savedProdutos = JSON.parse(localStorage.getItem("produtos") || "[]");
       const produto: Produto | undefined = savedProdutos.find((p: Produto) => p.id === id);
       if (produto) {
         setFormData({
           nome: produto.nome,
           codigo: produto.codigo || "",
           unidadeMedida: produto.unidadeMedida,
+          tipo: produto.tipo || "final", // Carrega o tipo do produto
           preco: (produto.custoProducao || 0).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
@@ -155,7 +179,12 @@ const CadastroProduto = () => {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         }));
-        if (produto.fichaTecnica) setInsumosVinculados(produto.fichaTecnica);
+        // Carregar componentes (nova estrutura) ou ficha técnica (estrutura legada)
+        if (produto.componentes) {
+          setComponentesDoProduto(produto.componentes);
+        } else if (produto.fichaTecnica) {
+          setInsumosVinculados(produto.fichaTecnica);
+        }
         if (produto.canaisVenda) setCanaisVenda(produto.canaisVenda);
       }
     }
@@ -182,11 +211,18 @@ const CadastroProduto = () => {
     }
   }, [margemLoaded, margemCadastrada, isEditing, navigate, toast]);
 
-  // Recalcula custo total de produção quando a ficha muda
+  // Recalcula custo total de produção quando os componentes mudam
   useEffect(() => {
-    const custoInsumos = insumosVinculados.reduce((total, item) => total + item.quantidade * item.preco, 0);
-    setFormData((prev) => ({ ...prev, custoTotalProducao: custoInsumos }));
-  }, [insumosVinculados]);
+    // Usar nova estrutura de componentes se disponível, senão usar estrutura legada
+    if (componentesDoProduto.length > 0) {
+      const custoComponentes = calcularCustoTotalProduto(componentesDoProduto, insumos, produtosDisponiveis);
+      setFormData((prev) => ({ ...prev, custoTotalProducao: custoComponentes }));
+    } else {
+      // Fallback para estrutura legada
+      const custoInsumos = insumosVinculados.reduce((total, item) => total + item.quantidade * item.preco, 0);
+      setFormData((prev) => ({ ...prev, custoTotalProducao: custoInsumos }));
+    }
+  }, [componentesDoProduto, insumosVinculados, insumos, produtosDisponiveis]);
 
   // Ficha Técnica: calcula custo unitário e preço sugerido (considera custo indireto e margem)
   useEffect(() => {
@@ -285,12 +321,7 @@ const CadastroProduto = () => {
     }
 
     // Obtém o preço do insumo em decimal (R$ por unidade), compatível com formatos antigos e novos
-    const precoNumerico = typeof (insumo as any).preco_cents === 'number'
-      ? (insumo as any).preco_cents / 100
-      : (() => {
-          const raw = (insumo as any).preco;
-          return typeof raw === 'number' ? raw : parseCurrencyToDecimal(String(raw ?? '0'));
-        })();
+    const precoNumerico = obterPrecoUnitarioInsumo(insumo);
 
     const novoInsumo: InsumoVinculado = {
       insumoId: insumo.id,
@@ -309,6 +340,77 @@ const CadastroProduto = () => {
     setInsumosVinculados((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Funções para gerenciar componentes (nova estrutura hierárquica)
+  const addComponente = (componente: ComponenteProduto) => {
+    if (!componente.quantidade || componente.quantidade <= 0) {
+      toast({
+        title: "Quantidade inválida",
+        description: "Informe uma quantidade válida para o componente",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setComponentesDoProduto((prev) => [...prev, componente]);
+    setQuantidadeTemp("");
+    setSearchTerm("");
+  };
+
+  const removeComponente = (index: number) => {
+    setComponentesDoProduto((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Função para calcular o custo total de um produto baseado em seus componentes
+  // Função auxiliar para obter o preço unitário de um insumo
+  const obterPrecoUnitarioInsumo = (insumo: Insumo): number => {
+    if (insumo.preco_unitario_cents !== undefined) {
+      // Usar o preço unitário calculado (mais preciso)
+      return insumo.preco_unitario_cents / 100;
+    } else if (insumo.preco_cents !== undefined && insumo.quantidadeEmbalagem !== undefined && insumo.quantidadeEmbalagem > 0) {
+      // Calcular preço unitário baseado no preço da embalagem e quantidade
+      return (insumo.preco_cents / 100) / insumo.quantidadeEmbalagem;
+    } else if (insumo.preco_cents !== undefined) {
+      // Fallback para preco_cents (preço da embalagem)
+      return insumo.preco_cents / 100;
+    } else {
+      // Fallback para preco (formato antigo)
+      return typeof insumo.preco === 'number' 
+        ? insumo.preco 
+        : parseCurrencyToDecimal(String(insumo.preco ?? '0'));
+    }
+  };
+
+  // Função auxiliar para obter o custo total de um produto (incluindo custo indireto)
+  const obterCustoTotalProduto = (produto: Produto): number => {
+    const custoSimples = produto.custoProducao || 0;
+    const custoIndiretoDecimal = parsePercentageToDecimal(produto.custoIndireto || "0");
+    const custoComIndireto = custoSimples * (1 + custoIndiretoDecimal / 100);
+    return custoComIndireto;
+  };
+
+  const calcularCustoTotalProduto = (componentes: ComponenteProduto[], todosInsumos: Insumo[], todosProdutos: Produto[]): number => {
+    let totalCusto = 0;
+
+    componentes.forEach(comp => {
+      let custoItem = 0;
+      if (comp.itemTipo === "insumo") {
+        const insumo = todosInsumos.find(i => i.id === comp.itemId);
+        if (insumo) {
+          const precoUnitario = obterPrecoUnitarioInsumo(insumo);
+          custoItem = comp.quantidade * precoUnitario;
+        }
+      } else { // É um produto (intermediário ou final)
+        const produtoComponente = todosProdutos.find(p => p.id === comp.itemId);
+        if (produtoComponente) {
+          // Usar o custo total do produto (incluindo custo indireto)
+          const custoTotalProduto = obterCustoTotalProduto(produtoComponente);
+          custoItem = comp.quantidade * custoTotalProduto;
+        }
+      }
+      totalCusto += custoItem;
+    });
+    return totalCusto;
+  };
 
   const saveProduto = () => {
     if (!validateForm()) {
@@ -327,10 +429,12 @@ const CadastroProduto = () => {
       nome: formData.nome.trim(),
       codigo: formData.codigo.trim(),
       unidadeMedida: formData.unidadeMedida,
+      tipo: formData.tipo, // Salva o tipo do produto
       custoProducao: formData.custoUnitario,
       precoVenda: formData.precoSugerido,
       quantoRende: parseFloat(formData.quantoRende) || 0,
-      fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined,
+      componentes: componentesDoProduto.length > 0 ? componentesDoProduto : undefined, // Salva os componentes
+      fichaTecnica: insumosVinculados.length > 0 ? insumosVinculados : undefined, // Mantém compatibilidade
       custoIndireto: formData.custoIndireto,
       canaisVenda: canaisVenda.length > 0 ? canaisVenda : undefined,
     };
@@ -367,6 +471,7 @@ const CadastroProduto = () => {
         nome: "",
         codigo: "",
         unidadeMedida: "",
+        tipo: "final", // Resetar para o tipo padrão
         preco: "",
         quantoRende: "",
         custoTotalProducao: 0,
@@ -374,7 +479,8 @@ const CadastroProduto = () => {
         precoSugerido: 0,
         custoIndireto: defaultCustoIndireto,
       });
-      setInsumosVinculados([]);
+      setComponentesDoProduto([]); // Limpar componentes
+      setInsumosVinculados([]); // Limpar insumos vinculados (compatibilidade)
       setCanaisVenda([]);
       setActiveTab("normal");
       setErrors({});
@@ -484,6 +590,22 @@ const CadastroProduto = () => {
                   )}
                 </div>
 
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1 block">Tipo de Produto</label>
+                  <select
+                    value={formData.tipo}
+                    onChange={(e) => handleInputChange("tipo", e.target.value as "intermediario" | "final")}
+                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    style={{ borderRadius: "3px", color: formData.tipo ? "#000" : "#666666" }}
+                  >
+                    <option value="final">Produto Final</option>
+                    <option value="intermediario">Produto Intermediário</option>
+                  </select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Produtos intermediários podem ser usados como componentes de outros produtos
+                  </p>
+                </div>
+
 
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">Custo</label>
@@ -588,16 +710,16 @@ const CadastroProduto = () => {
 
                 {/* Aba Ficha Técnica */}
                 <TabsContent value="ficha" className="space-y-4">
-                  {/* Seção de Insumos */}
+                  {/* Seção de Componentes */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground">Insumos</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Componentes</h3>
                     <div className="flex gap-2">
                       <div className="flex-1 relative">
                         <input
                           type="text"
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          placeholder="Pesquisar insumos"
+                          placeholder="Pesquisar insumos ou produtos"
                           className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
                         />
                         <Search className="absolute right-3 top-3 h-6 w-6 text-muted-foreground" />
@@ -613,11 +735,13 @@ const CadastroProduto = () => {
                     </div>
                   </div>
 
-                  {searchTerm && filteredInsumos.length > 0 && (
+                  {/* Listagem de Itens para Adicionar (Insumos e Produtos) */}
+                  {searchTerm && (insumos.length > 0 || produtosDisponiveis.length > 0) && (
                     <div className="max-h-40 overflow-y-auto border border-border rounded-sm">
-                      {filteredInsumos.map((insumo) => (
+                      {/* Insumos */}
+                      {insumos.filter(i => i.nome.toLowerCase().includes(searchTerm.toLowerCase())).map((insumo) => (
                         <div
-                          key={insumo.id}
+                          key={`insumo-${insumo.id}`}
                           className="p-3 border-b border-border last:border-b-0 flex items-center justify-between"
                         >
                           <div>
@@ -628,16 +752,59 @@ const CadastroProduto = () => {
                               <span className="font-medium">{insumo.nome}</span>
                             </div>
                             <div className="text-sm text-muted-foreground mt-1">
-                              {insumo.preco_cents !== undefined 
-                                ? formatCentsToBRL(insumo.preco_cents)
-                                : formatCurrency(parseCurrencyToDecimal(String(insumo.preco ?? '0')))
-                              } / {insumo.unidade}
+                              {formatCurrency(obterPrecoUnitarioInsumo(insumo))} / {insumo.unidade}
                             </div>
                           </div>
                           <Button
-                            onClick={() => addInsumo(insumo)}
+                            onClick={() => {
+                              const precoUnitario = obterPrecoUnitarioInsumo(insumo);
+                              addComponente({
+                                itemId: insumo.id,
+                                itemNome: insumo.nome,
+                                itemTipo: "insumo",
+                                quantidade: parseFloat(quantidadeTemp),
+                                unidade: insumo.unidade,
+                                custoUnitarioCalculado: precoUnitario
+                              });
+                            }}
                             size="sm"
                             className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            disabled={!quantidadeTemp || parseFloat(quantidadeTemp) <= 0}
+                          >
+                            Adicionar
+                          </Button>
+                        </div>
+                      ))}
+
+                      {/* Produtos (Intermediários/Finais) */}
+                      {produtosDisponiveis.filter(p => p.nome.toLowerCase().includes(searchTerm.toLowerCase())).map((produto) => (
+                        <div
+                          key={`produto-${produto.id}`}
+                          className="p-3 border-b border-border last:border-b-0 flex items-center justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Produto ({produto.tipo === "intermediario" ? "Interm." : "Final"})
+                              </span>
+                              <span className="font-medium">{produto.nome}</span>
+                            </div>
+                            <div className="text-sm text-muted-foreground mt-1">
+                              {formatCurrency(obterCustoTotalProduto(produto))} / {produto.unidadeMedida}
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => addComponente({
+                              itemId: produto.id,
+                              itemNome: produto.nome,
+                              itemTipo: produto.tipo === "intermediario" ? "produto_intermediario" : "produto_final",
+                              quantidade: parseFloat(quantidadeTemp),
+                              unidade: produto.unidadeMedida,
+                              custoUnitarioCalculado: obterCustoTotalProduto(produto)
+                            })}
+                            size="sm"
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            disabled={!quantidadeTemp || parseFloat(quantidadeTemp) <= 0}
                           >
                             Adicionar
                           </Button>
@@ -646,29 +813,42 @@ const CadastroProduto = () => {
                     </div>
                   )}
 
-                  {searchTerm && filteredInsumos.length === 0 && (
+                  {searchTerm && insumos.filter(i => i.nome.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 &&
+                   produtosDisponiveis.filter(p => p.nome.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && (
                     <div className="text-center p-4 text-muted-foreground">
-                      <p>Nenhum insumo encontrado</p>
-                      <p className="text-xs mt-1">Cadastre insumos primeiro em "Cadastros → Insumos"</p>
+                      <p>Nenhum insumo ou produto encontrado</p>
+                      <p className="text-xs mt-1">Verifique os cadastros de insumos e produtos.</p>
                     </div>
                   )}
 
-
-                  {insumosVinculados.length > 0 && (
+                  {/* Listagem de Componentes Vinculados */}
+                  {componentesDoProduto.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-medium text-foreground">Insumos Vinculados:</h4>
-                      {insumosVinculados.map((item, index) => (
+                      <h4 className="font-medium text-foreground">Componentes Vinculados:</h4>
+                      {componentesDoProduto.map((item, index) => (
                         <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-sm">
                           <div>
-                            <div className="font-medium text-foreground">{item.nome}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {item.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} {item.unidade} - {formatCurrency((item.quantidade || 0) * (typeof item.preco === 'number' ? item.preco : parseCurrencyToDecimal(String((item as any).preco ?? '0'))))}
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                item.itemTipo === "insumo" 
+                                  ? "bg-blue-100 text-blue-800" 
+                                  : "bg-green-100 text-green-800"
+                              }`}>
+                                {item.itemTipo === "insumo" 
+                                  ? "Insumo" 
+                                  : `Produto (${item.itemTipo === "produto_intermediario" ? "Interm." : "Final"})`
+                                }
+                              </span>
+                              <span className="font-medium text-foreground">{item.itemNome}</span>
+                            </div>
+                            <div className="text-sm text-muted-foreground mt-1">
+                              {item.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} {item.unidade} - {formatCurrency(item.quantidade * item.custoUnitarioCalculado)}
                             </div>
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeInsumo(index)}
+                            onClick={() => removeComponente(index)}
                             className="hover:bg-destructive/10 hover:text-destructive"
                           >
                             <X className="h-4 w-4" />
@@ -691,7 +871,7 @@ const CadastroProduto = () => {
                           className="w-full h-12 px-4 border border-border rounded-sm text-sm text-foreground"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Informe o quanto todas essas quantidades de insumos irão render
+                          Informe o quanto todas essas quantidades de componentes irão render
                         </p>
                       </div>
 

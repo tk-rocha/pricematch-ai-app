@@ -13,6 +13,7 @@ interface Insumo {
   unidade: string;
   preco_cents: number; // Store as cents for consistency
   quantidadeEmbalagem?: number;
+  preco_unitario_cents?: number; // Novo campo para o preço unitário calculado
 }
 
 const CadastroInsumo = () => {
@@ -69,7 +70,12 @@ const CadastroInsumo = () => {
         setInternalCents(cents);
         setInternalQtdEmbalagem(insumoToEdit.quantidadeEmbalagem || undefined);
 
-        if (cents && insumoToEdit.quantidadeEmbalagem) {
+        if (insumoToEdit.preco_unitario_cents !== undefined) {
+          // Se já tem preço unitário salvo, usar ele
+          setInternalPrecoUnitarioCents(insumoToEdit.preco_unitario_cents);
+          setFormData(prev => ({ ...prev, precoUnitarioDisplay: formatCentsToBRL(insumoToEdit.preco_unitario_cents) }));
+        } else if (cents && insumoToEdit.quantidadeEmbalagem) {
+          // Senão, calcular baseado no preço e quantidade da embalagem
           const unitPriceCents = Math.round(cents / insumoToEdit.quantidadeEmbalagem);
           setInternalPrecoUnitarioCents(unitPriceCents);
           setFormData(prev => ({ ...prev, precoUnitarioDisplay: formatCentsToBRL(unitPriceCents) }));
@@ -173,7 +179,8 @@ const CadastroInsumo = () => {
               codigo: formData.codigo.trim(),
               unidade: formData.unidade,
               preco_cents: internalCents,
-              quantidadeEmbalagem: internalQtdEmbalagem // Save new field
+              quantidadeEmbalagem: internalQtdEmbalagem,
+              preco_unitario_cents: internalPrecoUnitarioCents // Salva o preço unitário calculado
             }
           : insumo
       );
@@ -186,7 +193,8 @@ const CadastroInsumo = () => {
         codigo: formData.codigo.trim(),
         unidade: formData.unidade,
         preco_cents: internalCents,
-        quantidadeEmbalagem: internalQtdEmbalagem // Save new field
+        quantidadeEmbalagem: internalQtdEmbalagem,
+        preco_unitario_cents: internalPrecoUnitarioCents // Salva o preço unitário calculado
       };
       existingInsumos.push(newInsumo);
       localStorage.setItem("insumos", JSON.stringify(existingInsumos));
