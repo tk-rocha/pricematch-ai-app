@@ -6,14 +6,23 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Utility functions for Brazilian currency formatting
-export function formatCurrency(value: number | string): string {
+export function formatCurrency(value: number | string, decimals: number = 2): string {
   const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
   }).format(numValue);
+}
+
+// Format number with Brazilian decimal separator
+export function formatNumber(value: number | string, decimals: number = 3): string {
+  const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+  return numValue.toLocaleString('pt-BR', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
 }
 
 export function formatCurrencyInput(value: string): string {

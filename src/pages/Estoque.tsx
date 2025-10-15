@@ -21,6 +21,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatCentsToBRL, parseBRLToCents } from "@/lib/monetary";
+import { formatNumber, handleCurrencyInput, parseCurrencyToDecimal } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 interface ItemEstoque {
   id: string;
@@ -30,6 +32,9 @@ interface ItemEstoque {
   unidade: string;
   quantidadeAtual: number;
   ultimaMovimentacao?: string;
+  precoVenda?: number;
+  custoProducao?: number;
+  margem?: number;
 }
 
 interface Movimentacao {
@@ -51,6 +56,8 @@ const Estoque = () => {
   const [selectedItem, setSelectedItem] = useState<ItemEstoque | null>(null);
   const [quantidade, setQuantidade] = useState("");
   const [observacao, setObservacao] = useState("");
+  const [editingMargemId, setEditingMargemId] = useState<string | null>(null);
+  const [margemEditValue, setMargemEditValue] = useState("");
 
   // Carregar dados do estoque
   useEffect(() => {
@@ -80,6 +87,9 @@ const Estoque = () => {
         unidade: produto.unidadeMedida,
         quantidadeAtual,
         ultimaMovimentacao: ultimaMov ? new Date(ultimaMov.data).toLocaleDateString() : "-",
+        precoVenda: produto.precoVenda,
+        custoProducao: produto.custoProducao,
+        margem: produto.margem,
       });
     });
 
@@ -221,6 +231,52 @@ const Estoque = () => {
     localStorage.setItem("movimentacoes", JSON.stringify(movimentacoes));
   };
 
+  const handleEditMargem = (item: ItemEstoque) => {
+    setEditingMargemId(item.id);
+    setMargemEditValue(item.margem ? item.margem.toString().replace('.', ',') : '');
+  };
+
+  const handleSaveMargem = (item: ItemEstoque) => {
+    if (!margemEditValue) {
+      setEditingMargemId(null);
+      return;
+    }
+
+    const novaMargem = parseFloat(margemEditValue.replace(',', '.'));
+    
+    if (isNaN(novaMargem)) {
+      toast({
+        title: "Erro",
+        description: "Margem inválida",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const produtos = JSON.parse(localStorage.getItem("produtos") || "[]");
+    const produtoId = item.id.replace("produto-", "");
+    const produtoIndex = produtos.findIndex((p: any) => p.id === produtoId);
+
+    if (produtoIndex !== -1) {
+      produtos[produtoIndex].margem = novaMargem;
+      localStorage.setItem("produtos", JSON.stringify(produtos));
+      
+      toast({
+        title: "Sucesso",
+        description: "Margem atualizada com sucesso",
+      });
+
+      setEditingMargemId(null);
+      setMargemEditValue("");
+      carregarEstoque();
+    }
+  };
+
+  const handleCancelEditMargem = () => {
+    setEditingMargemId(null);
+    setMargemEditValue("");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -263,13 +319,16 @@ const Estoque = () => {
                       <TableHead>Tipo</TableHead>
                       <TableHead className="text-right">Qtd. Atual</TableHead>
                       <TableHead>Unidade</TableHead>
+                      <TableHead className="text-right">Preço Venda</TableHead>
+                      <TableHead className="text-right">Custo</TableHead>
+                      <TableHead className="text-right">Margem %</TableHead>
                       <TableHead>Última Mov.</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {itensEstoque.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                           Nenhum item cadastrado
                         </TableCell>
                       </TableRow>
@@ -294,9 +353,65 @@ const Estoque = () => {
                             </span>
                           </TableCell>
                           <TableCell className="text-right font-semibold">
-                            {item.quantidadeAtual.toFixed(2)}
+                            {formatNumber(item.quantidadeAtual, 3)}
                           </TableCell>
                           <TableCell>{item.unidade}</TableCell>
+                          <TableCell className="text-right">
+                            {item.tipo === "produto" && item.precoVenda 
+                              ? `R$ ${formatNumber(item.precoVenda, 3)}`
+                              : "-"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {item.tipo === "produto" && item.custoProducao 
+                              ? `R$ ${formatNumber(item.custoProducao, 3)}`
+                              : "-"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {item.tipo === "produto" ? (
+                              editingMargemId === item.id ? (
+                                <div className="flex items-center gap-1">
+                                  <Input
+                                    type="text"
+                                    value={margemEditValue}
+                                    onChange={(e) => {
+                                      const value = e.target.value.replace(/[^\d,]/g, '');
+                                      setMargemEditValue(value);
+                                    }}
+                                    className="h-8 w-20 text-right"
+                                    placeholder="0,00"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') handleSaveMargem(item);
+                                      if (e.key === 'Escape') handleCancelEditMargem();
+                                    }}
+                                  />
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => handleSaveMargem(item)}
+                                  >
+                                    ✓
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                    onClick={handleCancelEditMargem}
+                                  >
+                                    ✕
+                                  </Button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => handleEditMargem(item)}
+                                  className="hover:bg-muted rounded px-2 py-1 transition-colors"
+                                >
+                                  {item.margem ? `${formatNumber(item.margem, 2)}%` : "-"}
+                                </button>
+                              )
+                            ) : "-"}
+                          </TableCell>
                           <TableCell className="text-muted-foreground">
                             {item.ultimaMovimentacao}
                           </TableCell>
@@ -373,13 +488,14 @@ const Estoque = () => {
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Quantidade</label>
-              <input
-                type="number"
-                step="0.01"
+              <Input
+                type="text"
                 value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
-                placeholder="0.00"
-                className="w-full h-10 px-3 border border-input rounded-md"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^\d,]/g, '');
+                  setQuantidade(value);
+                }}
+                placeholder="0,000"
               />
             </div>
             <div>
