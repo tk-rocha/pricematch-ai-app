@@ -47,9 +47,9 @@ const ListagemLojas = () => {
             variant="ghost"
             size="icon"
             onClick={handleBack}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+            className="hover:bg-muted min-w-[52px] min-h-[52px] p-3"
           >
-            <ArrowLeft className="h-6 w-6 text-foreground" />
+            <ArrowLeft className="h-8 w-8 text-foreground" />
           </Button>
           
           <h1 className="text-base sm:text-lg font-bold text-primary">
@@ -60,9 +60,9 @@ const ListagemLojas = () => {
             variant="ghost"
             size="icon"
             onClick={handleNovoLoja}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+            className="hover:bg-muted min-w-[52px] min-h-[52px] p-3"
           >
-            <Plus className="h-6 w-6 text-foreground" />
+            <Plus className="h-8 w-8 text-foreground" />
           </Button>
         </div>
       </header>

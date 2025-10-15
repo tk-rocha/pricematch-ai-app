@@ -97,9 +97,9 @@ const Dashboard = () => {
             variant="ghost"
             size="icon"
             onClick={() => navigate("/cadastros")}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+            className="hover:bg-muted min-w-[52px] min-h-[52px] p-3"
           >
-            <Menu className="h-6 w-6 text-foreground" />
+            <Menu className="h-8 w-8 text-foreground" />
           </Button>
           
           <h1 className="text-base sm:text-lg font-bold text-foreground">
@@ -110,9 +110,9 @@ const Dashboard = () => {
             variant="ghost"
             size="icon"
             onClick={handleUserClick}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+            className="hover:bg-muted min-w-[52px] min-h-[52px] p-3"
           >
-            <User className="h-6 w-6 text-foreground" />
+            <User className="h-8 w-8 text-foreground" />
           </Button>
         </div>
       </header>

@@ -100,9 +100,9 @@ const ListagemProdutos = () => {
             variant="ghost"
             size="icon"
             onClick={handleBack}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+            className="hover:bg-muted min-w-[52px] min-h-[52px] p-3"
           >
-            <ArrowLeft className="h-6 w-6 text-foreground" />
+            <ArrowLeft className="h-8 w-8 text-foreground" />
           </Button>
           
           <h1 className="text-base sm:text-lg font-bold text-primary">
@@ -113,9 +113,9 @@ const ListagemProdutos = () => {
             variant="ghost"
             size="icon"
             onClick={handleNovoProduto}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+            className="hover:bg-muted min-w-[52px] min-h-[52px] p-3"
           >
-            <Plus className="h-6 w-6 text-foreground" />
+            <Plus className="h-8 w-8 text-foreground" />
           </Button>
         </div>
       </header>
@@ -194,22 +194,22 @@ const ListagemProdutos = () => {
                           <div className="font-bold text-foreground">{produto.codigo || "-"}</div>
                           <div className="text-sm text-foreground mt-1">{produto.nome}</div>
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleEditProduto(produto.id)}
-                            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                            className="h-12 w-12 text-muted-foreground hover:text-foreground p-2"
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-5 w-5" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteProduto(produto.id)}
-                            className="h-9 w-9 text-destructive hover:text-destructive/80"
+                            className="h-12 w-12 text-destructive hover:text-destructive/80 p-2"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-5 w-5" />
                           </Button>
                         </div>
                       </div>
