@@ -21,6 +21,7 @@ import {
   formatCurrency,
   parsePercentageToDecimal,
   handlePercentageInput,
+  formatPercentage,
 } from "@/lib/utils";
 import { formatCentsToBRL } from "@/lib/monetary";
 
@@ -770,7 +771,7 @@ const CadastroProduto = () => {
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span>+ Margem ({margem.toFixed(1)}%):</span>
+                        <span>+ Margem ({formatPercentage(margem)}%):</span>
                         <span className="font-medium">
                           {formatCurrency(((formData.custoUnitario || 0) * (1 + parsePercentageToDecimal(formData.custoIndireto || "0") / 100)) * (margem / 100))}
                         </span>
@@ -1009,7 +1010,7 @@ const CadastroProduto = () => {
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span>+ Margem ({margem.toFixed(1)}%):</span>
+                            <span>+ Margem ({formatPercentage(margem)}%):</span>
                             <span className="font-medium">
                               {formatCurrency(((formData.custoUnitario || 0) * (1 + parsePercentageToDecimal(formData.custoIndireto || "0") / 100)) * (margem / 100))}
                             </span>
@@ -1065,14 +1066,14 @@ const CadastroProduto = () => {
                           </td>
                           <td className="py-3 px-4 text-sm font-medium text-foreground whitespace-nowrap">
                             {(() => {
-                              const valorFinal = parseCurrencyToDecimal(getCanalVendaValor("balcao") || formatCurrency(formData.precoSugerido || 0));
-                              const rentabilidade = calcularRentabilidade(valorFinal);
-                              return (
-                                <span className={rentabilidade >= 0 ? "text-green-600" : "text-red-600"}>
-                                  {rentabilidade.toFixed(2)}%
-                                </span>
-                              );
-                            })()}
+                                const valorFinal = parseCurrencyToDecimal(getCanalVendaValor("balcao") || formatCurrency(formData.precoSugerido || 0));
+                                const rentabilidade = calcularRentabilidade(valorFinal);
+                                return (
+                                  <span className={rentabilidade >= 0 ? "text-green-600" : "text-red-600"}>
+                                    {formatPercentage(rentabilidade)}%
+                                  </span>
+                                );
+                              })()}
                           </td>
                         </tr>
                         {plataformas.map((plataforma) => {
@@ -1084,10 +1085,7 @@ const CadastroProduto = () => {
                             <tr key={plataforma.id} className="border-b border-border">
                               <td className="py-3 px-4 text-sm text-foreground whitespace-nowrap">{plataforma.nome}</td>
                               <td className="py-3 px-4 text-sm text-muted-foreground whitespace-nowrap">
-                                {plataforma.taxa.toLocaleString('pt-BR', {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2
-                                })}%
+                                {formatPercentage(plataforma.taxa)}%
                               </td>
                               <td className="py-3 px-4 text-sm font-medium text-foreground whitespace-nowrap">
                                 {formatCurrency(precoSugeridoPlataforma)}
@@ -1111,7 +1109,7 @@ const CadastroProduto = () => {
                                   const rentabilidade = calcularRentabilidade(valorFinal);
                                   return (
                                     <span className={rentabilidade >= 0 ? "text-green-600" : "text-red-600"}>
-                                      {rentabilidade.toFixed(2)}%
+                                      {formatPercentage(rentabilidade)}%
                                     </span>
                                   );
                                 })()}

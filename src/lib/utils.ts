@@ -125,6 +125,15 @@ export function handlePercentageInput(
   onChange(formatted);
 }
 
+// Utility function to format percentage for display (always 2 decimal places)
+export function formatPercentage(value: number | string): string {
+  const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+  return numValue.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
 // Utility function to get count of stored items in localStorage
 export function getStoredCount(key: string): number {
   try {
