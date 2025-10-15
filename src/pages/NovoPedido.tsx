@@ -86,7 +86,7 @@ const NovoPedido = () => {
       if (plataformaSelecionada.toLowerCase() === "balcão") {
         return canal.tipo === "balcao";
       }
-      return canal.plataformaNome === plataformaSelecionada;
+      return canal.plataformaNome?.toLowerCase() === plataformaSelecionada.toLowerCase();
     });
     
     // Se encontrou valor configurado, usar ele
