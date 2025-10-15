@@ -137,8 +137,28 @@ All colors MUST be HSL.
     [role="button"], 
     input[type="button"], 
     input[type="submit"] {
-      min-height: 44px;
-      min-width: 44px;
+      min-height: 48px;
+      min-width: 48px;
+    }
+  }
+
+  /* Button pulse animation */
+  @keyframes button-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+
+  /* Shimmer effect for primary buttons */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
     }
   }
 }
