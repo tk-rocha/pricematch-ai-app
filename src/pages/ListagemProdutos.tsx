@@ -169,55 +169,90 @@ const ListagemProdutos = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="border rounded-lg overflow-hidden bg-card">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="font-bold text-foreground">Código</TableHead>
-                    <TableHead className="font-bold text-foreground">Produto</TableHead>
-                    <TableHead className="font-bold text-foreground">Preço Balcão (Valor final)</TableHead>
-                    <TableHead className="font-bold text-foreground">Rentabilidade</TableHead>
-                    <TableHead className="w-[100px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredProdutos.map((produto) => {
-                    const rentabilidade = calcularRentabilidade(produto);
-                    return (
-                      <TableRow key={produto.id} className="hover:bg-muted/50">
-                        <TableCell className="font-medium">
-                          {produto.codigo || "-"}
-                        </TableCell>
-                        <TableCell>{produto.nome}</TableCell>
-                        <TableCell>
-                          R$ {produto.precoVenda.toFixed(2).replace('.', ',')}
-                        </TableCell>
-                        <TableCell>{rentabilidade.formatted}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2 justify-end">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEditProduto(produto.id)}
-                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteProduto(produto.id)}
-                              className="h-8 w-8 text-destructive hover:text-destructive/80"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+            <div className="space-y-2">
+              {/* Cabeçalho da tabela - mobile friendly */}
+              <div className="hidden sm:grid sm:grid-cols-[80px_1fr_140px_120px_100px] gap-2 px-4 py-2 bg-muted/50 rounded-lg font-bold text-sm border">
+                <div>Código</div>
+                <div>Produto</div>
+                <div>Preço Balcão</div>
+                <div>Rentabilidade</div>
+                <div></div>
+              </div>
+
+              {/* Linhas - responsivas */}
+              {filteredProdutos.map((produto) => {
+                const rentabilidade = calcularRentabilidade(produto);
+                return (
+                  <div 
+                    key={produto.id} 
+                    className="border rounded-lg p-3 sm:p-4 bg-card hover:bg-muted/30 transition-colors"
+                  >
+                    {/* Layout Mobile */}
+                    <div className="sm:hidden space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="font-bold text-foreground">{produto.codigo || "-"}</div>
+                          <div className="text-sm text-foreground mt-1">{produto.nome}</div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditProduto(produto.id)}
+                            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteProduto(produto.id)}
+                            className="h-9 w-9 text-destructive hover:text-destructive/80"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Preço: </span>
+                          <span className="font-medium">R$ {produto.precoVenda.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Rentab.: </span>
+                          <span className="font-medium">{rentabilidade.formatted}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Layout Desktop */}
+                    <div className="hidden sm:grid sm:grid-cols-[80px_1fr_140px_120px_100px] gap-2 items-center">
+                      <div className="font-medium text-foreground">{produto.codigo || "-"}</div>
+                      <div className="text-foreground">{produto.nome}</div>
+                      <div className="font-medium">R$ {produto.precoVenda.toFixed(2).replace('.', ',')}</div>
+                      <div className="font-medium">{rentabilidade.formatted}</div>
+                      <div className="flex gap-1 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditProduto(produto.id)}
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteProduto(produto.id)}
+                          className="h-8 w-8 text-destructive hover:text-destructive/80"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
