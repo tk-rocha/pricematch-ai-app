@@ -172,7 +172,7 @@ const CalculadoraPreco = () => {
                   {custoIndireto && parsePercentageToDecimal(custoIndireto) > 0 && (
                     <div className="flex justify-between pb-2">
                       <span className="text-muted-foreground">
-                        + Custo Indireto ({formatPercentage(parsePercentageToDecimal(custoIndireto))}):
+                        + Custo Indireto ({formatPercentage(parsePercentageToDecimal(custoIndireto))}%):
                       </span>
                       <span className="font-medium">{formatCurrency(resultado.valorCustoIndireto)}</span>
                     </div>
@@ -188,7 +188,7 @@ const CalculadoraPreco = () => {
                   {margem && parsePercentageToDecimal(margem) > 0 && (
                     <div className="flex justify-between pb-2">
                       <span className="text-muted-foreground">
-                        + Margem ({formatPercentage(parsePercentageToDecimal(margem))}):
+                        + Margem ({formatPercentage(parsePercentageToDecimal(margem))}%):
                       </span>
                       <span className="font-medium text-green-600">{formatCurrency(resultado.valorMargem)}</span>
                     </div>
@@ -198,7 +198,7 @@ const CalculadoraPreco = () => {
                   {taxa && parsePercentageToDecimal(taxa) > 0 && (
                     <div className="flex justify-between pb-2">
                       <span className="text-muted-foreground">
-                        + Taxa ({formatPercentage(parsePercentageToDecimal(taxa))}):
+                        + Taxa ({formatPercentage(parsePercentageToDecimal(taxa))}%):
                       </span>
                       <span className="font-medium text-orange-600">{formatCurrency(resultado.valorTaxa)}</span>
                     </div>
