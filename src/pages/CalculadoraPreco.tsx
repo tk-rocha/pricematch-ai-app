@@ -20,29 +20,33 @@ const CalculadoraPreco = () => {
     const percentualMargem = parsePercentageToDecimal(margem || "0");
     const percentualTaxa = parsePercentageToDecimal(taxa || "0");
 
-    // Valor do custo indireto (percentual sobre o custo base)
+    // Custo Indireto é calculado sobre o preço de custo
     const valorCustoIndireto = custoBase * (percentualCustoIndireto / 100);
     
-    // Custo total (custo base + custo indireto)
+    // Custo Total = Preço de Custo + Custo Indireto
     const custoTotal = custoBase + valorCustoIndireto;
 
-    // Valor da margem (percentual sobre o custo total)
+    // Margem é aplicada sobre o custo total
     const valorMargem = custoTotal * (percentualMargem / 100);
     
-    // Preço com margem
-    const precoComMargem = custoTotal + valorMargem;
+    // A taxa da plataforma deve ser compensada no preço sugerido
+    // Preço Sugerido = (Custo Total + Margem) ÷ (1 - Taxa da Plataforma)
+    const custoTotalComMargem = custoTotal + valorMargem;
+    const precoFinal = percentualTaxa > 0 
+      ? custoTotalComMargem / (1 - percentualTaxa / 100)
+      : custoTotalComMargem;
 
-    // Valor da taxa (percentual sobre o preço com margem)
-    const valorTaxa = precoComMargem * (percentualTaxa / 100);
+    // Valor da taxa (deduzido do preço sugerido)
+    const valorTaxa = precoFinal - custoTotalComMargem;
     
-    // Preço final com taxa
-    const precoFinal = precoComMargem + valorTaxa;
+    // Valor recebido após a taxa = Preço Sugerido - Taxa
+    const valorRecebido = precoFinal - valorTaxa;
 
-    // Calcula lucro
-    const lucro = precoFinal - custoTotal;
+    // Lucro = Valor recebido - Custo Total
+    const lucro = valorRecebido - custoTotal;
 
-    // Calcula rentabilidade
-    const rentabilidade = precoFinal > 0 ? (lucro / precoFinal) * 100 : 0;
+    // Rentabilidade = Lucro ÷ Custo Total × 100
+    const rentabilidade = custoTotal > 0 ? (lucro / custoTotal) * 100 : 0;
 
     return {
       custoBase,
