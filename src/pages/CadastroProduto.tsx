@@ -6,6 +6,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Search, Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   handleCurrencyInput,
   parseCurrencyToDecimal,
   formatCurrency,
@@ -107,6 +117,8 @@ const CadastroProduto = () => {
   const [unidadesMedida, setUnidadesMedida] = useState<string[]>([]);
   const [plataformas, setPlataformas] = useState<Plataforma[]>([]);
   const [canaisVenda, setCanaisVenda] = useState<CanalVenda[]>([]);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Carrega dados base (insumos, produtos, margem padrão, produto em edição)
   useEffect(() => {
@@ -305,12 +317,33 @@ const CadastroProduto = () => {
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
+    setHasUnsavedChanges(true);
   };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.nome.trim()) newErrors.nome = "Nome é obrigatório";
     if (!formData.unidadeMedida) newErrors.unidadeMedida = "Unidade de Medida é obrigatória";
+    
+    // Validar código duplicado
+    const existingProdutos: Produto[] = JSON.parse(localStorage.getItem("produtos") || "[]");
+    if (formData.codigo.trim()) {
+      const codigoDuplicado = existingProdutos.find(
+        (p) => p.codigo?.toLowerCase() === formData.codigo.trim().toLowerCase() && p.id !== id
+      );
+      if (codigoDuplicado) {
+        newErrors.codigo = "Já existe um produto com este código";
+      }
+    }
+    
+    // Validar nome duplicado
+    const nomeDuplicado = existingProdutos.find(
+      (p) => p.nome.toLowerCase() === formData.nome.trim().toLowerCase() && p.id !== id
+    );
+    if (nomeDuplicado) {
+      newErrors.nome = "Já existe um produto com este nome";
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -364,10 +397,12 @@ const CadastroProduto = () => {
     setComponentesDoProduto((prev) => [...prev, componente]);
     setQuantidadeTemp("");
     setSearchTerm("");
+    setHasUnsavedChanges(true);
   };
 
   const removeComponente = (index: number) => {
     setComponentesDoProduto((prev) => prev.filter((_, i) => i !== index));
+    setHasUnsavedChanges(true);
   };
 
   // Função para calcular o custo total de um produto baseado em seus componentes
@@ -466,6 +501,7 @@ const CadastroProduto = () => {
         title: "Produto salvo!",
         description: isEditing ? "O produto foi atualizado com sucesso" : "O produto foi cadastrado com sucesso",
       });
+      setHasUnsavedChanges(false);
       navigate("/listagem-produtos");
     }
   };
@@ -494,6 +530,7 @@ const CadastroProduto = () => {
       setCanaisVenda([]);
       setActiveTab("normal");
       setErrors({});
+      setHasUnsavedChanges(false);
     }
   };
 
@@ -520,7 +557,19 @@ const CadastroProduto = () => {
     return canaisVenda.find((c) => c.plataformaId === plataformaId)?.valorFinal || "";
   };
 
-  const handleBack = () => navigate("/listagem-produtos");
+  const handleBack = () => {
+    if (hasUnsavedChanges) {
+      setShowExitDialog(true);
+    } else {
+      navigate("/listagem-produtos");
+    }
+  };
+
+  const confirmExit = () => {
+    setShowExitDialog(false);
+    setHasUnsavedChanges(false);
+    navigate("/listagem-produtos");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -573,9 +622,12 @@ const CadastroProduto = () => {
                     value={formData.codigo}
                     onChange={(e) => handleInputChange("codigo", e.target.value)}
                     placeholder="Código"
-                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    className={`w-full h-12 px-4 border rounded text-sm ${
+                      errors.codigo ? "border-red-500" : "border-gray-300"
+                    }`}
                     style={{ borderRadius: "3px", color: "#666666" }}
                   />
+                  {errors.codigo && <p className="text-red-500 text-xs mt-1">{errors.codigo}</p>}
                 </div>
 
                 <div>
@@ -964,8 +1016,10 @@ const CadastroProduto = () => {
               {plataformas.length > 0 ? (
                 <div className="mt-6 space-y-4">
                   <h3 className="text-lg font-bold text-foreground">Canais de Venda</h3>
-                  <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-                    <table className="w-full border-collapse min-w-[600px]">
+                  <div className="overflow-x-auto -mx-6 px-6 sm:mx-0 sm:px-0">
+                    <div className="inline-block min-w-full align-middle">
+                      <div className="overflow-hidden">
+                        <table className="w-full border-collapse min-w-[600px]">
                       <thead>
                         <tr className="border-b border-border">
                           <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Venda</th>
@@ -1024,6 +1078,8 @@ const CadastroProduto = () => {
                         ))}
                       </tbody>
                     </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : null}
@@ -1053,6 +1109,22 @@ const CadastroProduto = () => {
           </Button>
         </div>
       </footer>
+
+      {/* Alert Dialog para confirmação de saída */}
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza que deseja sair?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você tem alterações não salvas. Se sair agora, todas as alterações serão perdidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmExit}>Sair sem salvar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
