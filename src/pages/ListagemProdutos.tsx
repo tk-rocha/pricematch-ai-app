@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, ShoppingCart, Trash2, Pencil, Search } from "lucide-re
 import { useToast } from "@/hooks/use-toast";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { parsePercentageToDecimal } from "@/lib/utils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Produto {
   id: string;
@@ -62,10 +63,10 @@ const ListagemProdutos = () => {
     );
   });
 
-  const renderMargemBadge = (produto: Produto) => {
+  const calcularRentabilidade = (produto: Produto) => {
     const custo = produto.custoProducao || 0;
     const preco = produto.precoVenda || 0;
-    if (custo <= 0 || preco <= 0) return null;
+    if (custo <= 0 || preco <= 0) return { percent: 0, formatted: "0,00%" };
   
     // Busca custo indireto salvo no produto ou no padrão
     const saved = localStorage.getItem("margem");
@@ -84,20 +85,10 @@ const ListagemProdutos = () => {
     // Aplica custo indireto
     const custoComIndireto = custo * (1 + custoIndiretoPercent / 100);
   
-    // Mantém a fórmula original
+    // Calcula rentabilidade
     const percent = ((preco - custoComIndireto) / preco) * 100;
-    const rounded = Math.round(percent);
-    const positive = percent >= 0;
-    const bg = positive ? 'bg-green-600' : 'bg-red-600';
-    const sign = positive ? '+' : '';
-    return (
-      <div
-        className={`absolute top-2 right-6 w-8 h-8 rounded-full ${bg} text-white text-[9px] font-bold flex items-center justify-center shadow-sm`}
-        title={`Margem ${rounded}%`}
-      >
-        {sign}{rounded}%
-      </div>
-    );
+    const formatted = `${percent.toFixed(2).replace('.', ',')}%`;
+    return { percent, formatted };
   };
 
   return (
@@ -178,58 +169,56 @@ const ListagemProdutos = () => {
               </CardContent>
             </Card>
           ) : (
-            filteredProdutos.map((produto) => (
-              <Card key={produto.id} className="shadow-sm hover:shadow-md transition-all duration-200">
-                <CardContent className="p-4 sm:p-6 relative">
-                  {renderMargemBadge(produto)}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary flex items-center justify-center">
-                        <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm sm:text-base text-foreground">
-                            {produto.nome}
-                          </h3>
-                        </div>
-                        {produto.codigo && (
-                          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                            Código: {produto.codigo}
-                          </p>
-                        )}
-                        <p className="text-xs sm:text-sm text-muted-foreground">
-                          Unidade: {produto.unidadeMedida}
-                        </p>
-                        <p className="text-xs sm:text-sm text-muted-foreground">
-                          Preço: R$ {produto.precoVenda.toFixed(2).replace('.', ',')}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditProduto(produto.id)}
-                        className="shrink-0 text-primary hover:text-primary/80"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteProduto(produto.id)}
-                        className="shrink-0 text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+            <div className="border rounded-lg overflow-hidden bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="font-bold text-foreground">Código</TableHead>
+                    <TableHead className="font-bold text-foreground">Produto</TableHead>
+                    <TableHead className="font-bold text-foreground">Preço Balcão (Valor final)</TableHead>
+                    <TableHead className="font-bold text-foreground">Rentabilidade</TableHead>
+                    <TableHead className="w-[100px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredProdutos.map((produto) => {
+                    const rentabilidade = calcularRentabilidade(produto);
+                    return (
+                      <TableRow key={produto.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">
+                          {produto.codigo || "-"}
+                        </TableCell>
+                        <TableCell>{produto.nome}</TableCell>
+                        <TableCell>
+                          R$ {produto.precoVenda.toFixed(2).replace('.', ',')}
+                        </TableCell>
+                        <TableCell>{rentabilidade.formatted}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-2 justify-end">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditProduto(produto.id)}
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteProduto(produto.id)}
+                              className="h-8 w-8 text-destructive hover:text-destructive/80"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </main>
