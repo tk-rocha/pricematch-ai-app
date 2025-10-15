@@ -128,6 +128,7 @@ const CadastroProduto = () => {
     
     // plataformas
     const savedPlataformas = JSON.parse(localStorage.getItem("plataformas") || "[]");
+    console.log("Plataformas carregadas:", savedPlataformas);
     setPlataformas(savedPlataformas);
     
 
@@ -250,6 +251,15 @@ const CadastroProduto = () => {
       const custoIndiretoDecimal = parsePercentageToDecimal(formData.custoIndireto || "0");
       const custoComIndireto = (formData.custoUnitario || 0) * (1 + custoIndiretoDecimal / 100);
       const precoSugerido = custoComIndireto * (1 + margem / 100);
+
+      console.log("Cálculo Preço Sugerido (Normal):", {
+        custoUnitario: formData.custoUnitario,
+        custoIndireto: formData.custoIndireto,
+        custoIndiretoDecimal,
+        custoComIndireto,
+        margem,
+        precoSugerido
+      });
 
       setFormData((prev) => ({
         ...prev,
@@ -951,7 +961,7 @@ const CadastroProduto = () => {
               </Tabs>
 
               {/* Canais de Venda */}
-              {plataformas.length > 0 && (
+              {plataformas.length > 0 ? (
                 <div className="mt-6 space-y-4">
                   <h3 className="text-lg font-bold text-foreground">Canais de Venda</h3>
                   <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -1016,7 +1026,7 @@ const CadastroProduto = () => {
                     </table>
                   </div>
                 </div>
-              )}
+              ) : null}
 
               <div className="mt-6">
                 <Button
