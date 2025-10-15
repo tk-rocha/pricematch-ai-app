@@ -12,6 +12,7 @@ interface Insumo {
   codigo?: string;
   unidade: string;
   preco_cents: number; // Store as cents for consistency
+  quantidadeEmbalagem?: number;
 }
 
 const CadastroInsumo = () => {
@@ -24,10 +25,14 @@ const CadastroInsumo = () => {
     nome: "",
     codigo: "",
     unidade: "",
-    preco: ""
+    preco: "",
+    quantidadeEmbalagem: "",
+    precoUnitarioDisplay: ""
   });
 
   const [internalCents, setInternalCents] = useState(0);
+  const [internalQtdEmbalagem, setInternalQtdEmbalagem] = useState<number | undefined>(undefined);
+  const [internalPrecoUnitarioCents, setInternalPrecoUnitarioCents] = useState<number | undefined>(undefined);
 
   const [unidadesMedida, setUnidadesMedida] = useState<string[]>([]);
 
@@ -57,9 +62,18 @@ const CadastroInsumo = () => {
           nome: insumoToEdit.nome,
           codigo: insumoToEdit.codigo || "",
           unidade: insumoToEdit.unidade,
-          preco: formatCentsToBRL(cents)
+          preco: formatCentsToBRL(cents),
+          quantidadeEmbalagem: insumoToEdit.quantidadeEmbalagem ? String(insumoToEdit.quantidadeEmbalagem) : "",
+          precoUnitarioDisplay: "" // Calculated below
         });
         setInternalCents(cents);
+        setInternalQtdEmbalagem(insumoToEdit.quantidadeEmbalagem || undefined);
+
+        if (cents && insumoToEdit.quantidadeEmbalagem) {
+          const unitPriceCents = Math.round(cents / insumoToEdit.quantidadeEmbalagem);
+          setInternalPrecoUnitarioCents(unitPriceCents);
+          setFormData(prev => ({ ...prev, precoUnitarioDisplay: formatCentsToBRL(unitPriceCents) }));
+        }
       }
     }
   }, [editId]);
@@ -76,13 +90,38 @@ const CadastroInsumo = () => {
     // Update display value
     setFormData(prev => ({ ...prev, preco: value }));
     // Update internal cents value
-    setInternalCents(parseBRLToCents(value));
+    const cents = parseBRLToCents(value);
+    setInternalCents(cents);
+    // Recalculate unit price
+    calculatePrecoUnitario(cents, internalQtdEmbalagem);
     // Remove error when user starts typing
     if (errors.preco) {
       setErrors(prev => ({ ...prev, preco: "" }));
     }
   };
 
+  const handleQuantidadeEmbalagemChange = (value: string) => {
+    // Allow empty string for display, but parse to number for calculation
+    setFormData(prev => ({ ...prev, quantidadeEmbalagem: value }));
+    const parsedValue = value === "" ? undefined : Number(value.replace(",", "."));
+    setInternalQtdEmbalagem(parsedValue);
+    // Recalculate unit price
+    calculatePrecoUnitario(internalCents, parsedValue);
+    if (errors.quantidadeEmbalagem) {
+      setErrors(prev => ({ ...prev, quantidadeEmbalagem: "" }));
+    }
+  };
+
+  const calculatePrecoUnitario = (precoCents: number, quantidadeEmbalagem?: number) => {
+    if (precoCents && quantidadeEmbalagem && quantidadeEmbalagem > 0) {
+      const unitPriceCents = Math.round(precoCents / quantidadeEmbalagem);
+      setInternalPrecoUnitarioCents(unitPriceCents);
+      setFormData(prev => ({ ...prev, precoUnitarioDisplay: formatCentsToBRL(unitPriceCents) }));
+    } else {
+      setInternalPrecoUnitarioCents(undefined);
+      setFormData(prev => ({ ...prev, precoUnitarioDisplay: "" }));
+    }
+  };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -133,7 +172,8 @@ const CadastroInsumo = () => {
               nome: formData.nome.trim(),
               codigo: formData.codigo.trim(),
               unidade: formData.unidade,
-              preco_cents: internalCents
+              preco_cents: internalCents,
+              quantidadeEmbalagem: internalQtdEmbalagem // Save new field
             }
           : insumo
       );
@@ -145,7 +185,8 @@ const CadastroInsumo = () => {
         nome: formData.nome.trim(),
         codigo: formData.codigo.trim(),
         unidade: formData.unidade,
-        preco_cents: internalCents
+        preco_cents: internalCents,
+        quantidadeEmbalagem: internalQtdEmbalagem // Save new field
       };
       existingInsumos.push(newInsumo);
       localStorage.setItem("insumos", JSON.stringify(existingInsumos));
@@ -182,9 +223,13 @@ const CadastroInsumo = () => {
         nome: "",
         codigo: "",
         unidade: "",
-        preco: ""
+        preco: "",
+        quantidadeEmbalagem: "",
+        precoUnitarioDisplay: ""
       });
       setInternalCents(0);
+      setInternalQtdEmbalagem(undefined);
+      setInternalPrecoUnitarioCents(undefined);
       setErrors({});
     }
   };
@@ -297,6 +342,35 @@ const CadastroInsumo = () => {
                   {errors.preco && (
                     <p className="text-red-500 text-xs mt-1">{errors.preco}</p>
                   )}
+                </div>
+
+                {/* Quantidade na Embalagem Field */}
+                <div>
+                  <input
+                    type="text"
+                    value={formData.quantidadeEmbalagem}
+                    onChange={(e) => handleQuantidadeEmbalagemChange(e.target.value)}
+                    placeholder="Qtd. na Embalagem"
+                    className={`w-full h-12 px-4 border rounded text-sm ${
+                      errors.quantidadeEmbalagem ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    style={{ borderRadius: '3px', color: '#666666' }}
+                  />
+                  {errors.quantidadeEmbalagem && (
+                    <p className="text-red-500 text-xs mt-1">{errors.quantidadeEmbalagem}</p>
+                  )}
+                </div>
+
+                {/* Preço Unitário Display */}
+                <div>
+                  <input
+                    type="text"
+                    value={formData.precoUnitarioDisplay}
+                    placeholder="Preço Unitário"
+                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    style={{ borderRadius: '3px', color: '#666666' }}
+                    disabled
+                  />
                 </div>
               </div>
 

@@ -47,8 +47,8 @@ const CadastroMargem = () => {
       newErrors.margem = "% Margem é obrigatória";
     } else {
       const margemDecimal = parsePercentageToDecimal(margem);
-      if (margemDecimal <= 0 || margemDecimal > 100) {
-        newErrors.margem = "A margem deve estar entre 0,1% e 100%";
+      if (margemDecimal <= 0) {
+        newErrors.margem = "A margem deve ser maior que 0%";
       }
     }
 
