@@ -551,10 +551,24 @@ const CadastroProduto = () => {
         return [...prev, { plataformaId, valorFinal: valor }];
       }
     });
+    setHasUnsavedChanges(true);
   };
 
   const getCanalVendaValor = (plataformaId: string) => {
-    return canaisVenda.find((c) => c.plataformaId === plataformaId)?.valorFinal || "";
+    const canal = canaisVenda.find((c) => c.plataformaId === plataformaId);
+    return canal?.valorFinal || "";
+  };
+
+  const calcularRentabilidade = (valorFinal: number) => {
+    const custoIndiretoDecimal = parsePercentageToDecimal(formData.custoIndireto || "0");
+    const custoComIndireto = (formData.custoUnitario || 0) * (1 + custoIndiretoDecimal / 100);
+    
+    if (valorFinal <= 0) return 0;
+    
+    const lucro = valorFinal - custoComIndireto;
+    const rentabilidade = (lucro / valorFinal) * 100;
+    
+    return rentabilidade;
   };
 
   const handleBack = () => {
@@ -1026,6 +1040,7 @@ const CadastroProduto = () => {
                           <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Taxa (%)</th>
                           <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Preço Sugerido (R$)</th>
                           <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Valor Final (R$)</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Rentabilidade (%)</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1038,7 +1053,7 @@ const CadastroProduto = () => {
                           <td className="py-3 px-4">
                             <input
                               type="text"
-                              value={formatCurrency(formData.precoSugerido || 0)}
+                              value={getCanalVendaValor("balcao") || formatCurrency(formData.precoSugerido || 0)}
                               onChange={(e) =>
                                 handleCurrencyInput(e.target.value, (value) =>
                                   handleCanalVendaChange("balcao", value)
@@ -1048,34 +1063,62 @@ const CadastroProduto = () => {
                               className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground min-w-[120px]"
                             />
                           </td>
+                          <td className="py-3 px-4 text-sm font-medium text-foreground whitespace-nowrap">
+                            {(() => {
+                              const valorFinal = parseCurrencyToDecimal(getCanalVendaValor("balcao") || formatCurrency(formData.precoSugerido || 0));
+                              const rentabilidade = calcularRentabilidade(valorFinal);
+                              return (
+                                <span className={rentabilidade >= 0 ? "text-green-600" : "text-red-600"}>
+                                  {rentabilidade.toFixed(2)}%
+                                </span>
+                              );
+                            })()}
+                          </td>
                         </tr>
-                        {plataformas.map((plataforma) => (
-                          <tr key={plataforma.id} className="border-b border-border">
-                            <td className="py-3 px-4 text-sm text-foreground whitespace-nowrap">{plataforma.nome}</td>
-                            <td className="py-3 px-4 text-sm text-muted-foreground whitespace-nowrap">
-                              {plataforma.taxa.toLocaleString('pt-BR', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                              })}%
-                            </td>
-                            <td className="py-3 px-4 text-sm font-medium text-foreground whitespace-nowrap">
-                              {formatCurrency(calcularPrecoSugeridoPlataforma(plataforma.taxa))}
-                            </td>
-                            <td className="py-3 px-4">
-                              <input
-                                type="text"
-                                value={formatCurrency(calcularPrecoSugeridoPlataforma(plataforma.taxa))}
-                                onChange={(e) =>
-                                  handleCurrencyInput(e.target.value, (value) =>
-                                    handleCanalVendaChange(plataforma.id, value)
-                                  )
-                                }
-                                placeholder="R$ 0,00"
-                                className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground min-w-[120px]"
-                              />
-                            </td>
-                          </tr>
-                        ))}
+                        {plataformas.map((plataforma) => {
+                          const precoSugeridoPlataforma = calcularPrecoSugeridoPlataforma(plataforma.taxa);
+                          const valorFinalSalvo = getCanalVendaValor(plataforma.id);
+                          const valorFinalExibido = valorFinalSalvo || formatCurrency(precoSugeridoPlataforma);
+                          
+                          return (
+                            <tr key={plataforma.id} className="border-b border-border">
+                              <td className="py-3 px-4 text-sm text-foreground whitespace-nowrap">{plataforma.nome}</td>
+                              <td className="py-3 px-4 text-sm text-muted-foreground whitespace-nowrap">
+                                {plataforma.taxa.toLocaleString('pt-BR', {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2
+                                })}%
+                              </td>
+                              <td className="py-3 px-4 text-sm font-medium text-foreground whitespace-nowrap">
+                                {formatCurrency(precoSugeridoPlataforma)}
+                              </td>
+                              <td className="py-3 px-4">
+                                <input
+                                  type="text"
+                                  value={valorFinalExibido}
+                                  onChange={(e) =>
+                                    handleCurrencyInput(e.target.value, (value) =>
+                                      handleCanalVendaChange(plataforma.id, value)
+                                    )
+                                  }
+                                  placeholder="R$ 0,00"
+                                  className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground min-w-[120px]"
+                                />
+                              </td>
+                              <td className="py-3 px-4 text-sm font-medium text-foreground whitespace-nowrap">
+                                {(() => {
+                                  const valorFinal = parseCurrencyToDecimal(valorFinalExibido);
+                                  const rentabilidade = calcularRentabilidade(valorFinal);
+                                  return (
+                                    <span className={rentabilidade >= 0 ? "text-green-600" : "text-red-600"}>
+                                      {rentabilidade.toFixed(2)}%
+                                    </span>
+                                  );
+                                })()}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                       </div>
