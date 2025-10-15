@@ -80,9 +80,9 @@ const Cadastros = () => {
             variant="ghost"
             size="icon"
             onClick={() => navigate("/dashboard")}
-            className="hover:bg-muted min-w-[44px] min-h-[44px]"
+            className="hover:bg-muted min-w-[52px] min-h-[52px]"
           >
-            <ArrowLeft className="h-6 w-6 text-foreground" />
+            <ArrowLeft className="h-7 w-7 text-foreground" />
           </Button>
 
           <h1 className="text-base sm:text-lg font-bold text-primary">
@@ -161,8 +161,8 @@ const Cadastros = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="hidden sm:block">
-                        <Button variant="outline" size="sm" disabled={!option.active}>
-                          <Plus className="h-3.5 w-3.5 mr-1" /> Abrir
+                        <Button variant="outline" size="default" disabled={!option.active} className="min-h-[44px]">
+                          <Plus className="h-5 w-5 mr-1" /> Abrir
                         </Button>
                       </div>
                     </div>
