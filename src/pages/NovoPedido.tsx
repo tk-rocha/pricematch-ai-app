@@ -25,6 +25,12 @@ interface Produto {
     quantidade: number;
   }>;
   quantoRende?: number;
+  canaisVenda?: Array<{
+    tipo: "balcao" | "plataforma";
+    plataformaId?: string;
+    plataformaNome?: string;
+    valorFinal?: string;
+  }>;
 }
 
 interface Plataforma {
@@ -56,13 +62,41 @@ const NovoPedido = () => {
   const [valorFrete, setValorFrete] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [itens, setItens] = useState<ItemPedido[]>([]);
+  const [etapaAtual, setEtapaAtual] = useState<"plataforma" | "produtos">("plataforma");
 
   useEffect(() => {
     const produtosData = JSON.parse(localStorage.getItem("produtos") || "[]");
     const plataformasData = JSON.parse(localStorage.getItem("plataformas") || "[]");
     setProdutos(produtosData);
     setPlataformas(plataformasData);
+    
+    // Adicionar opção Balcão se não existir
+    const temBalcao = plataformasData.some((p: Plataforma) => p.nome.toLowerCase() === "balcão");
+    if (!temBalcao) {
+      setPlataformas([{ id: "balcao", nome: "Balcão" }, ...plataformasData]);
+    }
   }, []);
+
+
+  const getPrecoParaPlataforma = (produto: Produto): number => {
+    if (!plataformaSelecionada) return produto.precoVenda;
+    
+    // Buscar o valor final configurado para esta plataforma
+    const canalVenda = produto.canaisVenda?.find(canal => {
+      if (plataformaSelecionada.toLowerCase() === "balcão") {
+        return canal.tipo === "balcao";
+      }
+      return canal.plataformaNome === plataformaSelecionada;
+    });
+    
+    // Se encontrou valor configurado, usar ele
+    if (canalVenda?.valorFinal) {
+      return parseCurrencyToDecimal(canalVenda.valorFinal);
+    }
+    
+    // Senão, usar preço de venda padrão
+    return produto.precoVenda;
+  };
 
   const produtosFiltrados = buscaProduto
     ? produtos.filter(
@@ -74,7 +108,8 @@ const NovoPedido = () => {
 
   const handleSelecionarProduto = (produto: Produto) => {
     setProdutoSelecionado(produto);
-    setBuscaProduto(`${produto.nome} - ${formatCurrency(produto.precoVenda)}`);
+    const precoParaPlataforma = getPrecoParaPlataforma(produto);
+    setBuscaProduto(`${produto.nome} - ${formatCurrency(precoParaPlataforma)}`);
     setMostrarResultados(false);
   };
 
@@ -98,12 +133,14 @@ const NovoPedido = () => {
       return;
     }
 
+    const precoParaPlataforma = getPrecoParaPlataforma(produtoSelecionado);
+    
     const novoItem: ItemPedido = {
       produtoId: produtoSelecionado.id,
       nomeProduto: produtoSelecionado.nome,
       quantidade: qtd,
-      precoUnitario: produtoSelecionado.precoVenda,
-      subtotal: qtd * produtoSelecionado.precoVenda,
+      precoUnitario: precoParaPlataforma,
+      subtotal: qtd * precoParaPlataforma,
     };
 
     setItens([...itens, novoItem]);
@@ -131,20 +168,24 @@ const NovoPedido = () => {
     return subtotal + frete;
   };
 
+  const handleIniciarPedido = () => {
+    if (!plataformaSelecionada) {
+      toast({
+        title: "Erro",
+        description: "Selecione uma plataforma",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setEtapaAtual("produtos");
+  };
+
   const handleFecharPedido = () => {
     if (itens.length === 0) {
       toast({
         title: "Erro",
         description: "Adicione ao menos um item ao pedido",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!plataformaSelecionada) {
-      toast({
-        title: "Erro",
-        description: "Selecione uma plataforma",
         variant: "destructive",
       });
       return;
@@ -273,112 +314,170 @@ const NovoPedido = () => {
       {/* Main Content */}
       <main className="pt-16 p-3 sm:p-4 pb-24 safe-area-bottom">
         <div className="max-w-2xl mx-auto space-y-4">
-          {/* Buscar Produto */}
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <div className="relative">
-                <Label htmlFor="produto" className="text-foreground font-semibold">
-                  Buscar Produto
-                </Label>
-                <div className="relative mt-2">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="produto"
-                    value={buscaProduto}
-                    onChange={(e) => {
-                      setBuscaProduto(e.target.value);
-                      setMostrarResultados(true);
-                      setProdutoSelecionado(null);
-                    }}
-                    onFocus={() => setMostrarResultados(true)}
-                    placeholder="Digite o nome ou código do produto"
-                    className="pl-10 bg-background border-input"
-                  />
-                </div>
+          
+          {/* Etapa 1: Seleção de Plataforma */}
+          {etapaAtual === "plataforma" && (
+            <Card className="shadow-lg">
+              <CardContent className="p-6">
+                <h2 className="text-lg font-bold mb-4 text-foreground">Selecione a Plataforma do Pedido</h2>
+                <Label htmlFor="plataforma" className="text-base font-semibold">Plataforma</Label>
+                <select
+                  id="plataforma"
+                  value={plataformaSelecionada}
+                  onChange={(e) => setPlataformaSelecionada(e.target.value)}
+                  className="w-full h-12 px-4 border-2 border-input rounded-md mt-2 bg-background text-base"
+                >
+                  <option value="">Selecione uma plataforma</option>
+                  {plataformas.map((plat) => (
+                    <option key={plat.id} value={plat.nome}>
+                      {plat.nome}
+                    </option>
+                  ))}
+                </select>
+                
+                <Button
+                  onClick={handleIniciarPedido}
+                  className="w-full mt-6 h-12 text-base font-semibold"
+                  disabled={!plataformaSelecionada}
+                >
+                  Continuar para Produtos
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-                {/* Resultados da Busca */}
-                {mostrarResultados && buscaProduto && (
-                  <div className="absolute z-10 mt-1 w-full bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
-                    {produtosFiltrados.length > 0 ? (
-                      produtosFiltrados.map((produto) => (
-                        <button
-                          key={produto.id}
-                          onClick={() => handleSelecionarProduto(produto)}
-                          className="w-full text-left px-4 py-3 hover:bg-muted transition-colors border-b border-border last:border-0"
-                        >
-                          <div className="font-medium text-foreground">{produto.nome}</div>
-                          <div className="text-sm text-muted-foreground flex justify-between items-center mt-1">
-                            {produto.codigo && <span className="text-xs">{produto.codigo}</span>}
-                            <span className="font-semibold text-primary ml-auto">
-                              {formatCurrency(produto.precoVenda)}
-                            </span>
+          {/* Etapa 2: Adicionar Produtos */}
+          {etapaAtual === "produtos" && (
+            <>
+              {/* Info da Plataforma Selecionada */}
+              <Card className="bg-primary/10 border-primary/30">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Plataforma selecionada:</span>
+                    <p className="font-bold text-lg text-primary">{plataformaSelecionada}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEtapaAtual("plataforma");
+                      setItens([]);
+                    }}
+                  >
+                    Alterar
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Buscar Produto */}
+              <Card>
+                <CardContent className="p-4 space-y-4">
+                  <div className="relative">
+                    <Label htmlFor="produto" className="text-foreground font-semibold">
+                      Buscar Produto
+                    </Label>
+                    <div className="relative mt-2">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="produto"
+                        value={buscaProduto}
+                        onChange={(e) => {
+                          setBuscaProduto(e.target.value);
+                          setMostrarResultados(true);
+                          setProdutoSelecionado(null);
+                        }}
+                        onFocus={() => setMostrarResultados(true)}
+                        placeholder="Digite o nome ou código do produto"
+                        className="pl-10 bg-background border-input"
+                      />
+                    </div>
+
+                    {/* Resultados da Busca */}
+                    {mostrarResultados && buscaProduto && (
+                      <div className="absolute z-10 mt-1 w-full bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                        {produtosFiltrados.length > 0 ? (
+                          produtosFiltrados.map((produto) => {
+                            const precoParaPlataforma = getPrecoParaPlataforma(produto);
+                            return (
+                              <button
+                                key={produto.id}
+                                onClick={() => handleSelecionarProduto(produto)}
+                                className="w-full text-left px-4 py-3 hover:bg-muted transition-colors border-b border-border last:border-0"
+                              >
+                                <div className="font-medium text-foreground">{produto.nome}</div>
+                                <div className="text-sm text-muted-foreground flex justify-between items-center mt-1">
+                                  {produto.codigo && <span className="text-xs">{produto.codigo}</span>}
+                                  <span className="font-semibold text-primary ml-auto">
+                                    {formatCurrency(precoParaPlataforma)}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="px-4 py-3 text-sm text-muted-foreground text-center">
+                            Nenhum produto encontrado.
                           </div>
-                        </button>
-                      ))
-                    ) : (
-                      <div className="px-4 py-3 text-sm text-muted-foreground text-center">
-                        Nenhum produto encontrado.
+                        )}
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              {/* Preço de Venda e Quantidade */}
-              {produtoSelecionado && (
-                <div className="p-3 bg-muted/50 rounded-md border border-border">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-foreground">Preço de Venda:</span>
-                    <span className="text-lg font-bold text-primary">
-                      {formatCurrency(produtoSelecionado.precoVenda)}
-                    </span>
+                  {/* Preço de Venda e Quantidade */}
+                  {produtoSelecionado && (
+                    <div className="p-3 bg-muted/50 rounded-md border border-border">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-foreground">Preço de Venda:</span>
+                        <span className="text-lg font-bold text-primary">
+                          {formatCurrency(getPrecoParaPlataforma(produtoSelecionado))}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quantidade */}
+                  <div>
+                    <Label htmlFor="quantidade" className="text-foreground font-semibold">
+                      Quantidade
+                    </Label>
+                    <Input
+                      id="quantidade"
+                      type="text"
+                      value={quantidade}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^\d,]/g, "");
+                        setQuantidade(value);
+                      }}
+                      placeholder="0,00"
+                      className="mt-2 bg-background border-input"
+                    />
                   </div>
-                </div>
-              )}
 
-              {/* Quantidade */}
-              <div>
-                <Label htmlFor="quantidade" className="text-foreground font-semibold">
-                  Quantidade
-                </Label>
-                <Input
-                  id="quantidade"
-                  type="text"
-                  value={quantidade}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^\d,]/g, "");
-                    setQuantidade(value);
-                  }}
-                  placeholder="0,00"
-                  className="mt-2 bg-background border-input"
-                />
-              </div>
+                  {/* Subtotal Preview */}
+                  {produtoSelecionado && quantidade && parseFloat(quantidade.replace(",", ".")) > 0 && (
+                    <div className="p-3 bg-primary/5 rounded-md border border-primary/20">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-foreground">Subtotal:</span>
+                        <span className="text-xl font-bold text-primary">
+                          {formatCurrency(
+                            parseFloat(quantidade.replace(",", ".")) * getPrecoParaPlataforma(produtoSelecionado)
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
-              {/* Subtotal Preview */}
-              {produtoSelecionado && quantidade && parseFloat(quantidade.replace(",", ".")) > 0 && (
-                <div className="p-3 bg-primary/5 rounded-md border border-primary/20">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-foreground">Subtotal:</span>
-                    <span className="text-xl font-bold text-primary">
-                      {formatCurrency(
-                        parseFloat(quantidade.replace(",", ".")) * produtoSelecionado.precoVenda
-                      )}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <Button
-                onClick={handleAdicionarItem}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                Adicionar Item
-              </Button>
-            </CardContent>
-          </Card>
+                  <Button
+                    onClick={handleAdicionarItem}
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    Adicionar Item
+                  </Button>
+                </CardContent>
+              </Card>
 
           {/* Itens do Pedido */}
-          {itens.length > 0 && (
+          {itens.length > 0 && etapaAtual === "produtos" && (
             <Card>
               <CardContent className="p-4">
                 <h3 className="font-semibold mb-3">Itens do Pedido</h3>
@@ -414,37 +513,18 @@ const NovoPedido = () => {
             </Card>
           )}
 
-          {/* Plataforma */}
-          <Card>
-            <CardContent className="p-4">
-              <Label htmlFor="plataforma">Plataforma</Label>
-              <select
-                id="plataforma"
-                value={plataformaSelecionada}
-                onChange={(e) => setPlataformaSelecionada(e.target.value)}
-                className="w-full h-10 px-3 border border-input rounded-md mt-2 bg-background"
-              >
-                <option value="">Selecione uma plataforma</option>
-                {plataformas.map((plat) => (
-                  <option key={plat.id} value={plat.nome}>
-                    {plat.nome}
-                  </option>
-                ))}
-              </select>
-            </CardContent>
-          </Card>
-
           {/* Frete */}
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="frete">Tem Frete?</Label>
-                <Switch
-                  id="frete"
-                  checked={temFrete}
-                  onCheckedChange={setTemFrete}
-                />
-              </div>
+          {etapaAtual === "produtos" && (
+            <Card>
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="frete">Tem Frete?</Label>
+                  <Switch
+                    id="frete"
+                    checked={temFrete}
+                    onCheckedChange={setTemFrete}
+                  />
+                </div>
 
               {temFrete && (
                 <>
@@ -484,26 +564,29 @@ const NovoPedido = () => {
                   )}
                 </>
               )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Observações */}
-          <Card>
-            <CardContent className="p-4">
-              <Label htmlFor="observacoes">Observações (opcional)</Label>
-              <Textarea
-                id="observacoes"
-                value={observacoes}
-                onChange={(e) => setObservacoes(e.target.value)}
-                placeholder="Digite observações sobre o pedido..."
-                className="mt-2"
-                rows={3}
-              />
-            </CardContent>
-          </Card>
+          {etapaAtual === "produtos" && (
+            <Card>
+              <CardContent className="p-4">
+                <Label htmlFor="observacoes">Observações (opcional)</Label>
+                <Textarea
+                  id="observacoes"
+                  value={observacoes}
+                  onChange={(e) => setObservacoes(e.target.value)}
+                  placeholder="Digite observações sobre o pedido..."
+                  className="mt-2"
+                  rows={3}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Resumo do Pedido */}
-          {itens.length > 0 && (
+          {itens.length > 0 && etapaAtual === "produtos" && (
             <Card className="bg-primary/10 border-primary/30 shadow-lg">
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-primary/20">
@@ -530,6 +613,8 @@ const NovoPedido = () => {
                 </div>
               </CardContent>
             </Card>
+          )}
+          </>
           )}
         </div>
       </main>

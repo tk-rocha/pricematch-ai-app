@@ -79,14 +79,6 @@ const Dashboard = () => {
       countNavigateTo: "/listagem-insumos"
     },
     {
-      title: "Nova Entrada",
-      icon: TrendingUp,
-      path: "#",
-      count: counts.entradas,
-      label: "Entradas cadastradas", 
-      active: false
-    },
-    {
       title: "Novo Pedido",
       icon: ShoppingCart,
       path: "/pedidos/novo",
