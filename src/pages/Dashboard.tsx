@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Plus, Package, ShoppingCart, TrendingUp, TrendingDown, Menu } from "lucide-react";
+import { User, Plus, Package, ShoppingCart, TrendingUp, TrendingDown, Menu, Calculator } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -50,6 +50,16 @@ const Dashboard = () => {
   const counts = getCounts();
 
   const actionButtons = [
+    {
+      title: "Calculadora de Preço",
+      icon: Calculator,
+      path: "/calculadora-preco",
+      count: 0,
+      label: "Ferramenta",
+      active: true,
+      countNavigateTo: null,
+      isPrimary: true
+    },
     {
       title: "Novo Produto",
       icon: Package,
@@ -181,6 +191,8 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {actionButtons.map((button, index) => {
               const IconComponent = button.icon;
+              const isPrimary = (button as any).isPrimary;
+              
               return (
                 <Card 
                   key={index} 
@@ -188,7 +200,7 @@ const Dashboard = () => {
                     button.active 
                       ? 'hover:shadow-md cursor-pointer' 
                       : 'opacity-60 cursor-not-allowed'
-                  }`}
+                  } ${isPrimary ? 'border-primary/50 bg-gradient-to-br from-primary/5 to-primary/10' : ''}`}
                   onClick={() => button.active && navigate(button.path)}
                 >
                   <CardContent className="p-4 sm:p-6">
@@ -196,45 +208,49 @@ const Dashboard = () => {
                       <div className="flex items-center gap-4">
                         {/* Icon with Plus */}
                         <div className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center ${
-                          button.active ? 'bg-primary' : 'bg-muted'
+                          button.active ? (isPrimary ? 'bg-primary shadow-lg' : 'bg-primary') : 'bg-muted'
                         }`}>
                           <IconComponent className={`h-6 w-6 sm:h-7 sm:w-7 ${
                             button.active ? 'text-primary-foreground' : 'text-muted-foreground'
                           }`} />
-                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-background">
-                            <Plus className="h-3 w-3 text-primary-foreground" />
-                          </div>
+                          {!isPrimary && (
+                            <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center border-2 border-background">
+                              <Plus className="h-3 w-3 text-primary-foreground" />
+                            </div>
+                          )}
                         </div>
                         
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <h3 className={`font-semibold text-sm sm:text-base ${
-                            button.active ? 'text-foreground' : 'text-muted-foreground'
+                            button.active ? (isPrimary ? 'text-primary' : 'text-foreground') : 'text-muted-foreground'
                           }`}>
                             {button.title}
                           </h3>
                         </div>
                       </div>
                       
-                      {/* Count (only number clickable) */}
-                      <div className="text-right">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if ((button as any).countNavigateTo) {
-                              navigate((button as any).countNavigateTo);
-                            }
-                          }}
-                          className="group text-right focus:outline-none"
-                          aria-label={`Abrir listagem de ${button.label}`}
-                        >
-                          <p className="text-lg sm:text-xl font-bold text-foreground group-hover:underline underline-offset-4">
-                            {button.count.toString().padStart(4, '0')}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{button.label}</p>
-                        </button>
-                      </div>
+                      {/* Count (only number clickable) - hide for calculator */}
+                      {!isPrimary && (
+                        <div className="text-right">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if ((button as any).countNavigateTo) {
+                                navigate((button as any).countNavigateTo);
+                              }
+                            }}
+                            className="group text-right focus:outline-none"
+                            aria-label={`Abrir listagem de ${button.label}`}
+                          >
+                            <p className="text-lg sm:text-xl font-bold text-foreground group-hover:underline underline-offset-4">
+                              {button.count.toString().padStart(4, '0')}
+                            </p>
+                            <p className="text-xs text-muted-foreground">{button.label}</p>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
