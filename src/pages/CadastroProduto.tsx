@@ -954,21 +954,21 @@ const CadastroProduto = () => {
               {plataformas.length > 0 && (
                 <div className="mt-6 space-y-4">
                   <h3 className="text-lg font-bold text-foreground">Canais de Venda</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
+                  <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <table className="w-full border-collapse min-w-[600px]">
                       <thead>
                         <tr className="border-b border-border">
-                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Venda</th>
-                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Taxa (%)</th>
-                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Preço Sugerido (R$)</th>
-                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground">Valor Final (R$)</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Venda</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Taxa (%)</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Preço Sugerido (R$)</th>
+                          <th className="text-left py-3 px-4 text-sm font-semibold text-foreground whitespace-nowrap">Valor Final (R$)</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr className="border-b border-border">
-                          <td className="py-3 px-4 text-sm text-foreground">Balcão</td>
-                          <td className="py-3 px-4 text-sm text-muted-foreground">-</td>
-                          <td className="py-3 px-4 text-sm font-medium text-foreground">
+                          <td className="py-3 px-4 text-sm text-foreground whitespace-nowrap">Balcão</td>
+                          <td className="py-3 px-4 text-sm text-muted-foreground whitespace-nowrap">-</td>
+                          <td className="py-3 px-4 text-sm font-medium text-foreground whitespace-nowrap">
                             {formatCurrency(formData.precoSugerido || 0)}
                           </td>
                           <td className="py-3 px-4">
@@ -981,20 +981,20 @@ const CadastroProduto = () => {
                                 )
                               }
                               placeholder="R$ 0,00"
-                              className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground"
+                              className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground min-w-[120px]"
                             />
                           </td>
                         </tr>
                         {plataformas.map((plataforma) => (
                           <tr key={plataforma.id} className="border-b border-border">
-                            <td className="py-3 px-4 text-sm text-foreground">{plataforma.nome}</td>
-                            <td className="py-3 px-4 text-sm text-muted-foreground">
+                            <td className="py-3 px-4 text-sm text-foreground whitespace-nowrap">{plataforma.nome}</td>
+                            <td className="py-3 px-4 text-sm text-muted-foreground whitespace-nowrap">
                               {plataforma.taxa.toLocaleString('pt-BR', {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                               })}%
                             </td>
-                            <td className="py-3 px-4 text-sm font-medium text-foreground">
+                            <td className="py-3 px-4 text-sm font-medium text-foreground whitespace-nowrap">
                               {formatCurrency(calcularPrecoSugeridoPlataforma(plataforma.taxa))}
                             </td>
                             <td className="py-3 px-4">
@@ -1007,7 +1007,7 @@ const CadastroProduto = () => {
                                   )
                                 }
                                 placeholder="R$ 0,00"
-                                className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground"
+                                className="w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground min-w-[120px]"
                               />
                             </td>
                           </tr>
