@@ -62,7 +62,9 @@ interface Plataforma {
 }
 
 interface CanalVenda {
+  tipo?: "balcao" | "plataforma";
   plataformaId: string;
+  plataformaNome?: string;
   valorFinal: string;
 }
 
@@ -199,7 +201,25 @@ const CadastroProduto = () => {
         } else if (produto.fichaTecnica) {
           setInsumosVinculados(produto.fichaTecnica);
         }
-        if (produto.canaisVenda) setCanaisVenda(produto.canaisVenda);
+        
+        // Carregar e normalizar canais de venda
+        if (produto.canaisVenda) {
+          const canaisNormalizados = produto.canaisVenda.map(canal => {
+            // Se o canal já tem tipo e plataformaNome, retornar como está
+            if (canal.tipo && canal.plataformaNome) {
+              return canal;
+            }
+            
+            // Normalizar canal antigo
+            const plataforma = savedPlataformas.find((p: Plataforma) => p.id === canal.plataformaId);
+            return {
+              ...canal,
+              tipo: canal.plataformaId === "balcao" ? "balcao" as const : "plataforma" as const,
+              plataformaNome: canal.plataformaId === "balcao" ? "Balcão" : (plataforma?.nome || canal.plataformaId),
+            };
+          });
+          setCanaisVenda(canaisNormalizados);
+        }
       }
     }
   setMargemLoaded(true);
@@ -544,12 +564,19 @@ const CadastroProduto = () => {
   const handleCanalVendaChange = (plataformaId: string, valor: string) => {
     setCanaisVenda((prev) => {
       const existing = prev.find((c) => c.plataformaId === plataformaId);
+      const plataforma = plataformas.find((p) => p.id === plataformaId);
+      
       if (existing) {
         return prev.map((c) =>
           c.plataformaId === plataformaId ? { ...c, valorFinal: valor } : c
         );
       } else {
-        return [...prev, { plataformaId, valorFinal: valor }];
+        return [...prev, { 
+          tipo: plataformaId === "balcao" ? "balcao" : "plataforma",
+          plataformaId, 
+          plataformaNome: plataformaId === "balcao" ? "Balcão" : (plataforma?.nome || plataformaId),
+          valorFinal: valor 
+        }];
       }
     });
     setHasUnsavedChanges(true);
