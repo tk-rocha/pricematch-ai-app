@@ -6,15 +6,16 @@ import { User, Plus, Package, ShoppingCart, TrendingUp, TrendingDown, Menu, Calc
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [nomeEmpresa, setNomeEmpresa] = useState("Usuário");
+  const [nomeEmpresa, setNomeEmpresa] = useState("");
 
   useEffect(() => {
     const dadosLoja = localStorage.getItem("dadosLoja");
     if (dadosLoja) {
       const loja = JSON.parse(dadosLoja);
-      const nomeCompleto = loja.nomeContato || loja.nome || "Usuário";
-      const primeiroNome = nomeCompleto.split(' ')[0];
-      setNomeEmpresa(primeiroNome);
+      if (loja.nomeContato) {
+        const primeiroNome = loja.nomeContato.split(' ')[0];
+        setNomeEmpresa(primeiroNome);
+      }
     }
   }, []);
 
