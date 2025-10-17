@@ -239,6 +239,9 @@ const CadastroInsumo = () => {
       setInternalQtdEmbalagem(undefined);
       setInternalPrecoUnitarioCents(undefined);
       setErrors({});
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
