@@ -17,6 +17,14 @@ const CadastroMargem = () => {
   const [hasExistingMargem, setHasExistingMargem] = useState(false);
   const [custoIndireto, setCustoIndireto] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
+  // Format values for display
+  const formatForDisplay = (value: string) => {
+    if (!value) return "";
+    // Remove all non-numeric characters except comma and dot
+    const numericValue = value.replace(/[^\d,.-]/g, "");
+    return numericValue;
+  };
 
 // Check if margin already exists
     useEffect(() => {
@@ -24,8 +32,9 @@ const CadastroMargem = () => {
       if (storedMargem) {
         try {
           const parsed = JSON.parse(storedMargem);
-          setMargem(parsed.margem || "");
-          setCustoIndireto(parsed.custoIndireto || "");
+          // Load values without % symbol for editing
+          setMargem(formatForDisplay(parsed.margem || ""));
+          setCustoIndireto(formatForDisplay(parsed.custoIndireto || ""));
           setHasExistingMargem(true);
         } catch (error) {
           console.error("Erro ao carregar margem:", error);
@@ -66,13 +75,17 @@ const CadastroMargem = () => {
       return;
     }
 
-    const margemDecimal = parsePercentageToDecimal(margem);
-    const custoIndiretoDecimal = parsePercentageToDecimal(custoIndireto || "0");
+    // Format values with % symbol for storage
+    const margemFormatted = margem.trim() + "%";
+    const custoIndiretoFormatted = custoIndireto.trim() ? custoIndireto.trim() + "%" : "0%";
+    
+    const margemDecimal = parsePercentageToDecimal(margemFormatted);
+    const custoIndiretoDecimal = parsePercentageToDecimal(custoIndiretoFormatted);
    
     const margemData = {
-      margem: margem,
+      margem: margemFormatted,
       margemDecimal: margemDecimal,
-      custoIndireto: custoIndireto,
+      custoIndireto: custoIndiretoFormatted,
       custoIndiretoDecimal: custoIndiretoDecimal,
       updatedAt: new Date().toISOString()
     };
@@ -94,10 +107,13 @@ const CadastroMargem = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
+    // Allow only numbers, comma, and dot
+    const sanitizedValue = value.replace(/[^\d,.-]/g, "");
+    
     if (field === "margem") {
-      setMargem(value);
+      setMargem(sanitizedValue);
     } else if (field === "custoIndireto") {
-      setCustoIndireto(value);
+      setCustoIndireto(sanitizedValue);
     }
     
     // Remove error when user starts typing
@@ -165,10 +181,9 @@ const CadastroMargem = () => {
                 <div>
                   <Input
                     type="text"
+                    inputMode="decimal"
                     value={margem}
-                    onChange={(e) => {
-                      handlePercentageInput(e.target.value, (newValue) => handleInputChange("margem", newValue));
-                    }}
+                    onChange={(e) => handleInputChange("margem", e.target.value)}
                     placeholder="% Margem"
                     disabled={hasExistingMargem && !isEditing}
                     className={errors.margem ? 'border-destructive' : ''}
@@ -182,10 +197,9 @@ const CadastroMargem = () => {
                 <div>
                   <Input
                     type="text"
+                    inputMode="decimal"
                     value={custoIndireto}
-                    onChange={(e) => {
-                      handlePercentageInput(e.target.value, (newValue) => handleInputChange("custoIndireto", newValue));
-                    }}
+                    onChange={(e) => handleInputChange("custoIndireto", e.target.value)}
                     placeholder="Custo Indireto Padrão (%)"
                     disabled={hasExistingMargem && !isEditing}
                   />
