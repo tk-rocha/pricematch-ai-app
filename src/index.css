@@ -42,11 +42,11 @@ All colors MUST be HSL.
     --ring: 256 52% 16%;
     
     /* Custom PRECIFICA tokens */
-    --precifica-blue: 256 52% 16%;
+    --precifica-blue: 218 100% 33%; /* Azul royal do logo */
     --precifica-white: 0 0% 100%;
     --precifica-gray: 240 8% 89%;
     --precifica-gray-text: 0 0% 40%;
-    --precifica-blue-translucent: 256 52% 16% / 0.6;
+    --precifica-blue-translucent: 218 100% 33% / 0.6;
 
     --radius: 0.5rem;
 
