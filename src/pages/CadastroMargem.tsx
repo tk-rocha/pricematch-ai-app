@@ -167,12 +167,7 @@ const CadastroMargem = () => {
                     type="text"
                     value={margem}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value.length < margem.length) {
-                        handleInputChange("margem", value);
-                      } else {
-                        handlePercentageInput(value, (newValue) => handleInputChange("margem", newValue));
-                      }
+                      handlePercentageInput(e.target.value, (newValue) => handleInputChange("margem", newValue));
                     }}
                     placeholder="% Margem"
                     disabled={hasExistingMargem && !isEditing}
@@ -189,12 +184,7 @@ const CadastroMargem = () => {
                     type="text"
                     value={custoIndireto}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      if (value.length < custoIndireto.length) {
-                        handleInputChange("custoIndireto", value);
-                      } else {
-                        handlePercentageInput(value, (newValue) => handleInputChange("custoIndireto", newValue));
-                      }
+                      handlePercentageInput(e.target.value, (newValue) => handleInputChange("custoIndireto", newValue));
                     }}
                     placeholder="Custo Indireto Padrão (%)"
                     disabled={hasExistingMargem && !isEditing}
