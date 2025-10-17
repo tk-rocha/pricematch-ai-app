@@ -552,6 +552,9 @@ const CadastroProduto = () => {
       setActiveTab("normal");
       setErrors({});
       setHasUnsavedChanges(false);
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 

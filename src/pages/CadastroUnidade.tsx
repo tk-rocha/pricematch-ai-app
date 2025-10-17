@@ -100,6 +100,9 @@ const CadastroUnidade = () => {
         fracionado: false
       });
       setErrors({});
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
