@@ -38,9 +38,12 @@ const Index = () => {
           ACESSAR
         </Button>
         
-        <footer className="text-center">
+        <footer className="text-center space-y-1">
           <p className="text-precifica-gray text-xs sm:text-sm">
-            © 2025 Precific.aí - um produto Nextsoft
+            © 2025 Precific.aí
+          </p>
+          <p className="text-precifica-gray text-xs sm:text-sm">
+            Um produto Nextsoft Soluções em Tecnologia
           </p>
         </footer>
       </div>
