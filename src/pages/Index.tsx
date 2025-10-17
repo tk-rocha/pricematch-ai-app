@@ -40,7 +40,7 @@ const Index = () => {
         
         <footer className="text-center">
           <p className="text-precifica-gray text-xs sm:text-sm">
-            © 2025 Precific.aí
+            © 2025 Precific.aí - um produto Nextsoft
           </p>
         </footer>
       </div>
