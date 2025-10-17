@@ -763,14 +763,9 @@ const CadastroProduto = () => {
                       type="text"
                       value={formData.custoIndireto}
                       onChange={(e) => {
-                        const value = e.target.value;
-                        if (value.length < (formData.custoIndireto?.length || 0)) {
-                          setFormData((prev) => ({ ...prev, custoIndireto: value }));
-                        } else {
-                          handlePercentageInput(value, (masked) =>
-                            setFormData((prev) => ({ ...prev, custoIndireto: masked }))
-                          );
-                        }
+                        handlePercentageInput(e.target.value, (masked) =>
+                          setFormData((prev) => ({ ...prev, custoIndireto: masked }))
+                        );
                       }}
                       className="mt-2 w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground text-center"
                       placeholder="Ex: 10,0%"
@@ -990,14 +985,9 @@ const CadastroProduto = () => {
                             type="text"
                             value={formData.custoIndireto}
                             onChange={(e) => {
-                              const value = e.target.value;
-                              if (value.length < (formData.custoIndireto?.length || 0)) {
-                                setFormData(prev => ({ ...prev, custoIndireto: value }));
-                              } else {
-                                handlePercentageInput(value, (masked) =>
-                                  setFormData(prev => ({ ...prev, custoIndireto: masked }))
-                                );
-                              }
+                              handlePercentageInput(e.target.value, (masked) =>
+                                setFormData(prev => ({ ...prev, custoIndireto: masked }))
+                              );
                             }}
                             className="mt-2 w-full h-10 px-3 border border-border rounded-sm text-sm text-foreground text-center"
                             placeholder="Ex: 10,0%"
