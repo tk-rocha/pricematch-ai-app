@@ -27,10 +27,27 @@ const CadastroPlataforma = () => {
     if (!formData.nome.trim()) newErrors.nome = "Nome é obrigatório";
     if (!formData.taxa) newErrors.taxa = "Taxa é obrigatória";
 
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return false;
-
+    // Check for duplicates
     const dadosPlataformas = JSON.parse(localStorage.getItem("plataformas") || "[]");
+    const nomeLower = formData.nome.trim().toLowerCase();
+    
+    const duplicateNome = dadosPlataformas.find((p: any) => 
+      p.nome.toLowerCase() === nomeLower && (!editPlataforma || p.id !== editPlataforma.id)
+    );
+    
+    if (duplicateNome) {
+      newErrors.nome = "Já existe uma plataforma com este nome";
+    }
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast({
+        title: "Erro ao salvar",
+        description: Object.values(newErrors)[0],
+        variant: "destructive"
+      });
+      return false;
+    }
 
     if (editPlataforma) {
       const index = dadosPlataformas.findIndex((p: any) => p.id === editPlataforma.id);

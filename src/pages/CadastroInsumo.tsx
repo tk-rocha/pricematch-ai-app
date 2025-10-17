@@ -153,6 +153,29 @@ const CadastroInsumo = () => {
       newErrors.preco = "Preço é obrigatório";
     }
 
+    // Check for duplicates (skip if editing)
+    const existingInsumos = JSON.parse(localStorage.getItem("insumos") || "[]");
+    const nomeLower = formData.nome.trim().toLowerCase();
+    const codigoTrimmed = formData.codigo.trim();
+    
+    const duplicateNome = existingInsumos.find((i: Insumo) => 
+      i.nome.toLowerCase() === nomeLower && (!editId || i.id !== editId)
+    );
+    
+    if (duplicateNome) {
+      newErrors.nome = "Já existe um insumo com este nome";
+    }
+
+    if (codigoTrimmed) {
+      const duplicateCodigo = existingInsumos.find((i: Insumo) => 
+        i.codigo && i.codigo.toLowerCase() === codigoTrimmed.toLowerCase() && (!editId || i.id !== editId)
+      );
+      
+      if (duplicateCodigo) {
+        newErrors.codigo = "Já existe um insumo com este código";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -303,9 +326,14 @@ const CadastroInsumo = () => {
                     value={formData.codigo}
                     onChange={(e) => handleInputChange("codigo", e.target.value)}
                     placeholder="Código"
-                    className="w-full h-12 px-4 border border-gray-300 rounded text-sm"
+                    className={`w-full h-12 px-4 border rounded text-sm ${
+                      errors.codigo ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     style={{ borderRadius: '3px', color: '#666666' }}
                   />
+                  {errors.codigo && (
+                    <p className="text-red-500 text-xs mt-1">{errors.codigo}</p>
+                  )}
                 </div>
 
                 {/* Unidade de Medida Field */}

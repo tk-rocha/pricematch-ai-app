@@ -44,6 +44,27 @@ const CadastroUnidade = () => {
       newErrors.sigla = "Sigla é obrigatória";
     }
 
+    // Check for duplicates
+    const existingUnidades = JSON.parse(localStorage.getItem("unidades") || "[]");
+    const nomeLower = formData.nome.trim().toLowerCase();
+    const siglaUpper = formData.sigla.trim().toUpperCase();
+    
+    const duplicateNome = existingUnidades.find((u: Unidade) => 
+      u.nome.toLowerCase() === nomeLower
+    );
+    
+    const duplicateSigla = existingUnidades.find((u: Unidade) => 
+      u.sigla.toUpperCase() === siglaUpper
+    );
+
+    if (duplicateNome) {
+      newErrors.nome = "Já existe uma unidade com este nome";
+    }
+
+    if (duplicateSigla) {
+      newErrors.sigla = "Já existe uma unidade com esta sigla";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
