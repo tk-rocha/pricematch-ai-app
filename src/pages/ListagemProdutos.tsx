@@ -16,6 +16,7 @@ interface Produto {
   custoProducao: number;
   precoVenda: number;
   custoIndireto?: string;
+  tipo?: string;
 }
 
 const ListagemProdutos = () => {
@@ -171,9 +172,10 @@ const ListagemProdutos = () => {
           ) : (
             <div className="space-y-2">
               {/* Cabeçalho da tabela - mobile friendly */}
-              <div className="hidden sm:grid sm:grid-cols-[80px_1fr_140px_120px_100px] gap-2 px-4 py-2 bg-muted/50 rounded-lg font-bold text-sm border">
+              <div className="hidden sm:grid sm:grid-cols-[80px_1fr_100px_140px_120px_100px] gap-2 px-4 py-2 bg-muted/50 rounded-lg font-bold text-sm border">
                 <div>Código</div>
                 <div>Produto</div>
+                <div>Tipo</div>
                 <div>Preço Balcão</div>
                 <div>Rentabilidade</div>
                 <div></div>
@@ -215,6 +217,12 @@ const ListagemProdutos = () => {
                       </div>
                       <div className="flex justify-between text-sm">
                         <div>
+                          <span className="text-muted-foreground">Tipo: </span>
+                          <span className="font-medium">{produto.tipo === 'intermediario' ? 'Intermediário' : 'Final'}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <div>
                           <span className="text-muted-foreground">Preço: </span>
                           <span className="font-medium">R$ {produto.precoVenda.toFixed(2).replace('.', ',')}</span>
                         </div>
@@ -226,9 +234,14 @@ const ListagemProdutos = () => {
                     </div>
 
                     {/* Layout Desktop */}
-                    <div className="hidden sm:grid sm:grid-cols-[80px_1fr_140px_120px_100px] gap-2 items-center">
+                    <div className="hidden sm:grid sm:grid-cols-[80px_1fr_100px_140px_120px_100px] gap-2 items-center">
                       <div className="font-medium text-foreground">{produto.codigo || "-"}</div>
                       <div className="text-foreground">{produto.nome}</div>
+                      <div className="text-sm">
+                        <span className="inline-block px-2 py-1 rounded-sm bg-primary/10 text-primary font-medium">
+                          {produto.tipo === 'intermediario' ? 'Intermediário' : 'Final'}
+                        </span>
+                      </div>
                       <div className="font-medium">R$ {produto.precoVenda.toFixed(2).replace('.', ',')}</div>
                       <div className="font-medium">{rentabilidade.formatted}</div>
                       <div className="flex gap-1 justify-end">
