@@ -83,13 +83,6 @@ export function formatPercentageInput(value: string): string {
   // Remove tudo exceto números e vírgula
   let cleanValue = value.replace(/[^\d,]/g, '');
   
-  // Se não tem vírgula e tem mais de 2 dígitos, adiciona vírgula automaticamente
-  if (!cleanValue.includes(',') && cleanValue.length > 2) {
-    const integerPart = cleanValue.slice(0, -1);
-    const decimalPart = cleanValue.slice(-1);
-    cleanValue = `${integerPart},${decimalPart}`;
-  }
-  
   // Limita a 2 casas decimais após a vírgula
   const parts = cleanValue.split(',');
   if (parts.length > 2) {
