@@ -112,26 +112,6 @@ const Cadastros = () => {
             </BreadcrumbList>
           </Breadcrumb>
 
-          {/* Logout Button */}
-          <Card
-            className="shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer border-destructive/20"
-            onClick={() => navigate("/")}
-          >
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-destructive flex items-center justify-center">
-                    <LogOut className="h-6 w-6 sm:h-7 sm:w-7 text-destructive-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-sm sm:text-base text-foreground">Sair</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Encerrar sessão</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {cadastroOptions.map((option, index) => {
             const IconComponent = option.icon;
             
@@ -189,8 +169,28 @@ const Cadastros = () => {
                   </div>
                 </CardContent>
               </Card>
-            );
-          })}
+              );
+            })}
+
+          {/* Logout Button */}
+          <Card
+            className="shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer border-destructive/20"
+            onClick={() => navigate("/")}
+          >
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-destructive flex items-center justify-center">
+                    <LogOut className="h-6 w-6 sm:h-7 sm:w-7 text-destructive-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-base text-foreground">Sair</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Encerrar sessão</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
